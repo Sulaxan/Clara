@@ -75,7 +75,6 @@ public class ClaraEntityHologram extends Hologram {
                     current = entity.getSubType().getSubColor() + name.substring(secondPos, firstPos) +
                             entity.getSubType().getColor() + name.substring(firstPos);
                 }
-                Bukkit.broadcastMessage(current);
                 names.add(current);
                 // Increasing first position to end, rolling over second position
                 if(secondPos == name.length() - 1) {
