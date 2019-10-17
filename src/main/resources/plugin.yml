@@ -1,0 +1,6 @@
+name: Clara
+version: ${project.version}
+main: me.encast.clara.Clara
+api-version: 1.8.8
+authors: [Encast]
+description: Project Clara
