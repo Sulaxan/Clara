@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import me.encast.clara.entity.ClaraEntity;
 import me.encast.clara.entity.ClaraEntitySubType;
 import net.minecraft.server.v1_8_R3.EntityLiving;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
 import java.text.DecimalFormat;
