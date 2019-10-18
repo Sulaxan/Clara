@@ -197,7 +197,30 @@ Time Crystals (time incarnated boss drop)
 
 
 Crafting:
-- armour, sword, and bow crafting is done in a 3x3 grid, and recipes are of that in vanilla
+- armour, sword, and bow crafting is done in a 3x3 grid, and recipes are of that found in vanilla
 
+FLOORS:
+NA = NO ARMOUR
+[%] = chance of action happening
 
+FLOOR 1: "The Nature Floor"
+
+mobs:
+- Sephrem Minion: 100 hp  0% def  5 damage  NA  Crysalis Sword
+    - No special abilities; act like pigman
+- Sephrem Guardian: 150 hp 5% def 7 damage  Top-half Crysalis Armour  Crysalis Sword
+    - 5% chance to spawn when a Sephrem Minion is killed
+    - Flame circle (3 radius) around the guardian; players inside it get dealt
+      5 hp/s
+- Sephrem (BOSS): 1500 hp  7% def  9 damage  Full Crysalis Armour  Crysalis Sword     [100 Minion kills required]
+    - Flame circle (3.5 radius) around the boss; players inside it get dealt
+      7 hp/s
+    abilities:
+        - [40%] lava rain (10 radius) - once unleashed, this ability will last 10 seconds
+          Players under the lava rain will lose 8 hp/s
+        - [10%] enrage - once unleashed, this ability will last 10 seconds
+          This ability will do double damage & Sephrem will gain a small speed boost
+        - [50%] minion summon - once unleashed, this ability will summon 5-10 Sephrem Minions all
+          around the boss
+        - ability activation will be checked once every 10 seconds
 
