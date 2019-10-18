@@ -203,7 +203,7 @@ FLOORS:
 NA = NO ARMOUR
 [%] = chance of action happening
 
-FLOOR 1: "The Nature Floor"
+FLOOR 1: "The Burning Soul Floor"
 
 mobs:
 - Sephrem Minion: 100 hp  0% def  5 damage  NA  Crysalis Sword
