@@ -78,7 +78,19 @@ Power:
 
 
 Solidity:
--
+- the rock (20 mana)
+    - all damage you receive will be halved (reduced by 50%) (1m cooldown)
+- the pillar (30 mana)
+    - you stop moving for 15 seconds, all damage received will be negated (2m cooldown) [ you can still attack ]
+- Chain absorption (50 mana)
+    - all damage you and your teammates in a 10 block radius receive will be directed at you; damage you
+      receive is reduced by 75% (3m cooldown)
+- enraged soul (45 mana)
+    - all mobs in a 25 block radius will agro onto you (3m cooldown)
+- unforgivable retribution (85 mana)
+    - you stop moving for 10 seconds, in this time, all damage you receive is doubled; once the 10 seconds are up,
+      you will deal damage to all mobs (25% of the mob's max health & ignoring defense); the same damage will be
+      dealt to you (does NOT ignore defense) as long as you're above 10 hp
 
 Divinity & corruption:
 - Oliver's Wish (20 mana)
@@ -97,28 +109,95 @@ Divinity & corruption:
               (5m cooldown)
 
 Inner enlightenment:
-- Channeling Meditation (absolute silence)
+- Channeling Meditation: Absolute Silence (15 mana)
     - makes you invisible to all mobs for 15 seconds (30s cooldown)
-- Channeling Ki
+- Channeling Ki (25 mana)
     - your next arrow shot will deal double ranged damage, and also damage nearby mobs for the same amount
       (5 block radius) (2m cooldown)
-- release of sins
+- release of sins (35 mana)
     - reflects all damage received & dealing 25% more (2m30s cooldown)
-- enlightenment of the soul
+- enlightenment of the soul (60 mana)
     - the heaviness of your soul is released causing a vacuum to appear at your location; all mobs in a
       15 block radius will be pulled in and dealt a tenth of their total health for 15 seconds
       (5m cooldown)
-- enlightenment of life
+- enlightenment of life (75 mana)
     - gain the ability to fly for 30 seconds; all damage dealt will be doubled (5m cooldown)
 
 
-
-
 Boss Incarnations:
-- Weakness incarnation (overpowers path of power)
-- Flow incarnation (overpowers path of solidity)
-- god & demon incarnation (overpowers path of divinity & corruption)
-- sinful incarnation (overpowers path of inner enlightenment)
-- time incarnation (overpowers everything; low spawn rate, high loot drops)
+- Weakness incarnation (overpowers path of power)                               [W]
+- Flow incarnation (overpowers path of solidity)                                [F]
+- god & demon incarnation (overpowers path of divinity & corruption)            [GD]
+- sinful incarnation (overpowers path of inner enlightenment)                   [S]
+- time incarnation (overpowers everything; low spawn rate, high loot drops)     [T]
+
+
+Boss loot:
+- each player will get loot based on how much damage they do
+- the damage each player does will be added and each player will receive a % of the damage they did
+
+- all incarnations (except time) will drop the following loot:
+    - 1000 skill tokens (this will be divided among the players based on their % damage dealt)
+    - boss armour (all players who did more than the average damage will receive a piece)
+        - all players will then have an x% chance to get another piece (where x is the % damage
+          that player did to the boss)
+        - max 2 pieces drop per player per fight
+    - if the boss is time incarnated, 20 time crystals will be distributed among all players
+      depending on the % damage dealt
+
+Boss reviving:
+- once a boss has been defeated for the respective floor, all mobs on that floor will drop souls,
+  these souls can be used to revive the boss (100 souls required)
+
+Special items:
+- Ring of Mana
+    - reduces mana usage by 50% (can only be used by players with path of divinity & corruption 15)
+
+Ores:
+- on each floor, random ores are generated that players can mine (players are given a pickaxe at the
+  beginning of the game)
+- these ores can be used to make armour, swords, and bows
+
+ranking from worst to best:
+
+Crysalis Ore (quartz)
+-> Armour: +100 hp  +2% defense  per piece
+-> Swords: 20 damage
+-> Bows: 20 damage
+
+Saphron Ore (red dye)
+-> Armour: +175 hp  +4% defense  per piece
+-> Swords: 35 damage
+-> Bows: 35 damage
+
+Solidified Dauna Ore (light blue dye)
+-> Armour: +300 hp  +6.25% defense  per piece
+-> Swords: 70 damage
+-> Bows: 70 damage
+
+Moonshadow Ore (dark gray dye)
+-> Armour: +500 hp  +7.5% defense  per piece
+-> Swords: 150 damage
+-> Bows: 150 damage
+
+Demon Ore (light gray dye)
+-> Armour: +750 hp  +10% defense  per piece
+-> Swords: 200 damage
+-> Bows: 200 damage
+
+Mutated Demon Ore (ink sack)
+-> Armour: +1000 hp  +11% defense  per piece
+-> Swords: 225 damage
+-> Bows: 225 damage
+
+Time Crystals (time incarnated boss drop)
+-> Armour: +1500 hp  +14% defense  per piece
+-> Swords: 275 damage
+-> Bows 275 damage
+
+
+Crafting:
+- armour, sword, and bow crafting is done in a 3x3 grid, and recipes are of that in vanilla
+
 
 
