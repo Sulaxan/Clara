@@ -1,0 +1,64 @@
+Skill Tree:
+4 paths:
+- Path of Power (offensive)    -> + damage
+- Path of Solidity (defensive) -> + defense
+- Path of Divinity & Corruption (support)   -> + mana
+- Path of Inner enlightenment (ranged)  -> + ranged damage
+
+STATS:
+- Health (HP)
+- Defense (D)  { vals 0-1 representing 0 - 100 } %
+- Mana (M)
+- Damage (DAM)
+- Ranged Damage (RDAM)
+
+Base:
+- 1000 HP
+- 0 D
+- 100 M
+- 50 DAM
+- 25 RDAM
+
+Damage applied = damage - (damage * D)
+
+
+
+Skill Tree tiers:
+- upgrading costs skill tokens; tiers start at 0
+- each path has essentially infinite progression:
+    - Tier 1: 50 token
+    - Tier 2: 75 tokens
+    - Tier 3: 100 tokens
+    - Tier 4: 125 tokens
+    - Tier 5: 150
+    - Tier 6: 175
+    - Tier 7: 200
+    - Tier 8: 225
+    - Tier 9: 250
+    - Tier 10: 275
+    - Tier 11: 325
+    - Tier 12: 375
+    - Tier 13: 425
+    - Tier 14: 475
+    - Tier 15: 525
+    - Tier 16: 575
+    - Tier 17: 625
+    - Tier 18: 675
+    - Tier 19: 725
+    - Tier 20: 775
+    - Tier 21: 875
+    - Tier 22: 975
+    - Tier 23: 1075
+    - Tier 24: 1175
+    - Tier 25: 1300
+    - Tier 26: 1550
+    - Tier 27: +250 over previous level
+
+
+Boss Incarnations:
+- Weakness incarnation (overpowers path of power)
+- Flow incarnation (overpowers path of solidity)
+- god & demon incarnation (overpowers path of divinity & corruption)
+- sinful incarnation (overpowers path of inner enlightenment)
+
+
