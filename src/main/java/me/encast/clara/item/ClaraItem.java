@@ -13,7 +13,11 @@ public interface ClaraItem {
      */
     String UUID_KEY = "clara_item_uuid";
 
-    String getId();
+    String getId(); // this id is already set in the nbt tag compound
+
+    int getAmount();
+
+    void setAmount(int amount);
 
     boolean isStackable();
 
