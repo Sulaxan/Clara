@@ -1,12 +1,15 @@
 package me.encast.clara.item;
 
 import com.google.common.collect.Lists;
+import me.encast.clara.util.event.ArmorEquipEvent;
 import me.encast.clara.util.item.ItemUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
@@ -29,13 +32,17 @@ public class ItemManager implements Listener {
         return null;
     }
 
-    public ItemStack constructNewItem(ClaraItem item) {
+    public ItemStack constructNewItem(ClaraItem item, boolean addAsRuntime) {
         ItemStack i = item.getNewItemInstance();
         NBTTagCompound compound = ItemUtil.getRawNBT(i);
         // Set unique id
         compound.setString(ClaraItem.UUID_KEY, UUID.randomUUID().toString());
         // Set item id
         compound.setString(ClaraItem.ITEM_ID_KEY, item.getId());
+
+        if(addAsRuntime) {
+            addToRuntime(item, compound);
+        }
         return i;
     }
 
@@ -58,10 +65,13 @@ public class ItemManager implements Listener {
                     i.setDurability(damage);
 
                     // Call loadItem in ClaraItem
+                    NBTTagCompound tag = compound.getCompound("tag");
                     item.loadItem(i, compound.getCompound("tag"));
 
+                    // No need to set item id since it should already be available
+
                     // Add as a runtime item
-                    items.add(new RuntimeClaraItem(UUID.randomUUID(), item));
+                    items.add(new RuntimeClaraItem(UUID.randomUUID(), item, tag));
                 }
             }
         }
@@ -89,11 +99,20 @@ public class ItemManager implements Listener {
         return null;
     }
 
+    private void addToRuntime(ClaraItem item, NBTTagCompound compound) {
+        this.items.add(new RuntimeClaraItem(UUID.randomUUID(), item, compound));
+    }
+
     @EventHandler
     public void onItemClick(InventoryClickEvent e) {
         // Merging of item ids
         if(e.getCursor() != null && e.getCurrentItem() != null) {
 
         }
+    }
+
+    @EventHandler
+    public void onArmorEquip(ArmorEquipEvent e) {
+
     }
 }
