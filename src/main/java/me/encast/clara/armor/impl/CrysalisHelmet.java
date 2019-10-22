@@ -12,10 +12,10 @@ import java.util.List;
 
 public class CrysalisHelmet implements ClaraArmor {
 
+    private ItemStack item;
+
     private double health = 100; // +100
     private double defense = 0.02; // 2%
-
-    private final ItemStack ITEM = new ItemStack(Material.LEATHER_HELMET);
 
     @Override
     public void apply(ClaraPlayer player) {
@@ -45,12 +45,14 @@ public class CrysalisHelmet implements ClaraArmor {
     }
 
     @Override
-    public ItemStack getItem() {
-        return ITEM;
+    public ItemStack getNewItemInstance() {
+        return new ItemStack(Material.LEATHER_HELMET);
     }
 
     @Override
-    public void constructItem(NBTTagCompound compound) {
+    public void loadItem(ItemStack item, NBTTagCompound extra) {
+        this.item = item;
+        // Nothing to change about the item
     }
 
     @Override

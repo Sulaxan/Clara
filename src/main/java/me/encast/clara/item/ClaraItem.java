@@ -13,6 +13,12 @@ public interface ClaraItem {
      */
     String UUID_KEY = "clara_item_uuid";
 
+    /**
+     * Non-unique item id. This identifies the internal corresponding
+     * item.
+     */
+    String ITEM_ID_KEY = "clara_item_id";
+
     String getId(); // this id is already set in the nbt tag compound
 
     int getAmount();
@@ -23,9 +29,9 @@ public interface ClaraItem {
 
     List<String> getLore();
 
-    ItemStack getItem();
+    ItemStack getNewItemInstance();
 
-    void constructItem(NBTTagCompound compound);
+    void loadItem(ItemStack item, NBTTagCompound extra);
 
     <T> T getValue(String key, Class<T> clazz);
 
