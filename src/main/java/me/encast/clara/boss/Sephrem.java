@@ -1,6 +1,6 @@
 package me.encast.clara.boss;
 
-import me.encast.clara.entity.ClaraEntity;
+import me.encast.clara.entity.ClaraEntityBoss;
 import me.encast.clara.entity.ClaraEntitySubType;
 import me.encast.clara.util.hologram.ClaraEntityHologram;
 import me.encast.clara.util.hologram.Hologram;
@@ -19,11 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Sephrem extends EntityPigZombie implements ClaraEntity {
+public class Sephrem extends EntityPigZombie implements ClaraEntityBoss {
 
     private static final org.bukkit.inventory.ItemStack[] ITEMS = new org.bukkit.inventory.ItemStack[4];
     private static DecimalFormat FORMAT = new DecimalFormat("#");
     private static final String[] NAMES;
+
+    private Incarnation incarnation = Incarnation.getRandom();
 
     private int tick;
 
@@ -92,6 +94,11 @@ public class Sephrem extends EntityPigZombie implements ClaraEntity {
     @Override
     public EntityLiving getEntity() {
         return this;
+    }
+
+    @Override
+    public Incarnation getIncarnation() {
+        return incarnation;
     }
 
     // Whether the anger level is greater than 0
