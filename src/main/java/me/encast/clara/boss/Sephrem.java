@@ -23,7 +23,6 @@ public class Sephrem extends EntityPigZombie implements ClaraEntityBoss {
 
     private static final org.bukkit.inventory.ItemStack[] ITEMS = new org.bukkit.inventory.ItemStack[4];
     private static DecimalFormat FORMAT = new DecimalFormat("#");
-    private static final String[] NAMES;
 
     private Incarnation incarnation = Incarnation.getRandom();
 
@@ -36,20 +35,6 @@ public class Sephrem extends EntityPigZombie implements ClaraEntityBoss {
         ITEMS[2] = new org.bukkit.inventory.ItemStack(org.bukkit.Material.GOLD_CHESTPLATE);
         ITEMS[1] = new org.bukkit.inventory.ItemStack(org.bukkit.Material.LEATHER_LEGGINGS);
         ITEMS[0] = new org.bukkit.inventory.ItemStack(org.bukkit.Material.LEATHER_BOOTS);
-
-        NAMES = new String[] {
-                "§5Sephre§dm",
-                "§dS§5ephrem",
-                "§dSe§5phrem",
-                "§dSep§5hrem",
-                "§dSeph§5rem",
-                "§dSephr§5em",
-                "§5S§dephre§5m",
-                "§5Se§dphrem",
-                "§5Sep§dhrem",
-                "§5Seph§drem",
-                "§5Sephr§dem"
-        };
     }
 
     public Sephrem(World world) {
