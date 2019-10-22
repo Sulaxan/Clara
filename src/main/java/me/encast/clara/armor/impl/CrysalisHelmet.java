@@ -17,6 +17,8 @@ public class CrysalisHelmet implements ClaraArmor {
     private double health = 100; // +100
     private double defense = 0.02; // 2%
 
+    public static final String ID = "crysalis_helmet";
+
     @Override
     public void apply(ClaraPlayer player) {
         player.addHealth(health);
@@ -31,7 +33,7 @@ public class CrysalisHelmet implements ClaraArmor {
 
     @Override
     public String getId() {
-        return "crysalis_helmet";
+        return ID;
     }
 
     @Override
@@ -47,6 +49,11 @@ public class CrysalisHelmet implements ClaraArmor {
     @Override
     public ItemStack getNewItemInstance() {
         return new ItemStack(Material.LEATHER_HELMET);
+    }
+
+    @Override
+    public ItemStack getItem() {
+        return item;
     }
 
     @Override

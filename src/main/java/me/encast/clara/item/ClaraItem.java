@@ -31,6 +31,8 @@ public interface ClaraItem {
 
     ItemStack getNewItemInstance();
 
+    ItemStack getItem();
+
     void loadItem(ItemStack item, NBTTagCompound extra);
 
     <T> T getValue(String key, Class<T> clazz);

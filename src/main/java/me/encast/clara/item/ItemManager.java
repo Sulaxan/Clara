@@ -3,6 +3,7 @@ package me.encast.clara.item;
 import com.google.common.collect.Lists;
 import me.encast.clara.util.item.ItemUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -20,7 +21,15 @@ public class ItemManager implements Listener {
         // register
     }
 
-    public ItemStack constructItem(ClaraItem item) {
+    public RuntimeClaraItem getRuntimeItem(UUID uuid) {
+        for(RuntimeClaraItem item : items) {
+            if(item.getUuid().equals(uuid))
+                return item;
+        }
+        return null;
+    }
+
+    public ItemStack constructNewItem(ClaraItem item) {
         ItemStack i = item.getNewItemInstance();
         NBTTagCompound compound = ItemUtil.getRawNBT(i);
         // Set unique id
@@ -31,14 +40,54 @@ public class ItemManager implements Listener {
     }
 
     public ClaraItem load(NBTTagCompound compound) {
+        String itemId = compound.getString(ClaraItem.ITEM_ID_KEY);
+        if(!itemId.isEmpty()) {
+            // Item id should exist at this point
+            ClaraItem item = getNewClaraItem(itemId);
+            if(item != null) {
+                ItemStack i = item.getNewItemInstance();
+                if(i != null) {
+                    Material type = i.getType();
+                    int count = i.getAmount();
+                    short damage = i.getDurability();
+                    ItemUtil.applyNBT(i, compound);
+                    // Restore the type, amount, and durability, just in case the compound information
+                    // is outdated
+                    i.setType(type);
+                    i.setAmount(count);
+                    i.setDurability(damage);
 
+                    // Call loadItem in ClaraItem
+                    item.loadItem(i, compound.getCompound("tag"));
+
+                    // Add as a runtime item
+                    items.add(new RuntimeClaraItem(UUID.randomUUID(), item));
+                }
+            }
+        }
+        return null;
     }
 
-    public NBTTagCompound save(ItemStack item) {
-        return ItemUtil.getSaveableNBT(item);
+    public NBTTagCompound save(ClaraItem item) {
+        NBTTagCompound compound = ItemUtil.getSaveableNBT(item.getItem());
+        // For easier item loading
+        compound.setString(ClaraItem.ITEM_ID_KEY, item.getId());
+        return compound;
     }
 
+    public NBTTagCompound saveAndRemoveRuntime(RuntimeClaraItem item) {
+        this.items.remove(item);
+        return save(item.getItem());
+    }
 
+    public ClaraItem getNewClaraItem(String id) {
+        for(ClaraItemType type : ClaraItemType.VALUES) {
+            if(type.getId().equals(id))
+                return type.getItem();
+        }
+
+        return null;
+    }
 
     @EventHandler
     public void onItemClick(InventoryClickEvent e) {
