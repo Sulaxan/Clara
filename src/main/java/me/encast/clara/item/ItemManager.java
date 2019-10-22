@@ -1,15 +1,14 @@
 package me.encast.clara.item;
 
 import com.google.common.collect.Lists;
+import lombok.Getter;
 import me.encast.clara.util.event.ArmorEquipEvent;
 import me.encast.clara.util.item.ItemUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
@@ -18,6 +17,7 @@ import java.util.UUID;
 
 public class ItemManager implements Listener {
 
+    @Getter
     private List<RuntimeClaraItem> items = Lists.newArrayList();
 
     public ItemManager(Plugin plugin) {
@@ -113,6 +113,12 @@ public class ItemManager implements Listener {
 
     @EventHandler
     public void onArmorEquip(ArmorEquipEvent e) {
+        if(e.getOldArmorPiece() != null) {
+            // call unapply in ClaraArmor
+        }
 
+        if(e.getNewArmorPiece() != null) {
+            // call apply in ClaraArmor
+        }
     }
 }
