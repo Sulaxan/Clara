@@ -58,7 +58,7 @@ public class Sephrem extends EntityPigZombie implements ClaraEntityBoss {
 
     @Override
     public String getName() {
-        return "Enraged Sephrem (Dark Incarnation)";
+        return "Sephrem";
     }
 
     @Override

@@ -2,8 +2,10 @@ package me.encast.clara.util.hologram;
 
 import com.google.common.collect.Lists;
 import me.encast.clara.entity.ClaraEntity;
+import me.encast.clara.entity.ClaraEntityBoss;
 import me.encast.clara.entity.ClaraEntitySubType;
 import net.minecraft.server.v1_8_R3.EntityLiving;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 import java.text.DecimalFormat;
@@ -12,7 +14,9 @@ import java.util.List;
 public class ClaraEntityHologram extends Hologram {
 
     private ClaraEntity entity;
-    private String[] animatedName;
+
+    private final String[] ANIMATED_NAME_TEXT;
+    private final String[] ANIMATED_INCARNATION_TEXT;
 
     private static final DecimalFormat FORMAT = new DecimalFormat("#");
 
@@ -20,7 +24,22 @@ public class ClaraEntityHologram extends Hologram {
         super(location);
         this.entity = entity;
 
-        animateName();
+        ANIMATED_NAME_TEXT = animate(
+                entity.getName(),
+                entity.getSubType().getColor(),
+                entity.getSubType().getSubColor()
+        );
+
+        if(entity instanceof ClaraEntityBoss) {
+            ClaraEntityBoss boss = (ClaraEntityBoss) entity;
+            ANIMATED_INCARNATION_TEXT = animate(
+                    ((ClaraEntityBoss) entity).getIncarnation().getName(),
+                    ChatColor.DARK_GRAY,
+                    ChatColor.GRAY
+            );
+        } else {
+            ANIMATED_INCARNATION_TEXT = null;
+        }
     }
 
     public void update() {
@@ -33,50 +52,36 @@ public class ClaraEntityHologram extends Hologram {
         }
         // Position of the information hologram
         int position = 0;
-        if(entity.getCurrentTick() % 10 >= 5) {
-            setText(position, "  ");
-            position++;
-        }
-        setText(position++, "§e| |");
-        setText(position++, "§e| |");
-        setText(position++, "§e| |");
-        setText(position++, "§e\\ | | /");
-        setText(position++, "§e\\ /");
-        setText(position++, "§ev");
-
-        if(entity.getCurrentTick() % 10 < 5) {
-            setText(position++, "  ");
-        }
-
         if(entity.getSubType() == ClaraEntitySubType.FLOOR_BOSS) {
-            setText(position, "§7Alive Time: §c" + entity.getCurrentTick() / 20 + "s");
+            setText(position, "§7" + entity.getCurrentTick() / 20 + "s");
             position++;
         }
 
-        setText(position, "§7[LVL x] " + animatedName[entity.getCurrentTick() % animatedName.length] +
+        setText(position++, "§7[LVL x] " + ANIMATED_NAME_TEXT[entity.getCurrentTick() % ANIMATED_NAME_TEXT.length] +
                 " §a" + FORMAT.format(el.getHealth()) + "§7/§c" + FORMAT.format(el.getMaxHealth()) +
                 " §7- " + entity.getSubType().getColor() + "§l" +
                 entity.getSubType().name().replaceAll("_", " "));
+        if(ANIMATED_INCARNATION_TEXT != null)
+            setText(position, ANIMATED_INCARNATION_TEXT[entity.getCurrentTick() % ANIMATED_INCARNATION_TEXT.length]);
     }
 
-    private void animateName() {
-        final String name = entity.getName();
-        if(name.length() >= 2) {
+    private String[] animate(String text, ChatColor first, ChatColor second) {
+        if(text.length() >= 2) {
             int firstPos = 0;
             int secondPos = 1;
             List<String> names = Lists.newArrayList();
             String current;
             while (true) {
                 if(firstPos < secondPos) {
-                    current = entity.getSubType().getColor() + name.substring(firstPos, secondPos) +
-                            entity.getSubType().getSubColor() + name.substring(secondPos);
+                    current = first + text.substring(firstPos, secondPos) +
+                            second + text.substring(secondPos);
                 } else {
-                    current = entity.getSubType().getSubColor() + name.substring(secondPos, firstPos) +
-                            entity.getSubType().getColor() + name.substring(firstPos);
+                    current = second + text.substring(secondPos, firstPos) +
+                            first + text.substring(firstPos);
                 }
                 names.add(current);
                 // Increasing first position to end, rolling over second position
-                if(secondPos == name.length() - 1) {
+                if(secondPos == text.length() - 1) {
                     secondPos = 0;
                 } else if(secondPos != 0) {
                     secondPos++;
@@ -84,12 +89,12 @@ public class ClaraEntityHologram extends Hologram {
                 if(secondPos == 0)
                     firstPos++;
 
-                if(firstPos >= name.length())
+                if(firstPos >= text.length())
                     break;
             }
-            animatedName = names.toArray(new String[0]);
+            return names.toArray(new String[0]);
         } else {
-            animatedName = new String[] { entity.getSubType().getColor() + name };
+            return new String[] { entity.getSubType().getColor() + text};
         }
     }
 }

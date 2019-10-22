@@ -1,10 +1,12 @@
 package me.encast.clara.boss;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 @AllArgsConstructor
+@Getter
 public enum Incarnation {
 
     WEAKNESS("Weakness"),
