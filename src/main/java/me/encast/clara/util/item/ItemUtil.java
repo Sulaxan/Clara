@@ -17,6 +17,15 @@ public class ItemUtil {
         return compound.getCompound("tag");
     }
 
+    public static NBTTagCompound getOrSetRawNBT(ItemStack item) {
+        net.minecraft.server.v1_8_R3.ItemStack i = CraftItemStack.asNMSCopy(item);
+        NBTTagCompound compound = i.getTag();
+        if(compound == null)
+            i.setTag(compound = new NBTTagCompound());
+
+        return compound;
+    }
+
     public static NBTTagCompound getSaveableNBT(ItemStack item) {
         NBTTagCompound compound = new NBTTagCompound();
         // save(NBTTagCompound) saves a copy of the item's NBT in the given NBTTagCompound,
@@ -25,7 +34,15 @@ public class ItemUtil {
         return compound;
     }
 
-    public static void applyNBT(ItemStack item, NBTTagCompound compound) {
-        CraftItemStack.asNMSCopy(item).c(compound);
+    public static ItemStack applyNBT(ItemStack item, NBTTagCompound compound) {
+        net.minecraft.server.v1_8_R3.ItemStack i = CraftItemStack.asNMSCopy(item);
+        i.c(compound);
+        return CraftItemStack.asBukkitCopy(i);
+    }
+
+    public static ItemStack applyRawNBT(ItemStack item, NBTTagCompound compound) {
+        net.minecraft.server.v1_8_R3.ItemStack i = CraftItemStack.asNMSCopy(item);
+        i.setTag(compound);
+        return CraftItemStack.asBukkitCopy(i);
     }
 }

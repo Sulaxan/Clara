@@ -22,7 +22,7 @@ public final class Clara extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         instance = this;
-        Sephrem.add();
+        //Sephrem.add();
 //        Sephrem.registerEntity("Sephrem", 989, EntityPigZombie.class, Sephrem.class);
 
         // Armour listener should be registered before the other listeners

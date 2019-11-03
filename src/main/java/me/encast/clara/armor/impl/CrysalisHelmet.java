@@ -1,14 +1,18 @@
 package me.encast.clara.armor.impl;
 
-import com.google.common.collect.Lists;
 import me.encast.clara.armor.ClaraArmor;
 import me.encast.clara.item.ClaraItem;
 import me.encast.clara.player.ClaraPlayer;
+import me.encast.clara.util.Util;
+import me.encast.clara.util.item.ItemBuilder;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CrysalisHelmet implements ClaraArmor {
 
@@ -44,14 +48,26 @@ public class CrysalisHelmet implements ClaraArmor {
         return false;
     }
 
+    // make improvements later
     @Override
     public List<String> getLore() {
-        return Lists.newArrayList();
+        return Util.formatStringToList("This helmet provides you with §a" + health + " §ahealth §7and §5+" +
+                (defense * 100) + "% §5defense§7.", 30)
+                .stream()
+                .map(str -> "§7" + str)
+                .collect(Collectors.toList());
     }
 
     @Override
     public ItemStack getNewItemInstance() {
-        return new ItemStack(Material.LEATHER_HELMET);
+        return new ItemBuilder(Material.LEATHER_HELMET, ItemBuilder.ItemType.LEATHER_ARMOUR)
+                .setDisplayName("§5Crysalis Helmet")
+                .setColor(Color.WHITE)
+                .setLore(getLore())
+                .addLore(" ", "§7⚔ §a§lSTANDARD")
+                .setUnbreakable(true)
+                .addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ATTRIBUTES)
+                .build();
     }
 
     @Override

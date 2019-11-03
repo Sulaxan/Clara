@@ -1,5 +1,6 @@
 package me.encast.clara.item;
 
+import com.google.gson.GsonBuilder;
 import me.encast.clara.Clara;
 import me.encast.clara.armor.ClaraArmor;
 import me.encast.clara.player.ClaraPlayer;
@@ -7,7 +8,9 @@ import me.encast.clara.util.event.ArmorEquipEvent;
 import me.encast.clara.util.inventory.ItemStackUtil;
 import me.encast.clara.util.item.ItemUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -41,14 +44,15 @@ public class ItemManager implements Listener {
 
     public ItemStack constructNewItem(ClaraPlayer player, ClaraItem item, boolean addAsRuntime) {
         ItemStack i = item.getNewItemInstance();
-        NBTTagCompound compound = ItemUtil.getRawNBT(i);
+        NBTTagCompound compound = ItemUtil.getOrSetRawNBT(i);
         // Set unique id
-        compound.setString(ClaraItem.UUID_KEY, UUID.randomUUID().toString());
+        UUID uuid = UUID.randomUUID();
+        compound.setString(ClaraItem.UUID_KEY, uuid.toString());
         // Set item id
         compound.setString(ClaraItem.ITEM_ID_KEY, item.getId());
-
+        i = ItemUtil.applyRawNBT(i, compound);
         if(addAsRuntime) {
-            addToRuntime(player, item, compound);
+            player.addRuntimeItem(new RuntimeClaraItem(uuid, item, compound));
         }
         return i;
     }
@@ -106,10 +110,6 @@ public class ItemManager implements Listener {
         return null;
     }
 
-    private void addToRuntime(ClaraPlayer player, ClaraItem item, NBTTagCompound compound) {
-        player.addRuntimeItem(new RuntimeClaraItem(UUID.randomUUID(), item, compound));
-    }
-
     @EventHandler
     public void onItemClick(InventoryClickEvent e) {
         // Merging of item ids
@@ -128,15 +128,15 @@ public class ItemManager implements Listener {
         RuntimeClaraItem item;
         if(e.getOldArmorPiece() != null) {
             item = getRuntimeItem(cp, e.getOldArmorPiece());
-            if(item instanceof ClaraArmor) {
-                ((ClaraArmor) item).unapply(cp);
+            if(item.getItem() instanceof ClaraArmor) {
+                ((ClaraArmor) item.getItem()).unapply(cp);
             }
         }
 
         if(e.getNewArmorPiece() != null) {
             item = getRuntimeItem(cp, e.getNewArmorPiece());
-            if(item instanceof ClaraArmor) {
-                ((ClaraArmor) item).apply(cp);
+            if(item.getItem() instanceof ClaraArmor) {
+                ((ClaraArmor) item.getItem()).apply(cp);
             }
         }
     }
