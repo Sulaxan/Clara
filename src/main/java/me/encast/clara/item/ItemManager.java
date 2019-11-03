@@ -75,14 +75,17 @@ public class ItemManager implements Listener {
                     i.setAmount(count);
                     i.setDurability(damage);
 
+                    UUID uuid = UUID.randomUUID();
+
                     // Call loadItem in ClaraItem
                     NBTTagCompound tag = compound.getCompound("tag");
+                    tag.setString(ClaraItem.UUID_KEY, uuid.toString());
                     item.loadItem(i, compound.getCompound("tag"));
 
                     // No need to set item id since it should already be available
 
                     // Add as a runtime item
-                    player.addRuntimeItem(new RuntimeClaraItem(UUID.randomUUID(), item, tag));
+                    player.addRuntimeItem(new RuntimeClaraItem(uuid, item, tag));
                 }
             }
         }
