@@ -23,12 +23,15 @@ public class CrysalisHelmet implements ClaraArmor {
     public void apply(ClaraPlayer player) {
         player.addHealth(health);
         player.addDefense(defense);
+        player.getBukkitPlayer().sendMessage("§aAPPLIED!");
+
     }
 
     @Override
     public void unapply(ClaraPlayer player) {
         player.addHealth(-health);
         player.addDefense(-defense);
+        player.getBukkitPlayer().sendMessage("§cUNAPPLIED!");
     }
 
     @Override
