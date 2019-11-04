@@ -46,7 +46,7 @@ public class CrysalisHelmet implements ClaraArmor {
 
     @Override
     public ItemRarity getRarity() {
-        return ItemRarity.STANDARD;
+        return ItemRarity.REFINED;
     }
 
     @Override
@@ -69,8 +69,6 @@ public class CrysalisHelmet implements ClaraArmor {
         return new ItemBuilder(Material.LEATHER_HELMET, ItemBuilder.ItemType.LEATHER_ARMOUR)
                 .setDisplayName("§5Crysalis Helmet")
                 .setColor(Color.WHITE)
-                .setLore(getLore())
-                .addLore(" ", "§7⚔ §a§lSTANDARD")
                 .setUnbreakable(true)
                 .addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ATTRIBUTES)
                 .build();

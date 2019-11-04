@@ -9,6 +9,7 @@ import me.encast.clara.util.inventory.ItemStackUtil;
 import me.encast.clara.util.item.ItemUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -119,17 +120,19 @@ public class ItemManager implements Listener {
         NBTTagCompound compound = ItemUtil.getOrSetRawNBT(item);
         UUID uuid;
         ClaraItem claraItem;
-        if(compound.getString(ClaraItem.ITEM_ID_KEY).isEmpty()) {
+        if(!compound.getString(ClaraItem.ITEM_ID_KEY).isEmpty() &&
+                !compound.getString(ClaraItem.UUID_KEY).isEmpty()) {
             claraItem = getNewClaraItem(compound.getString(ClaraItem.ITEM_ID_KEY));
-            claraItem.loadItem(item, compound);
-            setDefaultNBT(compound, null, uuid = UUID.randomUUID());
-            item = ItemUtil.applyRawNBT(item, compound);
+            uuid = UUID.fromString(compound.getString(ClaraItem.UUID_KEY));
         } else {
-            uuid = UUID.fromString(compound.getString(ClaraItem.ITEM_ID_KEY));
+            uuid = UUID.randomUUID();
             claraItem = new GenericClaraItem();
-            claraItem.loadItem(item, compound);
         }
+
+        setDefaultNBT(compound, claraItem, uuid);
+        item = ItemUtil.applyRawNBT(item, compound);
         applyItemData(item, claraItem);
+        claraItem.loadItem(item, compound);
         RuntimeClaraItem runtimeItem = new RuntimeClaraItem(uuid, claraItem, compound);
         player.addRuntimeItem(runtimeItem);
         return runtimeItem;
@@ -156,6 +159,7 @@ public class ItemManager implements Listener {
         }
         lore.add("§7⚔ " + rarity.getDisplay());
         meta.setLore(lore);
+        item.setItemMeta(meta);
     }
 
     @EventHandler
@@ -185,6 +189,8 @@ public class ItemManager implements Listener {
             item = getRuntimeItem(cp, e.getNewArmorPiece());
             if(item.getItem() instanceof ClaraArmor) {
                 ((ClaraArmor) item.getItem()).apply(cp);
+                // Simulating equipping armour
+                p.playSound(p.getLocation(), Sound.NOTE_STICKS, 5, 1);
             }
         }
     }
@@ -193,8 +199,11 @@ public class ItemManager implements Listener {
     public void onItemPickup(PlayerPickupItemEvent e) {
         Player p = e.getPlayer();
         ClaraPlayer player = Clara.getInstance().getPlayerManager().getPlayer(p.getUniqueId());
-        addToRuntimeFromExisting(player, e.getItem().getItemStack()).giveItem(p);
+        e.setCancelled(true);
         e.getItem().remove();
+        // Simulating item pickup
+        addToRuntimeFromExisting(player, e.getItem().getItemStack()).giveItem(p);
+        p.playSound(p.getLocation(), Sound.ITEM_PICKUP, 5, 1);
     }
 
     @EventHandler

@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum ItemRarity {
 
     STANDARD("Standard", "§a§lSTANDARD"),
-    REFINED("Refined", "§b§lREFINED"),
+    REFINED("Refined", "§9§lREFINED"),
     ANGELIC("Angelic", "§f§lANGELIC"),
     GODLY("Godly", "§6§lGODLY");
 

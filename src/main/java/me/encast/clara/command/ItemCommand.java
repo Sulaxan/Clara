@@ -19,6 +19,11 @@ public class ItemCommand implements CommandExecutor {
             if(cp == null)
                 Clara.getInstance().getPlayerManager().addPlayer(cp = new ClaraPlayer(p.getUniqueId()));
 
+            if(args.length >= 1) {
+                p.sendMessage("§aRUNTIME ITEMS: " + cp.getRuntimeItems().size());
+                return true;
+            }
+
             ItemStack item = Clara.getInstance().getItemManager()
                     .constructNewItem(cp, ClaraItemType.CRYSALIS_HELMET.getItem(), true);
             p.getInventory().addItem(item);
