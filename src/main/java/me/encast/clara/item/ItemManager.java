@@ -25,6 +25,17 @@ import java.util.UUID;
 
 public class ItemManager implements Listener {
 
+    /*
+        Possibly fix the issue where you can't pick up an item if your inventory is full
+        (if you already have that item in your inventory)
+
+        Possibly fix the issue where you can't stack the same item if you already have a stack of it
+        (as in, the new stack gets a new uuid and therefore can't be mixed)
+        Possible fix:
+            Set same item UUIDs to the same thing OR check if a player tries to combine an item,
+            and if so, change the item UUIDs and stack it
+     */
+
     public ItemManager(Plugin plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
@@ -117,17 +128,25 @@ public class ItemManager implements Listener {
     }
 
     public RuntimeClaraItem addToRuntimeFromExisting(ClaraPlayer player, ItemStack item) {
+        combineItems(player, item);
+        if(item.getAmount() == 0) {
+            player.getBukkitPlayer().updateInventory();
+            return null;
+        }
         NBTTagCompound compound = ItemUtil.getOrSetRawNBT(item);
         UUID uuid;
         ClaraItem claraItem;
         if(!compound.getString(ClaraItem.ITEM_ID_KEY).isEmpty() &&
                 !compound.getString(ClaraItem.UUID_KEY).isEmpty()) {
             claraItem = getNewClaraItem(compound.getString(ClaraItem.ITEM_ID_KEY));
+            if(claraItem == null)
+                claraItem = new GenericClaraItem();
             uuid = UUID.fromString(compound.getString(ClaraItem.UUID_KEY));
         } else {
             uuid = UUID.randomUUID();
             claraItem = new GenericClaraItem();
         }
+
 
         setDefaultNBT(compound, claraItem, uuid);
         item = ItemUtil.applyRawNBT(item, compound);
@@ -136,6 +155,41 @@ public class ItemManager implements Listener {
         RuntimeClaraItem runtimeItem = new RuntimeClaraItem(uuid, claraItem, compound);
         player.addRuntimeItem(runtimeItem);
         return runtimeItem;
+    }
+
+    private void combineItems(ClaraPlayer player, ItemStack item) {
+        for(RuntimeClaraItem i : player.getRuntimeItems()) {
+            if(i.getItem().isStackable() && i.getItem().getAmount() < 64) {
+                ItemStack runtime = i.getItem().getItem();
+                if(runtime.getType() == item.getType() && runtime.getDurability() == item.getDurability()) {
+                    int remaining = 64 - i.getItem().getAmount();
+                    i.getItem().setAmount(Math.min(64, i.getItem().getAmount() + item.getAmount()));
+                    if(remaining < item.getAmount()) {
+                        item.setAmount(item.getAmount() - remaining);
+                        updateItem(player.getBukkitPlayer(), i);
+                    } else {
+                        item.setAmount(0);
+                        updateItem(player.getBukkitPlayer(), i);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private void updateItem(Player player, RuntimeClaraItem item) {
+        ItemStack[] contents = player.getInventory().getContents();
+        for(int i = 0; i < contents.length; i++) {
+            if(contents[i] != null) {
+                String uuid = ItemStackUtil.getMetadataValue(contents[i], ClaraItem.UUID_KEY);
+                if(uuid != null && item.getNbt().getString(ClaraItem.UUID_KEY).equalsIgnoreCase(uuid)) {
+                    contents[i] = item.getItem().getItem();
+                }
+            }
+        }
+
+        player.getInventory().setContents(contents);
+        player.updateInventory();
     }
 
     private void setDefaultNBT(NBTTagCompound compound, ClaraItem item, UUID uuid) {
@@ -180,14 +234,14 @@ public class ItemManager implements Listener {
         RuntimeClaraItem item;
         if(e.getOldArmorPiece() != null) {
             item = getRuntimeItem(cp, e.getOldArmorPiece());
-            if(item.getItem() instanceof ClaraArmor) {
+            if(item != null && item.getItem() instanceof ClaraArmor) {
                 ((ClaraArmor) item.getItem()).unapply(cp);
             }
         }
 
         if(e.getNewArmorPiece() != null) {
             item = getRuntimeItem(cp, e.getNewArmorPiece());
-            if(item.getItem() instanceof ClaraArmor) {
+            if(item != null && item.getItem() instanceof ClaraArmor) {
                 ((ClaraArmor) item.getItem()).apply(cp);
                 // Simulating equipping armour
                 p.playSound(p.getLocation(), Sound.NOTE_STICKS, 5, 1);
@@ -202,7 +256,9 @@ public class ItemManager implements Listener {
         e.setCancelled(true);
         e.getItem().remove();
         // Simulating item pickup
-        addToRuntimeFromExisting(player, e.getItem().getItemStack()).giveItem(p);
+        RuntimeClaraItem item = addToRuntimeFromExisting(player, e.getItem().getItemStack());
+        if(item != null)
+            item.giveItem(p);
         p.playSound(p.getLocation(), Sound.ITEM_PICKUP, 5, 1);
     }
 
@@ -212,7 +268,13 @@ public class ItemManager implements Listener {
         ClaraPlayer player = Clara.getInstance().getPlayerManager().getPlayer(p.getUniqueId());
         RuntimeClaraItem item = getRuntimeItem(player, e.getItemDrop().getItemStack());
         if(item != null) {
-            player.removeRuntimeItem(item);
+            int amount = e.getItemDrop().getItemStack().getAmount();
+            if(amount == item.getItem().getAmount()) {
+                player.removeRuntimeItem(item);
+            } else {
+                item.getItem().setAmount(item.getItem().getAmount() - amount);
+                updateItem(p, item);
+            }
         }
     }
 }

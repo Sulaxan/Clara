@@ -30,10 +30,12 @@ public class ItemStackUtil {
     }
 
     public static String getMetadataValue(ItemStack item, String key) {
-        net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
-        NBTTagCompound compound = nmsItem.getTag();
-        if(compound != null)
-            return compound.getString(key);
+        if(item != null) {
+            net.minecraft.server.v1_8_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+            NBTTagCompound compound = nmsItem.getTag();
+            if(compound != null)
+                return compound.getString(key);
+        }
         return null;
     }
 
