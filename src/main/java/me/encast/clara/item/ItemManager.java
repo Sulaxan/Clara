@@ -1,6 +1,6 @@
 package me.encast.clara.item;
 
-import com.google.gson.GsonBuilder;
+import com.google.common.collect.Lists;
 import me.encast.clara.Clara;
 import me.encast.clara.armor.ClaraArmor;
 import me.encast.clara.player.ClaraPlayer;
@@ -8,16 +8,18 @@ import me.encast.clara.util.event.ArmorEquipEvent;
 import me.encast.clara.util.inventory.ItemStackUtil;
 import me.encast.clara.util.item.ItemUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
+import java.util.List;
 import java.util.UUID;
 
 public class ItemManager implements Listener {
@@ -47,10 +49,9 @@ public class ItemManager implements Listener {
         NBTTagCompound compound = ItemUtil.getOrSetRawNBT(i);
         // Set unique id
         UUID uuid = UUID.randomUUID();
-        compound.setString(ClaraItem.UUID_KEY, uuid.toString());
-        // Set item id
-        compound.setString(ClaraItem.ITEM_ID_KEY, item.getId());
+        setDefaultNBT(compound, item, uuid);
         i = ItemUtil.applyRawNBT(i, compound);
+        applyItemData(i, item);
         if(addAsRuntime) {
             player.addRuntimeItem(new RuntimeClaraItem(uuid, item, compound));
         }
@@ -74,13 +75,14 @@ public class ItemManager implements Listener {
                     i.setType(type);
                     i.setAmount(count);
                     i.setDurability(damage);
+                    applyItemData(i, item);
 
                     UUID uuid = UUID.randomUUID();
 
                     // Call loadItem in ClaraItem
                     NBTTagCompound tag = compound.getCompound("tag");
-                    tag.setString(ClaraItem.UUID_KEY, uuid.toString());
-                    item.loadItem(i, compound.getCompound("tag"));
+                    setDefaultNBT(tag, item, uuid);
+                    item.loadItem(i, tag);
 
                     // No need to set item id since it should already be available
 
@@ -113,6 +115,49 @@ public class ItemManager implements Listener {
         return null;
     }
 
+    public RuntimeClaraItem addToRuntimeFromExisting(ClaraPlayer player, ItemStack item) {
+        NBTTagCompound compound = ItemUtil.getOrSetRawNBT(item);
+        UUID uuid;
+        ClaraItem claraItem;
+        if(compound.getString(ClaraItem.ITEM_ID_KEY).isEmpty()) {
+            claraItem = getNewClaraItem(compound.getString(ClaraItem.ITEM_ID_KEY));
+            claraItem.loadItem(item, compound);
+            setDefaultNBT(compound, null, uuid = UUID.randomUUID());
+            item = ItemUtil.applyRawNBT(item, compound);
+        } else {
+            uuid = UUID.fromString(compound.getString(ClaraItem.ITEM_ID_KEY));
+            claraItem = new GenericClaraItem();
+            claraItem.loadItem(item, compound);
+        }
+        applyItemData(item, claraItem);
+        RuntimeClaraItem runtimeItem = new RuntimeClaraItem(uuid, claraItem, compound);
+        player.addRuntimeItem(runtimeItem);
+        return runtimeItem;
+    }
+
+    private void setDefaultNBT(NBTTagCompound compound, ClaraItem item, UUID uuid) {
+        compound.setString(ClaraItem.UUID_KEY, uuid.toString());
+        // Just in case it is a generic item
+        if(item != null)
+            compound.setString(ClaraItem.ITEM_ID_KEY, item.getId());
+    }
+
+    private void applyItemData(ItemStack item, ClaraItem ci) {
+        ItemMeta meta = item.getItemMeta();
+        List<String> lore = Lists.newArrayList();
+        ItemRarity rarity = ItemRarity.STANDARD;
+        if(ci != null) {
+            // Just in case it is a generic item
+            rarity = ci.getRarity();
+            lore = Lists.newArrayList(ci.getLore());
+            lore.add(" ");
+        } else {
+            lore.add("§7This is a generic item!");
+        }
+        lore.add("§7⚔ " + rarity.getDisplay());
+        meta.setLore(lore);
+    }
+
     @EventHandler
     public void onItemClick(InventoryClickEvent e) {
         // Merging of item ids
@@ -141,6 +186,24 @@ public class ItemManager implements Listener {
             if(item.getItem() instanceof ClaraArmor) {
                 ((ClaraArmor) item.getItem()).apply(cp);
             }
+        }
+    }
+
+    @EventHandler
+    public void onItemPickup(PlayerPickupItemEvent e) {
+        Player p = e.getPlayer();
+        ClaraPlayer player = Clara.getInstance().getPlayerManager().getPlayer(p.getUniqueId());
+        addToRuntimeFromExisting(player, e.getItem().getItemStack()).giveItem(p);
+        e.getItem().remove();
+    }
+
+    @EventHandler
+    public void onItemRemove(PlayerDropItemEvent e) {
+        Player p = e.getPlayer();
+        ClaraPlayer player = Clara.getInstance().getPlayerManager().getPlayer(p.getUniqueId());
+        RuntimeClaraItem item = getRuntimeItem(player, e.getItemDrop().getItemStack());
+        if(item != null) {
+            player.removeRuntimeItem(item);
         }
     }
 }

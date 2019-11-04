@@ -21,6 +21,8 @@ public interface ClaraItem {
 
     String getId(); // this id is already set in the nbt tag compound
 
+    ItemRarity getRarity();
+
     int getAmount();
 
     void setAmount(int amount);

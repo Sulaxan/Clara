@@ -2,6 +2,7 @@ package me.encast.clara.armor.impl;
 
 import me.encast.clara.armor.ClaraArmor;
 import me.encast.clara.item.ClaraItem;
+import me.encast.clara.item.ItemRarity;
 import me.encast.clara.player.ClaraPlayer;
 import me.encast.clara.util.Util;
 import me.encast.clara.util.item.ItemBuilder;
@@ -41,6 +42,11 @@ public class CrysalisHelmet implements ClaraArmor {
     @Override
     public String getId() {
         return ID;
+    }
+
+    @Override
+    public ItemRarity getRarity() {
+        return ItemRarity.STANDARD;
     }
 
     @Override
