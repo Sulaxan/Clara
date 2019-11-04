@@ -96,7 +96,12 @@ public class CrysalisHelmet implements ClaraArmor {
     }
 
     @Override
-    public boolean equals(ClaraItem item) {
+    public boolean isSimilar(ClaraItem item) {
         return false; // Armour should be unique
+    }
+
+    @Override
+    public boolean isSimilar(ItemStack item) {
+        return false;
     }
 }

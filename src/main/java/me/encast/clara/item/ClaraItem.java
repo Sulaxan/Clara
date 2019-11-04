@@ -41,5 +41,7 @@ public interface ClaraItem {
 
     void save(NBTTagCompound compound);
 
-    boolean equals(ClaraItem item);
+    boolean isSimilar(ClaraItem item);
+
+    boolean isSimilar(ItemStack item);
 }

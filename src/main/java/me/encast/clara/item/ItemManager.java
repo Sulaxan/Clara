@@ -8,6 +8,7 @@ import me.encast.clara.util.event.ArmorEquipEvent;
 import me.encast.clara.util.inventory.ItemStackUtil;
 import me.encast.clara.util.item.ItemUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -128,11 +129,6 @@ public class ItemManager implements Listener {
     }
 
     public RuntimeClaraItem addToRuntimeFromExisting(ClaraPlayer player, ItemStack item) {
-        combineItems(player, item);
-        if(item.getAmount() == 0) {
-            player.getBukkitPlayer().updateInventory();
-            return null;
-        }
         NBTTagCompound compound = ItemUtil.getOrSetRawNBT(item);
         UUID uuid;
         ClaraItem claraItem;
@@ -150,28 +146,57 @@ public class ItemManager implements Listener {
 
         setDefaultNBT(compound, claraItem, uuid);
         item = ItemUtil.applyRawNBT(item, compound);
-        applyItemData(item, claraItem);
         claraItem.loadItem(item, compound);
-        RuntimeClaraItem runtimeItem = new RuntimeClaraItem(uuid, claraItem, compound);
+        applyItemData(claraItem.getItem(), claraItem);
+
+        if(claraItem.getAmount() == 0)
+            claraItem.setAmount(1);
+
+        // Combine items after the item is loaded into ClaraItem, to ensure item changes
+        // don't get ignored
+        Bukkit.broadcastMessage("ITEM IS " + ((GenericClaraItem) claraItem).isSpecial());
+        combineItems(player, claraItem);
+        if(claraItem.getAmount() == 0) {
+            player.getBukkitPlayer().updateInventory();
+            return null;
+        }
+        RuntimeClaraItem runtimeItem = new RuntimeClaraItem(uuid, claraItem, ItemUtil.getRawNBT(claraItem.getItem()));
         player.addRuntimeItem(runtimeItem);
         return runtimeItem;
     }
 
-    private void combineItems(ClaraPlayer player, ItemStack item) {
+//    private void combineItems(ClaraPlayer player, ItemStack item) {
+//        for(RuntimeClaraItem i : player.getRuntimeItems()) {
+//            if(i.getItem().isStackable() && i.getItem().getAmount() < 64) {
+//                ItemStack runtime = i.getItem().getItem();
+//                if(i.getItem().isSimilar(runtime)) {
+//                    int remaining = 64 - i.getItem().getAmount();
+//                    i.getItem().setAmount(Math.min(64, i.getItem().getAmount() + item.getAmount()));
+//                    if(remaining < item.getAmount()) {
+//                        item.setAmount(item.getAmount() - remaining);
+//                        updateItem(player.getBukkitPlayer(), i);
+//                    } else {
+//                        item.setAmount(0);
+//                        updateItem(player.getBukkitPlayer(), i);
+//                        return;
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+    private void combineItems(ClaraPlayer player, ClaraItem item) {
         for(RuntimeClaraItem i : player.getRuntimeItems()) {
-            if(i.getItem().isStackable() && i.getItem().getAmount() < 64) {
-                ItemStack runtime = i.getItem().getItem();
-                if(runtime.getType() == item.getType() && runtime.getDurability() == item.getDurability()) {
-                    int remaining = 64 - i.getItem().getAmount();
-                    i.getItem().setAmount(Math.min(64, i.getItem().getAmount() + item.getAmount()));
-                    if(remaining < item.getAmount()) {
-                        item.setAmount(item.getAmount() - remaining);
-                        updateItem(player.getBukkitPlayer(), i);
-                    } else {
-                        item.setAmount(0);
-                        updateItem(player.getBukkitPlayer(), i);
-                        return;
-                    }
+            if(i.getItem().isStackable() && i.getItem().getAmount() < 64 && i.getItem().isSimilar(item)) {
+                int remaining = 64 - i.getItem().getAmount();
+                i.getItem().setAmount(Math.min(64, i.getItem().getAmount() + item.getAmount()));
+                if(remaining < item.getAmount()) {
+                    item.setAmount(item.getAmount() - remaining);
+                    updateItem(player.getBukkitPlayer(), i);
+                } else {
+                    item.setAmount(0);
+                    updateItem(player.getBukkitPlayer(), i);
+                    return;
                 }
             }
         }
