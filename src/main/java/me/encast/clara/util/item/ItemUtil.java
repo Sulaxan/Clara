@@ -41,8 +41,12 @@ public class ItemUtil {
     }
 
     public static ItemStack applyRawNBT(ItemStack item, NBTTagCompound compound) {
+        return CraftItemStack.asBukkitCopy(applyRawNBTAndGetNMS(item, compound));
+    }
+
+    public static net.minecraft.server.v1_8_R3.ItemStack applyRawNBTAndGetNMS(ItemStack item, NBTTagCompound compound) {
         net.minecraft.server.v1_8_R3.ItemStack i = CraftItemStack.asNMSCopy(item);
         i.setTag(compound);
-        return CraftItemStack.asBukkitCopy(i);
+        return i;
     }
 }

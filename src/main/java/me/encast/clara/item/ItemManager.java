@@ -128,9 +128,21 @@ public class ItemManager implements Listener {
         return null;
     }
 
-    public RuntimeClaraItem addToRuntimeFromExisting(ClaraPlayer player, ItemStack item) {
+    // addIndividually just makes it so that if the item count is > 1, the method will be called again
+    // with the same item
+    // This is done so that if, for example, 5 items were picked up, generic item might make all 5
+    // special items, when we actually just want at least 1 being special
+    public void addToRuntimeFromExisting(ClaraPlayer player, ItemStack item, boolean addIndividually, boolean giveItem) {
+        if(addIndividually && item.getAmount() > 1) {
+            int amount = item.getAmount();
+            item.setAmount(1);
+            for(int i = 0; i < amount - 1; i++) {
+                addToRuntimeFromExisting(player, item, false, giveItem);
+            }
+            return;
+        }
         NBTTagCompound compound = ItemUtil.getOrSetRawNBT(item);
-        UUID uuid;
+        UUID uuid = UUID.randomUUID();
         ClaraItem claraItem;
         if(!compound.getString(ClaraItem.ITEM_ID_KEY).isEmpty() &&
                 !compound.getString(ClaraItem.UUID_KEY).isEmpty()) {
@@ -139,30 +151,39 @@ public class ItemManager implements Listener {
                 claraItem = new GenericClaraItem();
             uuid = UUID.fromString(compound.getString(ClaraItem.UUID_KEY));
         } else {
-            uuid = UUID.randomUUID();
             claraItem = new GenericClaraItem();
         }
 
-
-        setDefaultNBT(compound, claraItem, uuid);
-        item = ItemUtil.applyRawNBT(item, compound);
+        if(claraItem.isStackable()) {
+            uuid = getItemUUID(player, item);
+        }
+        setDefaultNBT(ItemUtil.getRawNBT(claraItem.getItem()), claraItem, uuid);
         claraItem.loadItem(item, compound);
         applyItemData(claraItem.getItem(), claraItem);
 
         if(claraItem.getAmount() == 0)
             claraItem.setAmount(1);
 
+        RuntimeClaraItem runtimeItem = getSimilarRuntime(player, claraItem);
+        if(runtimeItem != null) {
+            runtimeItem.getItem().setAmount(claraItem.getAmount());
+        } else {
+            runtimeItem = new RuntimeClaraItem(uuid, claraItem, ItemUtil.getRawNBT(claraItem.getItem()));
+            player.addRuntimeItem(runtimeItem);
+        }
         // Combine items after the item is loaded into ClaraItem, to ensure item changes
         // don't get ignored
-        Bukkit.broadcastMessage("ITEM IS " + ((GenericClaraItem) claraItem).isSpecial());
-        combineItems(player, claraItem);
-        if(claraItem.getAmount() == 0) {
-            player.getBukkitPlayer().updateInventory();
-            return null;
-        }
-        RuntimeClaraItem runtimeItem = new RuntimeClaraItem(uuid, claraItem, ItemUtil.getRawNBT(claraItem.getItem()));
-        player.addRuntimeItem(runtimeItem);
-        return runtimeItem;
+        //combineItems(player, claraItem);
+//        if(claraItem.getAmount() == 0) {
+//            player.getBukkitPlayer().updateInventory();
+//            return;
+//        }
+
+
+
+        // give item is temporary
+        if(giveItem)
+            normalizeAndAdd(player, runtimeItem.getItem());
     }
 
 //    private void combineItems(ClaraPlayer player, ItemStack item) {
@@ -184,6 +205,50 @@ public class ItemManager implements Listener {
 //            }
 //        }
 //    }
+
+    public void syncUUID(ClaraPlayer player, RuntimeClaraItem item) {
+        UUID uuid = getItemUUID(player, item.getItem());
+        if(uuid != null)
+            item.setUuid(uuid);
+    }
+
+    public UUID getItemUUID(ClaraPlayer player, ClaraItem item) {
+        if(!item.isStackable())
+            return null;
+
+        for(RuntimeClaraItem runtime : player.getRuntimeItems()) {
+            if(runtime.getItem().isSimilar(item))
+                return runtime.getUuid();
+        }
+
+        return null;
+    }
+
+    public UUID getItemUUID(ClaraPlayer player, ItemStack item) {
+        for(RuntimeClaraItem runtime : player.getRuntimeItems()) {
+            if(runtime.getItem().isSimilar(item))
+                return runtime.getUuid();
+        }
+
+        return null;
+    }
+
+    public RuntimeClaraItem getSimilarRuntime(ClaraPlayer player, ClaraItem item) {
+        if(!item.isStackable())
+            return null;
+        for(RuntimeClaraItem runtime : player.getRuntimeItems()) {
+            if(runtime.getItem().isSimilar(item))
+                return runtime;
+        }
+        return null;
+    }
+
+    // sets item count to one and gives the item to the player
+    private void normalizeAndAdd(ClaraPlayer player, ClaraItem item) {
+        ItemStack i = item.getItem().clone();
+        i.setAmount(1);
+        player.getBukkitPlayer().getInventory().addItem(i);
+    }
 
     private void combineItems(ClaraPlayer player, ClaraItem item) {
         for(RuntimeClaraItem i : player.getRuntimeItems()) {
@@ -243,9 +308,18 @@ public class ItemManager implements Listener {
 
     @EventHandler
     public void onItemClick(InventoryClickEvent e) {
+        Player p = (Player) e.getWhoClicked();
+        ClaraPlayer cp = Clara.getInstance().getPlayerManager().getPlayer(p.getUniqueId());
         // Merging of item ids
         if(e.getCursor() != null && e.getCurrentItem() != null) {
+            // Merging of similar items
+            RuntimeClaraItem cursor = getRuntimeItem(cp, e.getCursor());
+            RuntimeClaraItem current = getRuntimeItem(cp, e.getCurrentItem());
+            if(cursor != null && current != null) {
+                if(current.getItem().isSimilar(cursor.getItem())) {
 
+                }
+            }
         }
     }
 
@@ -281,9 +355,7 @@ public class ItemManager implements Listener {
         e.setCancelled(true);
         e.getItem().remove();
         // Simulating item pickup
-        RuntimeClaraItem item = addToRuntimeFromExisting(player, e.getItem().getItemStack());
-        if(item != null)
-            item.giveItem(p);
+        addToRuntimeFromExisting(player, e.getItem().getItemStack(), true, true);
         p.playSound(p.getLocation(), Sound.ITEM_PICKUP, 5, 1);
     }
 

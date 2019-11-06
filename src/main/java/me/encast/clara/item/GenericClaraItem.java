@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import lombok.Getter;
 import me.encast.clara.util.item.ItemUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -27,7 +29,7 @@ public class GenericClaraItem implements ClaraItem {
             "§7useful..."
     );
 
-    private static String SPECIAL_KEY = "special";
+    private static final String SPECIAL_KEY = "clara_generic_item_special";
 
     @Override
     public String getId() {
@@ -51,7 +53,7 @@ public class GenericClaraItem implements ClaraItem {
 
     @Override
     public boolean isStackable() {
-        return false;
+        return true;
     }
 
     @Override
@@ -70,19 +72,30 @@ public class GenericClaraItem implements ClaraItem {
     }
 
     @Override
+    public void setItem(ItemStack item) {
+        this.item = item;
+    }
+
+    @Override
     public void loadItem(ItemStack item, NBTTagCompound extra) {
         this.item = item;
         // Change this percent to be lower later
         this.special = extra.hasKey(SPECIAL_KEY) ? extra.getBoolean(SPECIAL_KEY) : Math.random() < 0.5;
-        extra.setBoolean(SPECIAL_KEY, this.special);
-        this.item = ItemUtil.applyRawNBT(item, extra);
-
         if(this.special) {
             ItemMeta meta = item.getItemMeta();
             meta.addEnchant(Enchantment.DURABILITY, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             this.item.setItemMeta(meta);
         }
+
+        extra = ItemUtil.getRawNBT(item);
+        extra.setBoolean(SPECIAL_KEY, this.special);
+        Bukkit.broadcastMessage("" + extra.hasKey(ClaraItem.UUID_KEY));
+        this.item = ItemUtil.applyRawNBT(item, extra);
+//        net.minecraft.server.v1_8_R3.ItemStack nmsItem = ItemUtil.applyRawNBTAndGetNMS(item, extra);
+//        nmsItem.addEnchantment(net.minecraft.server.v1_8_R3.Enchantment.DURABILITY, 1);
+//        CraftItemStack.asCraftCopy(null).addEnchantment();
+//        this.item = CraftItemStack.asBukkitCopy(nmsItem);
     }
 
     @Override
