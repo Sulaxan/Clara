@@ -52,7 +52,11 @@ public class ItemManager implements Listener {
     public RuntimeClaraItem getRuntimeItem(ClaraPlayer player, ItemStack item) {
         String uuid = ItemStackUtil.getMetadataValue(item, ClaraItem.UUID_KEY);
         if(uuid != null)
-            return getRuntimeItem(player, UUID.fromString(uuid));
+            try {
+                return getRuntimeItem(player, UUID.fromString(uuid));
+            } catch (Exception e) {
+                return null;
+            }
 
         return null;
     }
@@ -136,7 +140,7 @@ public class ItemManager implements Listener {
         if(addIndividually && item.getAmount() > 1) {
             int amount = item.getAmount();
             item.setAmount(1);
-            for(int i = 0; i < amount - 1; i++) {
+            for(int i = 0; i < amount; i++) {
                 addToRuntimeFromExisting(player, item, false, giveItem);
             }
             return;
@@ -147,17 +151,16 @@ public class ItemManager implements Listener {
         if(!compound.getString(ClaraItem.ITEM_ID_KEY).isEmpty() &&
                 !compound.getString(ClaraItem.UUID_KEY).isEmpty()) {
             claraItem = getNewClaraItem(compound.getString(ClaraItem.ITEM_ID_KEY));
-            if(claraItem == null)
+            if(claraItem == null) {
                 claraItem = new GenericClaraItem();
-            uuid = UUID.fromString(compound.getString(ClaraItem.UUID_KEY));
+            } else {
+                uuid = UUID.fromString(compound.getString(ClaraItem.UUID_KEY));
+            }
         } else {
             claraItem = new GenericClaraItem();
         }
 
-        if(claraItem.isStackable()) {
-            uuid = getItemUUID(player, item);
-        }
-        setDefaultNBT(ItemUtil.getRawNBT(claraItem.getItem()), claraItem, uuid);
+        setDefaultNBT(compound, claraItem, uuid);
         claraItem.loadItem(item, compound);
         applyItemData(claraItem.getItem(), claraItem);
 
@@ -307,23 +310,6 @@ public class ItemManager implements Listener {
     }
 
     @EventHandler
-    public void onItemClick(InventoryClickEvent e) {
-        Player p = (Player) e.getWhoClicked();
-        ClaraPlayer cp = Clara.getInstance().getPlayerManager().getPlayer(p.getUniqueId());
-        // Merging of item ids
-        if(e.getCursor() != null && e.getCurrentItem() != null) {
-            // Merging of similar items
-            RuntimeClaraItem cursor = getRuntimeItem(cp, e.getCursor());
-            RuntimeClaraItem current = getRuntimeItem(cp, e.getCurrentItem());
-            if(cursor != null && current != null) {
-                if(current.getItem().isSimilar(cursor.getItem())) {
-
-                }
-            }
-        }
-    }
-
-    @EventHandler
     public void onArmorEquip(ArmorEquipEvent e) {
         Player p = e.getPlayer();
         ClaraPlayer cp = Clara.getInstance().getPlayerManager().getPlayer(p.getUniqueId());
@@ -365,12 +351,11 @@ public class ItemManager implements Listener {
         ClaraPlayer player = Clara.getInstance().getPlayerManager().getPlayer(p.getUniqueId());
         RuntimeClaraItem item = getRuntimeItem(player, e.getItemDrop().getItemStack());
         if(item != null) {
+            Bukkit.broadcastMessage("NOT NULL!");
             int amount = e.getItemDrop().getItemStack().getAmount();
-            if(amount == item.getItem().getAmount()) {
+            item.getItem().setAmount(item.getItem().getAmount() - amount);
+            if(item.getItem().getAmount() <= 0) {
                 player.removeRuntimeItem(item);
-            } else {
-                item.getItem().setAmount(item.getItem().getAmount() - amount);
-                updateItem(p, item);
             }
         }
     }

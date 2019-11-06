@@ -80,6 +80,11 @@ public class CrysalisHelmet implements ClaraArmor {
     }
 
     @Override
+    public void setItem(ItemStack item) {
+        this.item = item;
+    }
+
+    @Override
     public void loadItem(ItemStack item, NBTTagCompound extra) {
         this.item = item;
         // Nothing to change about the item

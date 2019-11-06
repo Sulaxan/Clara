@@ -4,8 +4,6 @@ import com.google.common.collect.Lists;
 import lombok.Getter;
 import me.encast.clara.util.item.ItemUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
-import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -19,6 +17,7 @@ public class GenericClaraItem implements ClaraItem {
 
     @Getter
     private boolean special = false;
+    private boolean corrupted = false;
 
     private static final List<String> GENERIC_LORE = Lists.newArrayList("§7This is a generic item!");
     private static final List<String> UNGENERIC_LORE = Lists.newArrayList(
@@ -28,8 +27,12 @@ public class GenericClaraItem implements ClaraItem {
             "§7Some say this item can be",
             "§7useful..."
     );
+    private static final List<String> CORRUPTED_LORE = Lists.newArrayList(
+            "§7???"
+    );
 
     private static final String SPECIAL_KEY = "clara_generic_item_special";
+    private static final String CORRUPTED_KEY = "clara_generic_item_corrupted";
 
     @Override
     public String getId() {
@@ -38,7 +41,7 @@ public class GenericClaraItem implements ClaraItem {
 
     @Override
     public ItemRarity getRarity() {
-        return special ? ItemRarity.GODLY : ItemRarity.STANDARD;
+        return special ? ItemRarity.GODLY : this.corrupted ? ItemRarity.CORRUPTED : ItemRarity.STANDARD;
     }
 
     @Override
@@ -58,7 +61,7 @@ public class GenericClaraItem implements ClaraItem {
 
     @Override
     public List<String> getLore() {
-        return special ? UNGENERIC_LORE : GENERIC_LORE;
+        return special ? UNGENERIC_LORE : this.corrupted ? CORRUPTED_LORE : GENERIC_LORE;
     }
 
     @Override
@@ -81,7 +84,9 @@ public class GenericClaraItem implements ClaraItem {
         this.item = item;
         // Change this percent to be lower later
         this.special = extra.hasKey(SPECIAL_KEY) ? extra.getBoolean(SPECIAL_KEY) : Math.random() < 0.5;
-        if(this.special) {
+        if(!this.special)
+            this.corrupted = extra.hasKey(CORRUPTED_KEY) ? extra.getBoolean(CORRUPTED_KEY) : Math.random() < 0.1;
+        if(this.special || this.corrupted) {
             ItemMeta meta = item.getItemMeta();
             meta.addEnchant(Enchantment.DURABILITY, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -90,7 +95,7 @@ public class GenericClaraItem implements ClaraItem {
 
         extra = ItemUtil.getRawNBT(item);
         extra.setBoolean(SPECIAL_KEY, this.special);
-        Bukkit.broadcastMessage("" + extra.hasKey(ClaraItem.UUID_KEY));
+        extra.setBoolean(CORRUPTED_KEY, this.corrupted);
         this.item = ItemUtil.applyRawNBT(item, extra);
 //        net.minecraft.server.v1_8_R3.ItemStack nmsItem = ItemUtil.applyRawNBTAndGetNMS(item, extra);
 //        nmsItem.addEnchantment(net.minecraft.server.v1_8_R3.Enchantment.DURABILITY, 1);
@@ -120,8 +125,9 @@ public class GenericClaraItem implements ClaraItem {
     public boolean isSimilar(ItemStack item) {
         NBTTagCompound compound = ItemUtil.getRawNBT(item);
         boolean special = compound.hasKey(SPECIAL_KEY) && compound.getBoolean(SPECIAL_KEY);
+        boolean corrupted = compound.hasKey(CORRUPTED_KEY) && compound.getBoolean(CORRUPTED_KEY);
         if(this.item.getType() == item.getType() && this.item.getDurability() == item.getDurability()) {
-            return this.special == special;
+            return this.special == special && this.corrupted == corrupted;
         }
         return false;
     }
