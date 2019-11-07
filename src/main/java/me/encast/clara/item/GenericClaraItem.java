@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import lombok.Getter;
 import me.encast.clara.util.item.ItemUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -33,6 +34,8 @@ public class GenericClaraItem implements ClaraItem {
 
     private static final String SPECIAL_KEY = "clara_generic_item_special";
     private static final String CORRUPTED_KEY = "clara_generic_item_corrupted";
+    private static final String TYPE_KEY = "clara_generic_item_type";
+    private static final String ENCHANT_KEY = "clara_generic_item_ench";
 
     @Override
     public String getId() {
@@ -55,8 +58,19 @@ public class GenericClaraItem implements ClaraItem {
     }
 
     @Override
+    public short getDurability() {
+        return item.getDurability();
+    }
+
+    @Override
+    public void setDurability(short durability) {
+        // maybe make a way to change durability of all similar items in the player's inventory
+        item.setDurability(durability);
+    }
+
+    @Override
     public boolean isStackable() {
-        return true;
+        return item.getType().getMaxStackSize() != 1;
     }
 
     @Override
@@ -82,6 +96,8 @@ public class GenericClaraItem implements ClaraItem {
     @Override
     public void loadItem(ItemStack item, NBTTagCompound extra) {
         this.item = item;
+        if(this.item == null)
+            this.item = new ItemStack(Material.STONE);
         // Change this percent to be lower later
         this.special = extra.hasKey(SPECIAL_KEY) ? extra.getBoolean(SPECIAL_KEY) : Math.random() < 0.5;
         if(!this.special)
@@ -92,15 +108,13 @@ public class GenericClaraItem implements ClaraItem {
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             this.item.setItemMeta(meta);
         }
-
+        String type = extra.getString(TYPE_KEY);
+        if(!type.isEmpty())
+            this.item.setType(Material.matchMaterial(type));
         extra = ItemUtil.getRawNBT(item);
         extra.setBoolean(SPECIAL_KEY, this.special);
         extra.setBoolean(CORRUPTED_KEY, this.corrupted);
         this.item = ItemUtil.applyRawNBT(item, extra);
-//        net.minecraft.server.v1_8_R3.ItemStack nmsItem = ItemUtil.applyRawNBTAndGetNMS(item, extra);
-//        nmsItem.addEnchantment(net.minecraft.server.v1_8_R3.Enchantment.DURABILITY, 1);
-//        CraftItemStack.asCraftCopy(null).addEnchantment();
-//        this.item = CraftItemStack.asBukkitCopy(nmsItem);
     }
 
     @Override
@@ -110,7 +124,11 @@ public class GenericClaraItem implements ClaraItem {
 
     @Override
     public void save(NBTTagCompound compound) {
-
+        NBTTagCompound raw = ItemUtil.getRawNBT(item);
+        compound.setString(TYPE_KEY, item.getType().name());
+        compound.setBoolean(SPECIAL_KEY, this.special);
+        compound.setBoolean(CORRUPTED_KEY, this.corrupted);
+        compound.set(ENCHANT_KEY, raw.get("ench"));
     }
 
     @Override

@@ -14,7 +14,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
@@ -110,6 +109,15 @@ public class ItemManager implements Listener {
             }
         }
         return null;
+    }
+
+    public NBTTagCompound saveItem(ItemStack item, RuntimeClaraItem runtime) {
+        NBTTagCompound saveNBT = new NBTTagCompound();
+        saveNBT.setString(ClaraItem.ITEM_ID_KEY, runtime.getItem().getId());
+        saveNBT.setInt(ClaraItem.COUNT_KEY, item.getAmount());
+        saveNBT.setShort(ClaraItem.DURABILITY_KEY, runtime.getItem().getDurability());
+        runtime.getItem().save(saveNBT);
+        return saveNBT;
     }
 
     public NBTTagCompound save(ClaraItem item) {

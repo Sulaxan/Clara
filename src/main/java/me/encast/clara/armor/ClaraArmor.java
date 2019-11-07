@@ -17,4 +17,13 @@ public interface ClaraArmor extends ClaraItem {
     @Override
     default void setAmount(int amount) {
     }
+
+    @Override
+    default short getDurability() {
+        return 255;
+    }
+
+    @Override
+    default void setDurability(short durability) {
+    }
 }

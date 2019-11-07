@@ -1,7 +1,6 @@
 package me.encast.clara.player;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +11,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -24,6 +22,8 @@ public class ClaraPlayer {
 
     private double health = 1000;
     private double defense = 0; // between 0 and 1
+
+    private List<SaveableItem> item = Lists.newCopyOnWriteArrayList();
 
     // Runtime
     private transient List<RuntimeClaraItem> runtimeItems = Lists.newCopyOnWriteArrayList();
@@ -64,6 +64,14 @@ public class ClaraPlayer {
             ((ClaraArmor) item.getItem()).unapply(this);
             this.equippedArmor.remove(item);
         }
+    }
+
+    public void applyAllArmorBuffs() {
+        equippedArmor.forEach(armor -> ((ClaraArmor) armor).apply(this));
+    }
+
+    public void unapplyAllArmorBuffs() {
+        equippedArmor.forEach(armor -> ((ClaraArmor) armor).unapply(this));
     }
 
     public Player getBukkitPlayer() {

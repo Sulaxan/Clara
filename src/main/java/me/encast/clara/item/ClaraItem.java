@@ -19,6 +19,16 @@ public interface ClaraItem {
      */
     String ITEM_ID_KEY = "clara_item_id";
 
+    /**
+     * Id for the amount of an item.
+     */
+    String COUNT_KEY = "clara_item_count";
+
+    /**
+     * Id for the amount of durability an item has.
+     */
+    String DURABILITY_KEY = "clara_item_durability";
+
     String getId(); // this id is already set in the nbt tag compound
 
     ItemRarity getRarity();
@@ -26,6 +36,10 @@ public interface ClaraItem {
     int getAmount();
 
     void setAmount(int amount);
+
+    short getDurability();
+
+    void setDurability(short durability);
 
     boolean isStackable();
 
