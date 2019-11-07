@@ -2,7 +2,7 @@ package me.encast.clara.player;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import me.encast.clara.item.SaveableItem;
+import net.minecraft.server.v1_8_R3.NBTTagCompound;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,5 +15,5 @@ public class ClaraSavePlayer {
     private double health;
     private double defense;
 
-    private List<SaveableItem> items;
+    private List<NBTTagCompound> items;
 }

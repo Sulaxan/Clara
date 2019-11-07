@@ -80,37 +80,47 @@ public class ItemManager implements Listener {
         return i;
     }
 
-    public ClaraItem load(ClaraPlayer player, NBTTagCompound compound) {
+    public ClaraItem load(ClaraPlayer player, NBTTagCompound compound, boolean giveItem) {
         String itemId = compound.getString(ClaraItem.ITEM_ID_KEY);
         if(!itemId.isEmpty()) {
             // Item id should exist at this point
             ClaraItem item = getNewClaraItem(itemId);
-            if(item != null) {
-                ItemStack i = item.getNewItemInstance();
-                if(i != null) {
-                    Material type = i.getType();
-                    int count = i.getAmount();
-                    short damage = i.getDurability();
-                    ItemUtil.applyNBT(i, compound);
-                    // Restore the type, amount, and durability, just in case the compound information
-                    // is outdated
-                    i.setType(type);
-                    i.setAmount(count);
-                    i.setDurability(damage);
-                    applyItemData(i, item);
 
-                    UUID uuid = UUID.randomUUID();
+            if(item == null) {
+                item = new GenericClaraItem();
+            }
+            ItemStack i = item.getNewItemInstance();
+            if(i != null) {
+                int count = compound.getInt(GenericClaraItem.COUNT_KEY);
+                ItemUtil.applyNBT(i, compound);
+                applyItemData(i, item);
 
-                    // Call loadItem in ClaraItem
-                    NBTTagCompound tag = compound.getCompound("tag");
-                    setDefaultNBT(tag, item, uuid);
-                    AtomicReference<NBTTagCompound> ref = new AtomicReference<>(tag);
-                    item.loadItem(i, ref);
+                UUID uuid = UUID.randomUUID();
 
-                    // No need to set item id since it should already be available
+                // Call loadItem in ClaraItem
+                NBTTagCompound tag = compound.getCompound("tag");
+                setDefaultNBT(tag, item, uuid);
+                AtomicReference<NBTTagCompound> ref = new AtomicReference<>(tag);
+                item.loadItem(i, ref);
+                compound = ref.get();
 
-                    // Add as a runtime item
-                    player.addRuntimeItem(new RuntimeClaraItem(uuid, item, ref.get()));
+                // No need to set item id since it should already be available
+
+                // Add as a runtime item
+                RuntimeClaraItem runtime = getSimilarRuntime(player, item);
+                if(runtime != null) {
+                    runtime.getItem().setAmount(runtime.getItem().getAmount() + count);
+                } else {
+                    player.addRuntimeItem(new RuntimeClaraItem(uuid, item, compound));
+                }
+
+                if(giveItem) {
+                    int slot = compound.hasKey("clara_slot") ? compound.getInt("clara_slot") : -1;
+                    if(slot > 0) {
+                        ItemStack adjusted = item.getItem().clone();
+                        adjusted.setAmount(count);
+                        player.getBukkitPlayer().getInventory().setItem(slot, adjusted);
+                    }
                 }
             }
         }

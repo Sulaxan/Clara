@@ -1,17 +1,18 @@
 package me.encast.clara.player;
 
 import com.google.common.collect.Lists;
+import lombok.Getter;
 import me.encast.clara.Clara;
 import me.encast.clara.item.ItemManager;
 import me.encast.clara.item.RuntimeClaraItem;
-import me.encast.clara.item.SaveableItem;
-import org.bukkit.Bukkit;
+import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 import java.util.UUID;
 
+@Getter
 public class ClaraPlayerManager {
 
     private List<ClaraPlayer> players = Lists.newArrayList();
@@ -34,15 +35,18 @@ public class ClaraPlayerManager {
     public ClaraSavePlayer savePlayer(ClaraPlayer player) {
         Player p = player.getBukkitPlayer();
         ItemManager manager = Clara.getInstance().getItemManager();
-        List<SaveableItem> items = Lists.newArrayList();
+        List<NBTTagCompound> items = Lists.newArrayList();
         int slot = 0;
+
+        NBTTagCompound compound;
         for(ItemStack item : p.getInventory().getContents()) {
             if(item != null) {
                 RuntimeClaraItem runtime = manager.getRuntimeItem(player, item);
                 if (runtime != null) {
                     // Check to make sure item count does not go above the runtime count by using a map
-
-                    items.add(new SaveableItem(slot, manager.saveItem(item, runtime)));
+                    compound = manager.saveItem(item, runtime);
+                    compound.setInt("clara_slot", slot);
+                    items.add(compound);
                 }
             }
             slot++;
@@ -66,5 +70,27 @@ public class ClaraPlayerManager {
         ClaraSavePlayer save = new ClaraSavePlayer(player.getUuid(), player.getHealth(), player.getDefense(), items);
         player.applyAllArmorBuffs();
         return save;
+    }
+
+    public ClaraPlayer loadPlayer(Player player, ClaraSavePlayer save) {
+        ClaraPlayer cp = new ClaraPlayer(player.getUniqueId());
+
+        player.getInventory().clear();
+
+        ItemManager manager = Clara.getInstance().getItemManager();
+
+        for(NBTTagCompound tag : save.getItems()) {
+            if(tag.hasKey("clara_slot")) {
+                int slot = tag.getInt("clara_slot");
+                if(slot < 100) {
+                    // Regular inventory item
+                    manager.load(cp, tag, true);
+                } else {
+                    // Armour
+                }
+            }
+        }
+
+        return cp;
     }
 }
