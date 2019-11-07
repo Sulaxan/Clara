@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import me.encast.clara.armor.ClaraArmor;
 import me.encast.clara.item.RuntimeClaraItem;
 import me.encast.clara.item.SaveableItem;
 import org.bukkit.Bukkit;
@@ -24,10 +25,9 @@ public class ClaraPlayer {
     private double health = 1000;
     private double defense = 0; // between 0 and 1
 
-    private Map<UUID, SaveableItem> items = Maps.newConcurrentMap();
-
     // Runtime
     private transient List<RuntimeClaraItem> runtimeItems = Lists.newCopyOnWriteArrayList();
+    private transient List<RuntimeClaraItem> equippedArmor = Lists.newCopyOnWriteArrayList();
 
     public ClaraPlayer(UUID uuid) {
         this.uuid = uuid;
@@ -47,6 +47,23 @@ public class ClaraPlayer {
 
     public void removeRuntimeItem(RuntimeClaraItem item) {
         this.runtimeItems.remove(item);
+    }
+
+    // returns whether it was equipped
+    public boolean addEquippedArmor(RuntimeClaraItem item) {
+        if(item.getItem() instanceof ClaraArmor) {
+            ((ClaraArmor) item.getItem()).apply(this);
+            return this.equippedArmor.add(item);
+        }
+
+        return false;
+    }
+
+    public void removeEquippedArmor(RuntimeClaraItem item) {
+        if(item.getItem() instanceof ClaraArmor && this.equippedArmor.contains(item)) {
+            ((ClaraArmor) item.getItem()).unapply(this);
+            this.equippedArmor.remove(item);
+        }
     }
 
     public Player getBukkitPlayer() {

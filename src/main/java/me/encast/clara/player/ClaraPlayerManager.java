@@ -23,4 +23,8 @@ public class ClaraPlayerManager {
     public void addPlayer(ClaraPlayer player) {
         this.players.add(player);
     }
+
+    public void savePlayer(ClaraPlayer player) {
+
+    }
 }

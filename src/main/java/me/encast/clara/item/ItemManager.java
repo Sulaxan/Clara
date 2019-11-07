@@ -22,6 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class ItemManager implements Listener {
@@ -175,8 +176,16 @@ public class ItemManager implements Listener {
             player.addRuntimeItem(runtimeItem);
         }
 
-        if(giveItem)
-            normalizeAndAdd(player, runtimeItem.getItem());
+        if(giveItem) {
+            Map<Integer, ItemStack> remaining = normalizeAndAdd(player, runtimeItem.getItem());
+            // Accounting for items that could not be added
+            if(remaining.size() > 1) {
+                // Should only be 1, so we can safely decrement the runtime item
+                for(Map.Entry<Integer, ItemStack> entry : remaining.entrySet()) {
+                    runtimeItem.getItem().setAmount(runtimeItem.getItem().getAmount() - entry.getValue().getAmount());
+                }
+            }
+        }
     }
 
     public UUID getItemUUID(ClaraPlayer player, ClaraItem item) {
@@ -211,10 +220,10 @@ public class ItemManager implements Listener {
     }
 
     // sets item count to one and gives the item to the player
-    private void normalizeAndAdd(ClaraPlayer player, ClaraItem item) {
+    private Map<Integer, ItemStack> normalizeAndAdd(ClaraPlayer player, ClaraItem item) {
         ItemStack i = item.getItem().clone();
         i.setAmount(1);
-        player.getBukkitPlayer().getInventory().addItem(i);
+        return player.getBukkitPlayer().getInventory().addItem(i);
     }
 
     private void updateItem(Player player, RuntimeClaraItem item) {
@@ -267,16 +276,17 @@ public class ItemManager implements Listener {
         if(e.getOldArmorPiece() != null) {
             item = getRuntimeItem(cp, e.getOldArmorPiece());
             if(item != null && item.getItem() instanceof ClaraArmor) {
-                ((ClaraArmor) item.getItem()).unapply(cp);
+                cp.removeEquippedArmor(item);
             }
         }
 
         if(e.getNewArmorPiece() != null) {
             item = getRuntimeItem(cp, e.getNewArmorPiece());
             if(item != null && item.getItem() instanceof ClaraArmor) {
-                ((ClaraArmor) item.getItem()).apply(cp);
-                // Simulating equipping armour
-                p.playSound(p.getLocation(), Sound.NOTE_STICKS, 5, 1);
+                if(cp.addEquippedArmor(item)) {
+                    // Simulating armour equip sound
+                    p.playSound(p.getLocation(), Sound.NOTE_STICKS, 5, 1);
+                }
             }
         }
     }
