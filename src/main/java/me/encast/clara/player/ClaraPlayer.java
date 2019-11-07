@@ -67,11 +67,11 @@ public class ClaraPlayer {
     }
 
     public void applyAllArmorBuffs() {
-        equippedArmor.forEach(armor -> ((ClaraArmor) armor).apply(this));
+        equippedArmor.forEach(armor -> ((ClaraArmor) armor.getItem()).apply(this));
     }
 
     public void unapplyAllArmorBuffs() {
-        equippedArmor.forEach(armor -> ((ClaraArmor) armor).unapply(this));
+        equippedArmor.forEach(armor -> ((ClaraArmor) armor.getItem()).unapply(this));
     }
 
     public Player getBukkitPlayer() {

@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class GenericClaraItem implements ClaraItem {
 
@@ -94,27 +95,27 @@ public class GenericClaraItem implements ClaraItem {
     }
 
     @Override
-    public void loadItem(ItemStack item, NBTTagCompound extra) {
+    public void loadItem(ItemStack item, AtomicReference<NBTTagCompound> extra) {
         this.item = item;
         if(this.item == null)
             this.item = new ItemStack(Material.STONE);
         // Change this percent to be lower later
-        this.special = extra.hasKey(SPECIAL_KEY) ? extra.getBoolean(SPECIAL_KEY) : Math.random() < 0.5;
+        this.special = extra.get().hasKey(SPECIAL_KEY) ? extra.get().getBoolean(SPECIAL_KEY) : Math.random() < 0.5;
         if(!this.special)
-            this.corrupted = extra.hasKey(CORRUPTED_KEY) ? extra.getBoolean(CORRUPTED_KEY) : Math.random() < 0.1;
+            this.corrupted = extra.get().hasKey(CORRUPTED_KEY) ? extra.get().getBoolean(CORRUPTED_KEY) : Math.random() < 0.1;
         if(this.special || this.corrupted) {
             ItemMeta meta = item.getItemMeta();
             meta.addEnchant(Enchantment.DURABILITY, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             this.item.setItemMeta(meta);
         }
-        String type = extra.getString(TYPE_KEY);
+        String type = extra.get().getString(TYPE_KEY);
         if(!type.isEmpty())
             this.item.setType(Material.matchMaterial(type));
-        extra = ItemUtil.getRawNBT(item);
-        extra.setBoolean(SPECIAL_KEY, this.special);
-        extra.setBoolean(CORRUPTED_KEY, this.corrupted);
-        this.item = ItemUtil.applyRawNBT(item, extra);
+        extra.set(ItemUtil.getRawNBT(item));
+        extra.get().setBoolean(SPECIAL_KEY, this.special);
+        extra.get().setBoolean(CORRUPTED_KEY, this.corrupted);
+        this.item = ItemUtil.applyRawNBT(item, extra.get());
     }
 
     @Override

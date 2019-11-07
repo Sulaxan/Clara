@@ -8,6 +8,8 @@ import me.encast.clara.util.event.ArmorEquipEvent;
 import me.encast.clara.util.inventory.ItemStackUtil;
 import me.encast.clara.util.item.ItemUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import net.minecraft.server.v1_8_R3.NBTTagList;
+import net.minecraft.server.v1_8_R3.NBTTagString;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -23,6 +25,7 @@ import org.bukkit.plugin.Plugin;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ItemManager implements Listener {
 
@@ -50,8 +53,10 @@ public class ItemManager implements Listener {
     }
 
     public RuntimeClaraItem getRuntimeItem(ClaraPlayer player, ItemStack item) {
-        String uuid = ItemStackUtil.getMetadataValue(item, ClaraItem.UUID_KEY);
-        if(uuid != null)
+        if(item == null)
+            return null;
+        String uuid = ItemUtil.getOrSetRawNBT(item).getString(ClaraItem.UUID_KEY);
+        if(uuid != null && !uuid.isEmpty())
             try {
                 return getRuntimeItem(player, UUID.fromString(uuid));
             } catch (Exception e) {
@@ -99,12 +104,13 @@ public class ItemManager implements Listener {
                     // Call loadItem in ClaraItem
                     NBTTagCompound tag = compound.getCompound("tag");
                     setDefaultNBT(tag, item, uuid);
-                    item.loadItem(i, tag);
+                    AtomicReference<NBTTagCompound> ref = new AtomicReference<>(tag);
+                    item.loadItem(i, ref);
 
                     // No need to set item id since it should already be available
 
                     // Add as a runtime item
-                    player.addRuntimeItem(new RuntimeClaraItem(uuid, item, tag));
+                    player.addRuntimeItem(new RuntimeClaraItem(uuid, item, ref.get()));
                 }
             }
         }
@@ -169,9 +175,10 @@ public class ItemManager implements Listener {
             claraItem = new GenericClaraItem();
         }
 
+        AtomicReference<NBTTagCompound> ref = new AtomicReference<>(compound);
         setDefaultNBT(compound, claraItem, uuid);
-        claraItem.loadItem(item, compound);
-        applyItemData(claraItem.getItem(), claraItem);
+        claraItem.loadItem(item, ref);
+        compound = ref.get();
 
         if(claraItem.getAmount() == 0)
             claraItem.setAmount(1);
@@ -181,6 +188,9 @@ public class ItemManager implements Listener {
             runtimeItem.getItem().setAmount(claraItem.getAmount());
         } else {
             runtimeItem = new RuntimeClaraItem(uuid, claraItem, ItemUtil.getRawNBT(claraItem.getItem()));
+            setDefaultNBT(compound, claraItem, uuid);
+            claraItem.setItem(ItemUtil.applyRawNBT(claraItem.getItem(), compound));
+            applyItemData(claraItem.getItem(), claraItem);
             player.addRuntimeItem(runtimeItem);
         }
 
@@ -269,8 +279,26 @@ public class ItemManager implements Listener {
             lore.add("§7This is a generic item!");
         }
         lore.add("§7⚔ " + rarity.getDisplay());
+
+
         meta.setLore(lore);
         item.setItemMeta(meta);
+    }
+
+    private void applyItemData(ClaraItem item, NBTTagCompound compound) {
+        NBTTagCompound display = compound.getCompound("display");
+        NBTTagList lore = new NBTTagList();
+        ItemRarity rarity = ItemRarity.STANDARD;
+        if(item != null) {
+            // Just in case it is a generic item
+            rarity = item.getRarity();
+           item.getLore().forEach(l -> lore.add(new NBTTagString(l)));
+            lore.add(new NBTTagString(" "));
+        } else {
+            lore.add(new NBTTagString("§7This is a generic item!"));
+        }
+        lore.add(new NBTTagString("§7⚔ " + rarity.getDisplay()));
+        display.set("Lore", lore);
     }
 
     @EventHandler

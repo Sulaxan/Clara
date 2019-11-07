@@ -4,6 +4,7 @@ import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public interface ClaraItem {
 
@@ -51,7 +52,7 @@ public interface ClaraItem {
 
     void setItem(ItemStack item);
 
-    void loadItem(ItemStack item, NBTTagCompound extra);
+    void loadItem(ItemStack item, AtomicReference<NBTTagCompound> extra);
 
     <T> T getValue(String key, Class<T> clazz);
 

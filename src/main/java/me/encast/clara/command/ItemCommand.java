@@ -6,6 +6,8 @@ import me.encast.clara.Clara;
 import me.encast.clara.item.ClaraItemType;
 import me.encast.clara.player.ClaraPlayer;
 import me.encast.clara.player.ClaraSavePlayer;
+import me.encast.clara.util.item.ItemUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -27,6 +29,12 @@ public class ItemCommand implements CommandExecutor {
                 Clara.getInstance().getPlayerManager().addPlayer(cp = new ClaraPlayer(p.getUniqueId()));
 
             if(args.length >= 1) {
+                if(args[0].equalsIgnoreCase("nbt")) {
+                    if(p.getItemInHand() != null) {
+                        Bukkit.broadcastMessage(new GsonBuilder().create().toJson(ItemUtil.getRawNBT(p.getItemInHand())));
+                    }
+                    return true;
+                }
                 if(args[0].equalsIgnoreCase("save")) {
                     ClaraSavePlayer save = Clara.getInstance().getPlayerManager().savePlayer(cp);
                     try {

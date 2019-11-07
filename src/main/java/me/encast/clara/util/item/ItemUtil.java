@@ -18,6 +18,8 @@ public class ItemUtil {
     }
 
     public static NBTTagCompound getOrSetRawNBT(ItemStack item) {
+        if(item == null)
+            return null;
         net.minecraft.server.v1_8_R3.ItemStack i = CraftItemStack.asNMSCopy(item);
         NBTTagCompound compound = i.getTag();
         if(compound == null)

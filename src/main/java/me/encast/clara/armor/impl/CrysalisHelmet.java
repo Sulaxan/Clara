@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class CrysalisHelmet implements ClaraArmor {
@@ -85,7 +86,7 @@ public class CrysalisHelmet implements ClaraArmor {
     }
 
     @Override
-    public void loadItem(ItemStack item, NBTTagCompound extra) {
+    public void loadItem(ItemStack item, AtomicReference<NBTTagCompound> extra) {
         this.item = item;
         // Nothing to change about the item
     }
