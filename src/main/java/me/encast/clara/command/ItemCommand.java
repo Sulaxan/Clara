@@ -2,13 +2,11 @@ package me.encast.clara.command;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.InstanceCreator;
 import me.encast.clara.Clara;
 import me.encast.clara.item.ClaraItemType;
 import me.encast.clara.player.ClaraPlayer;
 import me.encast.clara.player.ClaraSavePlayer;
 import me.encast.clara.util.item.ItemUtil;
-import net.minecraft.server.v1_8_R3.NBTBase;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,11 +14,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.DataOutput;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.lang.reflect.Type;
 import java.util.UUID;
 
 public class ItemCommand implements CommandExecutor {

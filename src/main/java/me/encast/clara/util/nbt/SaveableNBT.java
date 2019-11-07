@@ -15,6 +15,10 @@ public class SaveableNBT {
     public SaveableNBT() {
     }
 
+    public SaveableNBT(NBTTagCompound tag) {
+        from(tag);
+    }
+
     public void from(NBTTagCompound tag) {
         try {
             Field mapField = tag.getClass().getDeclaredField("map");

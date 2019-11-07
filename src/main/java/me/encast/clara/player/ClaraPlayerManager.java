@@ -5,6 +5,7 @@ import lombok.Getter;
 import me.encast.clara.Clara;
 import me.encast.clara.item.ItemManager;
 import me.encast.clara.item.RuntimeClaraItem;
+import me.encast.clara.util.nbt.SaveableNBT;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -35,7 +36,7 @@ public class ClaraPlayerManager {
     public ClaraSavePlayer savePlayer(ClaraPlayer player) {
         Player p = player.getBukkitPlayer();
         ItemManager manager = Clara.getInstance().getItemManager();
-        List<NBTTagCompound> items = Lists.newArrayList();
+        List<SaveableNBT> items = Lists.newArrayList();
         int slot = 0;
 
         NBTTagCompound compound;
@@ -46,7 +47,7 @@ public class ClaraPlayerManager {
                     // Check to make sure item count does not go above the runtime count by using a map
                     compound = manager.saveItem(item, runtime);
                     compound.setInt("clara_slot", slot);
-                    items.add(compound);
+                    items.add(new SaveableNBT(compound));
                 }
             }
             slot++;
@@ -79,7 +80,8 @@ public class ClaraPlayerManager {
 
         ItemManager manager = Clara.getInstance().getItemManager();
 
-        for(NBTTagCompound tag : save.getItems()) {
+        for(SaveableNBT nbt : save.getItems()) {
+            NBTTagCompound tag = nbt.toNBT();
             if(tag.hasKey("clara_slot")) {
                 int slot = tag.getInt("clara_slot");
                 if(slot < 100) {
