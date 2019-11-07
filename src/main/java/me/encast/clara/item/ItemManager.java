@@ -174,45 +174,9 @@ public class ItemManager implements Listener {
             runtimeItem = new RuntimeClaraItem(uuid, claraItem, ItemUtil.getRawNBT(claraItem.getItem()));
             player.addRuntimeItem(runtimeItem);
         }
-        // Combine items after the item is loaded into ClaraItem, to ensure item changes
-        // don't get ignored
-        //combineItems(player, claraItem);
-//        if(claraItem.getAmount() == 0) {
-//            player.getBukkitPlayer().updateInventory();
-//            return;
-//        }
 
-
-
-        // give item is temporary
         if(giveItem)
             normalizeAndAdd(player, runtimeItem.getItem());
-    }
-
-//    private void combineItems(ClaraPlayer player, ItemStack item) {
-//        for(RuntimeClaraItem i : player.getRuntimeItems()) {
-//            if(i.getItem().isStackable() && i.getItem().getAmount() < 64) {
-//                ItemStack runtime = i.getItem().getItem();
-//                if(i.getItem().isSimilar(runtime)) {
-//                    int remaining = 64 - i.getItem().getAmount();
-//                    i.getItem().setAmount(Math.min(64, i.getItem().getAmount() + item.getAmount()));
-//                    if(remaining < item.getAmount()) {
-//                        item.setAmount(item.getAmount() - remaining);
-//                        updateItem(player.getBukkitPlayer(), i);
-//                    } else {
-//                        item.setAmount(0);
-//                        updateItem(player.getBukkitPlayer(), i);
-//                        return;
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-    public void syncUUID(ClaraPlayer player, RuntimeClaraItem item) {
-        UUID uuid = getItemUUID(player, item.getItem());
-        if(uuid != null)
-            item.setUuid(uuid);
     }
 
     public UUID getItemUUID(ClaraPlayer player, ClaraItem item) {
@@ -251,23 +215,6 @@ public class ItemManager implements Listener {
         ItemStack i = item.getItem().clone();
         i.setAmount(1);
         player.getBukkitPlayer().getInventory().addItem(i);
-    }
-
-    private void combineItems(ClaraPlayer player, ClaraItem item) {
-        for(RuntimeClaraItem i : player.getRuntimeItems()) {
-            if(i.getItem().isStackable() && i.getItem().getAmount() < 64 && i.getItem().isSimilar(item)) {
-                int remaining = 64 - i.getItem().getAmount();
-                i.getItem().setAmount(Math.min(64, i.getItem().getAmount() + item.getAmount()));
-                if(remaining < item.getAmount()) {
-                    item.setAmount(item.getAmount() - remaining);
-                    updateItem(player.getBukkitPlayer(), i);
-                } else {
-                    item.setAmount(0);
-                    updateItem(player.getBukkitPlayer(), i);
-                    return;
-                }
-            }
-        }
     }
 
     private void updateItem(Player player, RuntimeClaraItem item) {
