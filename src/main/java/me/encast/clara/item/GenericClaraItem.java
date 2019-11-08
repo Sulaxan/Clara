@@ -33,10 +33,11 @@ public class GenericClaraItem implements ClaraItem {
             "§7???"
     );
 
-    private static final String SPECIAL_KEY = "clara_generic_item_special";
-    private static final String CORRUPTED_KEY = "clara_generic_item_corrupt";
-    private static final String TYPE_KEY = "clara_generic_item_type";
-    private static final String ENCHANT_KEY = "clara_generic_item_ench";
+    // Keys can only have max length of 26 characters
+    private static final String SPECIAL_KEY = "clara_gen_item_special";
+    private static final String CORRUPTED_KEY = "clara_gen_item_corrupt";
+    private static final String TYPE_KEY = "clara_gen_item_type";
+    private static final String ENCHANT_KEY = "clara_gen_item_ench";
 
     @Override
     public String getId() {
