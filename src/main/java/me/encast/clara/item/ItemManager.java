@@ -1,6 +1,7 @@
 package me.encast.clara.item;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import me.encast.clara.Clara;
 import me.encast.clara.armor.ClaraArmor;
 import me.encast.clara.player.ClaraPlayer;
@@ -91,38 +92,44 @@ public class ItemManager implements Listener {
             }
             ItemStack i = item.getNewItemInstance();
             if(i != null) {
-                int count = compound.getInt(GenericClaraItem.COUNT_KEY);
-                ItemUtil.applyNBT(i, compound);
-                applyItemData(i, item);
+                int count = Math.max(compound.getInt(ClaraItem.COUNT_KEY), 1);
+                int slot = compound.hasKey(ClaraItem.SLOT_KEY) ? compound.getInt(ClaraItem.SLOT_KEY) : -1;
+
+                removeUnneededSaveNBT(compound);
 
                 UUID uuid = UUID.randomUUID();
 
+                setDefaultNBT(compound, null, uuid); // make it null so the item id isn't set twice
+                ItemUtil.applyNBT(i, compound);
+
+
                 // Call loadItem in ClaraItem
-                NBTTagCompound tag = compound.getCompound("tag");
-                setDefaultNBT(tag, item, uuid);
-                AtomicReference<NBTTagCompound> ref = new AtomicReference<>(tag);
+
+                AtomicReference<NBTTagCompound> ref = new AtomicReference<>(compound);
                 item.loadItem(i, ref);
-                compound = ref.get();
+
+                i = item.getItem();
+                applyItemData(i, item);
+                compound = ItemUtil.getRawNBT(i);
 
                 // No need to set item id since it should already be available
 
                 // Add as a runtime item
                 RuntimeClaraItem runtime = getSimilarRuntime(player, item);
                 if(runtime != null) {
-                    runtime.getItem().setAmount(runtime.getItem().getAmount() + count);
+                    runtime.getItem().setAmount(runtime.getItem().getAmount() + count); // update count
                 } else {
                     player.addRuntimeItem(new RuntimeClaraItem(uuid, item, compound));
                 }
 
-                if(giveItem) {
-                    int slot = compound.hasKey("clara_slot") ? compound.getInt("clara_slot") : -1;
-                    if(slot > 0) {
-                        ItemStack adjusted = item.getItem().clone();
-                        adjusted.setAmount(count);
-                        player.getBukkitPlayer().getInventory().setItem(slot, adjusted);
-                    }
+                if(giveItem && slot >= 0) {
+                    ItemStack adjusted = item.getItem().clone();
+                    adjusted.setAmount(count);
+                    player.getBukkitPlayer().getInventory().setItem(slot, adjusted);
                 }
             }
+
+            return item;
         }
         return null;
     }
@@ -134,6 +141,12 @@ public class ItemManager implements Listener {
         saveNBT.setShort(ClaraItem.DURABILITY_KEY, runtime.getItem().getDurability());
         runtime.getItem().save(saveNBT);
         return saveNBT;
+    }
+
+    public void removeUnneededSaveNBT(NBTTagCompound compound) {
+        compound.remove(ClaraItem.COUNT_KEY);
+        compound.remove(ClaraItem.DURABILITY_KEY);
+        compound.remove(ClaraItem.SLOT_KEY);
     }
 
     public NBTTagCompound save(ClaraItem item) {

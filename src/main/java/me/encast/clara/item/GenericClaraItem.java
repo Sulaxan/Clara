@@ -34,7 +34,7 @@ public class GenericClaraItem implements ClaraItem {
     );
 
     private static final String SPECIAL_KEY = "clara_generic_item_special";
-    private static final String CORRUPTED_KEY = "clara_generic_item_corrupted";
+    private static final String CORRUPTED_KEY = "clara_generic_item_corrupt";
     private static final String TYPE_KEY = "clara_generic_item_type";
     private static final String ENCHANT_KEY = "clara_generic_item_ench";
 
@@ -81,7 +81,7 @@ public class GenericClaraItem implements ClaraItem {
 
     @Override
     public ItemStack getNewItemInstance() {
-        return null;
+        return new ItemStack(Material.STONE);
     }
 
     @Override
@@ -98,7 +98,15 @@ public class GenericClaraItem implements ClaraItem {
     public void loadItem(ItemStack item, AtomicReference<NBTTagCompound> extra) {
         this.item = item;
         if(this.item == null)
-            this.item = new ItemStack(Material.STONE);
+            this.item = getNewItemInstance();
+
+        String type = extra.get().getString(TYPE_KEY);
+
+        if(!type.isEmpty()) {
+            extra.get().remove(TYPE_KEY);
+            this.item.setType(Material.matchMaterial(type));
+        }
+
         // Change this percent to be lower later
         this.special = extra.get().hasKey(SPECIAL_KEY) ? extra.get().getBoolean(SPECIAL_KEY) : Math.random() < 0.5;
         if(!this.special)
@@ -109,9 +117,8 @@ public class GenericClaraItem implements ClaraItem {
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             this.item.setItemMeta(meta);
         }
-        String type = extra.get().getString(TYPE_KEY);
-        if(!type.isEmpty())
-            this.item.setType(Material.matchMaterial(type));
+
+
         extra.set(ItemUtil.getRawNBT(item));
         extra.get().setBoolean(SPECIAL_KEY, this.special);
         extra.get().setBoolean(CORRUPTED_KEY, this.corrupted);

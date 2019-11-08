@@ -30,6 +30,11 @@ public interface ClaraItem {
      */
     String DURABILITY_KEY = "clara_item_durability";
 
+    /**
+     * Id for the slot in which the item resides.
+     */
+    String SLOT_KEY = "clara_slot";
+
     String getId(); // this id is already set in the nbt tag compound
 
     ItemRarity getRarity();

@@ -1,12 +1,15 @@
 package me.encast.clara.player;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import lombok.Getter;
 import me.encast.clara.Clara;
+import me.encast.clara.item.ClaraItem;
 import me.encast.clara.item.ItemManager;
 import me.encast.clara.item.RuntimeClaraItem;
 import me.encast.clara.util.nbt.SaveableNBT;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -46,7 +49,7 @@ public class ClaraPlayerManager {
                 if (runtime != null) {
                     // Check to make sure item count does not go above the runtime count by using a map
                     compound = manager.saveItem(item, runtime);
-                    compound.setInt("clara_slot", slot);
+                    compound.setInt(ClaraItem.SLOT_KEY, slot);
                     items.add(new SaveableNBT(compound));
                 }
             }
@@ -82,8 +85,8 @@ public class ClaraPlayerManager {
 
         for(SaveableNBT nbt : save.getItems()) {
             NBTTagCompound tag = nbt.toNBT();
-            if(tag.hasKey("clara_slot")) {
-                int slot = tag.getInt("clara_slot");
+            if(tag.hasKey(ClaraItem.SLOT_KEY)) {
+                int slot = tag.getInt(ClaraItem.SLOT_KEY);
                 if(slot < 100) {
                     // Regular inventory item
                     manager.load(cp, tag, true);
@@ -92,6 +95,8 @@ public class ClaraPlayerManager {
                 }
             }
         }
+
+        player.updateInventory();
 
         return cp;
     }
