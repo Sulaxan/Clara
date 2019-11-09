@@ -4,6 +4,9 @@ import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+
 public class ItemUtil {
 
     // Prevent initialization
@@ -44,6 +47,18 @@ public class ItemUtil {
 
     public static ItemStack applyRawNBT(ItemStack item, NBTTagCompound compound) {
         return CraftItemStack.asBukkitCopy(applyRawNBTAndGetNMS(item, compound));
+    }
+
+    public static ItemStack fetchAndApplyRawNBT(ItemStack item, Consumer<NBTTagCompound> consumer) {
+        net.minecraft.server.v1_8_R3.ItemStack i = CraftItemStack.asNMSCopy(item);
+        NBTTagCompound compound = i.getTag();
+        if(compound == null) {
+            compound = new NBTTagCompound();
+            i.setTag(compound);
+        }
+        consumer.accept(compound);
+
+        return CraftItemStack.asBukkitCopy(i);
     }
 
     public static net.minecraft.server.v1_8_R3.ItemStack applyRawNBTAndGetNMS(ItemStack item, NBTTagCompound compound) {

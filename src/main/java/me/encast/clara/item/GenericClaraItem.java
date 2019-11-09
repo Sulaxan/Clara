@@ -124,7 +124,7 @@ public class GenericClaraItem implements ClaraItem {
 //        context.setCompound(compound = ItemUtil.getRawNBT(item));
         compound.setBoolean(SPECIAL_KEY, this.special);
         compound.setBoolean(CORRUPTED_KEY, this.corrupted);
-        this.item = ItemUtil.applyRawNBT(item, compound);
+//        this.item = ItemUtil.applyRawNBT(item, compound);
     }
 
     @Override

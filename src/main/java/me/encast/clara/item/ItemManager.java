@@ -1,18 +1,13 @@
 package me.encast.clara.item;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import me.encast.clara.Clara;
 import me.encast.clara.armor.ClaraArmor;
 import me.encast.clara.player.ClaraPlayer;
 import me.encast.clara.util.event.ArmorEquipEvent;
-import me.encast.clara.util.inventory.ItemStackUtil;
 import me.encast.clara.util.item.ItemBuilderContext;
 import me.encast.clara.util.item.ItemUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
-import net.minecraft.server.v1_8_R3.NBTTagList;
-import net.minecraft.server.v1_8_R3.NBTTagString;
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -60,9 +55,7 @@ public class ItemManager implements Listener {
         if(uuid != null && !uuid.isEmpty())
             try {
                 return getRuntimeItem(player, UUID.fromString(uuid));
-            } catch (Exception e) {
-                return null;
-            }
+            } catch (Exception e) { }
 
         return null;
     }
@@ -73,8 +66,14 @@ public class ItemManager implements Listener {
         // Set unique id
         UUID uuid = UUID.randomUUID();
         setDefaultNBT(compound, item, uuid);
+
+        ItemBuilderContext context = new ItemBuilderContext(compound, i.getItemMeta());
+        item.loadItem(i, context);
+        compound = context.getCompound();
+
         i = ItemUtil.applyRawNBT(i, compound);
-        applyItemData(i, i.getItemMeta(), item);
+        applyItemData(i, context.getMeta(), item);
+
         if(addAsRuntime) {
             player.addRuntimeItem(new RuntimeClaraItem(uuid, item, compound));
         }
@@ -90,6 +89,7 @@ public class ItemManager implements Listener {
             if(item == null) {
                 item = new GenericClaraItem();
             }
+
             ItemStack i = item.getNewItemInstance();
             if(i != null) {
                 int count = Math.max(compound.getInt(ClaraItem.COUNT_KEY), 1);
@@ -101,17 +101,21 @@ public class ItemManager implements Listener {
 
                 UUID uuid = UUID.randomUUID();
 
-                setDefaultNBT(compound, null, uuid); // make it null so the item id isn't set twice
-                i = ItemUtil.applyRawNBT(i, compound);
+//                setDefaultNBT(compound, null, uuid); // make it null so the item id isn't set twice
+//                i = ItemUtil.applyRawNBT(i, compound);
 
                 // Call loadItem in ClaraItem
 
                 ItemBuilderContext context = new ItemBuilderContext(compound, i.getItemMeta());
                 item.loadItem(i, context);
 
-                i = item.getItem();
+                i = item.getItem(); // just in case it changes
+                setDefaultNBT(compound, null, uuid);
+                i = ItemUtil.applyRawNBT(i, compound);
                 applyItemData(i, context.getMeta(), item);
+
                 compound = ItemUtil.getRawNBT(i);
+
 
                 item.setItem(i);
 
@@ -152,18 +156,6 @@ public class ItemManager implements Listener {
         compound.remove(ClaraItem.SLOT_KEY);
     }
 
-    public NBTTagCompound save(ClaraItem item) {
-        NBTTagCompound compound = ItemUtil.getSaveableNBT(item.getItem());
-        // For easier item loading
-        compound.setString(ClaraItem.ITEM_ID_KEY, item.getId());
-        return compound;
-    }
-
-    public NBTTagCompound saveAndRemoveRuntime(ClaraPlayer player, RuntimeClaraItem item) {
-        player.removeRuntimeItem(item);
-        return save(item.getItem());
-    }
-
     public ClaraItem getNewClaraItem(String id) {
         for(ClaraItemType type : ClaraItemType.VALUES) {
             if(type.getId().equals(id))
@@ -186,38 +178,36 @@ public class ItemManager implements Listener {
             }
             return;
         }
+
         NBTTagCompound compound = (NBTTagCompound) ItemUtil.getOrSetRawNBT(item).clone();
         UUID uuid = UUID.randomUUID();
-        ClaraItem claraItem;
-        if(!compound.getString(ClaraItem.ITEM_ID_KEY).isEmpty() &&
-                !compound.getString(ClaraItem.UUID_KEY).isEmpty()) {
+        ClaraItem claraItem = null;
+        // We can ignore the item UUID since it'll either be matched or a new one will be generated
+        if(!compound.getString(ClaraItem.ITEM_ID_KEY).isEmpty()) {
             claraItem = getNewClaraItem(compound.getString(ClaraItem.ITEM_ID_KEY));
-            if(claraItem == null) {
-                claraItem = new GenericClaraItem();
-            } else {
-                uuid = UUID.fromString(compound.getString(ClaraItem.UUID_KEY));
-            }
-        } else {
-            claraItem = new GenericClaraItem();
         }
 
+        if(claraItem == null)
+            claraItem = new GenericClaraItem();
+
         ItemBuilderContext context = new ItemBuilderContext(compound, item.getItemMeta());
-        setDefaultNBT(compound, claraItem, uuid);
         claraItem.loadItem(item, context);
         compound = context.getCompound();
 
-        if(claraItem.getAmount() == 0)
-            claraItem.setAmount(1);
+        claraItem.setAmount(Math.max(1, claraItem.getAmount()));
 
         RuntimeClaraItem runtimeItem = getSimilarRuntime(player, claraItem);
         if(runtimeItem != null) {
-            runtimeItem.getItem().setAmount(claraItem.getAmount());
+            runtimeItem.getItem().setAmount(runtimeItem.getItem().getAmount() + claraItem.getAmount());
         } else {
             runtimeItem = new RuntimeClaraItem(uuid, claraItem, null);
-            setDefaultNBT(compound, claraItem, uuid);
+            setDefaultNBT(compound, claraItem, uuid); // apply default nbt after just in case it got replaced
+
             applyItemData(claraItem.getItem(), context.getMeta(), claraItem);
-            copyUniqueKeyNBT(ItemUtil.getRawNBT(claraItem.getItem()), compound);
-            claraItem.setItem(ItemUtil.applyRawNBT(claraItem.getItem(), compound));
+
+            AtomicReference<NBTTagCompound> tempRef = new AtomicReference<>(compound);
+            claraItem.setItem(ItemUtil.fetchAndApplyRawNBT(claraItem.getItem(),
+                    tag -> copyUniqueKeyNBT(tag, tempRef.get())));
 
             runtimeItem.setNbt(compound);
             player.addRuntimeItem(runtimeItem);
@@ -235,27 +225,6 @@ public class ItemManager implements Listener {
         }
     }
 
-    public UUID getItemUUID(ClaraPlayer player, ClaraItem item) {
-        if(!item.isStackable())
-            return null;
-
-        for(RuntimeClaraItem runtime : player.getRuntimeItems()) {
-            if(runtime.getItem().isSimilar(item))
-                return runtime.getUuid();
-        }
-
-        return null;
-    }
-
-    public UUID getItemUUID(ClaraPlayer player, ItemStack item) {
-        for(RuntimeClaraItem runtime : player.getRuntimeItems()) {
-            if(runtime.getItem().isSimilar(item))
-                return runtime.getUuid();
-        }
-
-        return null;
-    }
-
     public RuntimeClaraItem getSimilarRuntime(ClaraPlayer player, ClaraItem item) {
         if(!item.isStackable())
             return null;
@@ -271,21 +240,6 @@ public class ItemManager implements Listener {
         ItemStack i = item.getItem().clone();
         i.setAmount(1);
         return player.getBukkitPlayer().getInventory().addItem(i);
-    }
-
-    private void updateItem(Player player, RuntimeClaraItem item) {
-        ItemStack[] contents = player.getInventory().getContents();
-        for(int i = 0; i < contents.length; i++) {
-            if(contents[i] != null) {
-                String uuid = ItemStackUtil.getMetadataValue(contents[i], ClaraItem.UUID_KEY);
-                if(uuid != null && item.getNbt().getString(ClaraItem.UUID_KEY).equalsIgnoreCase(uuid)) {
-                    contents[i] = item.getItem().getItem();
-                }
-            }
-        }
-
-        player.getInventory().setContents(contents);
-        player.updateInventory();
     }
 
     private void setDefaultNBT(NBTTagCompound compound, ClaraItem item, UUID uuid) {
@@ -319,22 +273,6 @@ public class ItemManager implements Listener {
 
         meta.setLore(lore);
         item.setItemMeta(meta);
-    }
-
-    private void applyItemData(ClaraItem item, NBTTagCompound compound) {
-        NBTTagCompound display = compound.getCompound("display");
-        NBTTagList lore = new NBTTagList();
-        ItemRarity rarity = ItemRarity.STANDARD;
-        if(item != null) {
-            // Just in case it is a generic item
-            rarity = item.getRarity();
-           item.getLore().forEach(l -> lore.add(new NBTTagString(l)));
-            lore.add(new NBTTagString(" "));
-        } else {
-            lore.add(new NBTTagString("§7This is a generic item!"));
-        }
-        lore.add(new NBTTagString("§7⚔ " + rarity.getDisplay()));
-        display.set("Lore", lore);
     }
 
     @EventHandler
@@ -380,7 +318,6 @@ public class ItemManager implements Listener {
         ClaraPlayer player = Clara.getInstance().getPlayerManager().getPlayer(p.getUniqueId());
         RuntimeClaraItem item = getRuntimeItem(player, e.getItemDrop().getItemStack());
         if(item != null) {
-            Bukkit.broadcastMessage("NOT NULL!");
             int amount = e.getItemDrop().getItemStack().getAmount();
             item.getItem().setAmount(item.getItem().getAmount() - amount);
             if(item.getItem().getAmount() <= 0) {
