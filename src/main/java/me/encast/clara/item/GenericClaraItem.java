@@ -2,6 +2,7 @@ package me.encast.clara.item;
 
 import com.google.common.collect.Lists;
 import lombok.Getter;
+import me.encast.clara.util.item.ItemBuilderContext;
 import me.encast.clara.util.item.ItemUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.Material;
@@ -96,34 +97,35 @@ public class GenericClaraItem implements ClaraItem {
     }
 
     @Override
-    public void loadItem(ItemStack item, AtomicReference<NBTTagCompound> extra) {
+    public void loadItem(ItemStack item, ItemBuilderContext context) {
         this.item = item;
         if(this.item == null)
             this.item = getNewItemInstance();
 
-        String type = extra.get().getString(TYPE_KEY);
+        NBTTagCompound compound = context.getCompound();
+
+        String type = context.getCompound().getString(TYPE_KEY);
 
         if(!type.isEmpty()) {
-            extra.get().remove(TYPE_KEY);
+            compound.remove(TYPE_KEY);
             this.item.setType(Material.matchMaterial(type));
         }
 
         // Change this percent to be lower later
-        this.special = extra.get().hasKey(SPECIAL_KEY) ? extra.get().getBoolean(SPECIAL_KEY) : Math.random() < 0.5;
+        this.special = compound.hasKey(SPECIAL_KEY) ? context.getCompound().getBoolean(SPECIAL_KEY) : Math.random() < 0.5;
         if(!this.special)
-            this.corrupted = extra.get().hasKey(CORRUPTED_KEY) ? extra.get().getBoolean(CORRUPTED_KEY) : Math.random() < 0.1;
+            this.corrupted = compound.hasKey(CORRUPTED_KEY) ? compound.getBoolean(CORRUPTED_KEY) : Math.random() < 0.1;
         if(this.special || this.corrupted) {
-            ItemMeta meta = item.getItemMeta();
+            ItemMeta meta = context.getMeta();
             meta.addEnchant(Enchantment.DURABILITY, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-            this.item.setItemMeta(meta);
+            // meta will be automatically set
         }
 
-
-        extra.set(ItemUtil.getRawNBT(item));
-        extra.get().setBoolean(SPECIAL_KEY, this.special);
-        extra.get().setBoolean(CORRUPTED_KEY, this.corrupted);
-        this.item = ItemUtil.applyRawNBT(item, extra.get());
+//        context.setCompound(compound = ItemUtil.getRawNBT(item));
+        compound.setBoolean(SPECIAL_KEY, this.special);
+        compound.setBoolean(CORRUPTED_KEY, this.corrupted);
+        this.item = ItemUtil.applyRawNBT(item, compound);
     }
 
     @Override

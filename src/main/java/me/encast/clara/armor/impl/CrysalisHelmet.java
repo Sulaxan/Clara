@@ -6,6 +6,7 @@ import me.encast.clara.item.ItemRarity;
 import me.encast.clara.player.ClaraPlayer;
 import me.encast.clara.util.Util;
 import me.encast.clara.util.item.ItemBuilder;
+import me.encast.clara.util.item.ItemBuilderContext;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -86,7 +87,7 @@ public class CrysalisHelmet implements ClaraArmor {
     }
 
     @Override
-    public void loadItem(ItemStack item, AtomicReference<NBTTagCompound> extra) {
+    public void loadItem(ItemStack item, ItemBuilderContext context) {
         this.item = item;
         // Nothing to change about the item
     }

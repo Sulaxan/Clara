@@ -7,6 +7,9 @@ import me.encast.clara.item.ClaraItemType;
 import me.encast.clara.player.ClaraPlayer;
 import me.encast.clara.player.ClaraSavePlayer;
 import me.encast.clara.util.item.ItemUtil;
+import me.encast.clara.util.nbt.NBTTagCompoundSerializer;
+import net.minecraft.server.v1_8_R3.NBTBase;
+import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,7 +35,8 @@ public class ItemCommand implements CommandExecutor {
             if(args.length >= 1) {
                 if(args[0].equalsIgnoreCase("nbt")) {
                     if(p.getItemInHand() != null) {
-                        Bukkit.broadcastMessage(new GsonBuilder().create().toJson(ItemUtil.getRawNBT(p.getItemInHand())));
+                        Bukkit.broadcastMessage(new GsonBuilder()
+                                .create().toJson(ItemUtil.getRawNBT(p.getItemInHand())));
                     }
                     return true;
                 }
@@ -46,7 +50,11 @@ public class ItemCommand implements CommandExecutor {
                         if(saveFile.exists()) {
                             try {
                                 FileReader reader = new FileReader(saveFile);
-                                ClaraPlayer cpTemp = Clara.getInstance().getPlayerManager().loadPlayer(p, new Gson().fromJson(reader, ClaraSavePlayer.class));
+                                ClaraPlayer cpTemp = Clara.getInstance().getPlayerManager().loadPlayer(p,
+                                        new GsonBuilder()
+                                                .registerTypeAdapter(NBTBase.class, new NBTTagCompoundSerializer())
+                                                .create()
+                                                .fromJson(reader, ClaraSavePlayer.class));
                                 reader.close();
                                 Clara.getInstance().getPlayerManager().getPlayers().remove(cp);
                                 Clara.getInstance().getPlayerManager().addPlayer(cpTemp);
@@ -72,7 +80,10 @@ public class ItemCommand implements CommandExecutor {
                         String uuid = UUID.randomUUID().toString().split("-")[4];
 
                         File saveFile = new File(dir.getAbsolutePath() + File.separatorChar + uuid);
-                        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                        Gson gson = new GsonBuilder()
+                                .registerTypeAdapter(NBTBase.class, new NBTTagCompoundSerializer())
+                                .setPrettyPrinting()
+                                .create();
                         FileWriter writer = new FileWriter(saveFile);
                         gson.toJson(save, writer);
                         writer.close();

@@ -1,5 +1,6 @@
 package me.encast.clara.item;
 
+import me.encast.clara.util.item.ItemBuilderContext;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.inventory.ItemStack;
 
@@ -57,7 +58,7 @@ public interface ClaraItem {
 
     void setItem(ItemStack item);
 
-    void loadItem(ItemStack item, AtomicReference<NBTTagCompound> extra);
+    void loadItem(ItemStack item, ItemBuilderContext context);
 
     <T> T getValue(String key, Class<T> clazz);
 

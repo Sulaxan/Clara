@@ -39,7 +39,7 @@ public class ClaraPlayerManager {
     public ClaraSavePlayer savePlayer(ClaraPlayer player) {
         Player p = player.getBukkitPlayer();
         ItemManager manager = Clara.getInstance().getItemManager();
-        List<SaveableNBT> items = Lists.newArrayList();
+        List<NBTTagCompound> items = Lists.newArrayList();
         int slot = 0;
 
         NBTTagCompound compound;
@@ -50,7 +50,7 @@ public class ClaraPlayerManager {
                     // Check to make sure item count does not go above the runtime count by using a map
                     compound = manager.saveItem(item, runtime);
                     compound.setInt(ClaraItem.SLOT_KEY, slot);
-                    items.add(new SaveableNBT(compound));
+                    items.add(compound);
                 }
             }
             slot++;
@@ -83,8 +83,7 @@ public class ClaraPlayerManager {
 
         ItemManager manager = Clara.getInstance().getItemManager();
 
-        for(SaveableNBT nbt : save.getItems()) {
-            NBTTagCompound tag = nbt.toNBT();
+        for(NBTTagCompound tag : save.getItems()) {
             if(tag.hasKey(ClaraItem.SLOT_KEY)) {
                 int slot = tag.getInt(ClaraItem.SLOT_KEY);
                 if(slot < 100) {

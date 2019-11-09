@@ -7,12 +7,12 @@ import me.encast.clara.armor.ClaraArmor;
 import me.encast.clara.player.ClaraPlayer;
 import me.encast.clara.util.event.ArmorEquipEvent;
 import me.encast.clara.util.inventory.ItemStackUtil;
+import me.encast.clara.util.item.ItemBuilderContext;
 import me.encast.clara.util.item.ItemUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import net.minecraft.server.v1_8_R3.NBTTagList;
 import net.minecraft.server.v1_8_R3.NBTTagString;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -74,7 +74,7 @@ public class ItemManager implements Listener {
         UUID uuid = UUID.randomUUID();
         setDefaultNBT(compound, item, uuid);
         i = ItemUtil.applyRawNBT(i, compound);
-        applyItemData(i, item);
+        applyItemData(i, i.getItemMeta(), item);
         if(addAsRuntime) {
             player.addRuntimeItem(new RuntimeClaraItem(uuid, item, compound));
         }
@@ -100,17 +100,20 @@ public class ItemManager implements Listener {
                 UUID uuid = UUID.randomUUID();
 
                 setDefaultNBT(compound, null, uuid); // make it null so the item id isn't set twice
-                ItemUtil.applyNBT(i, compound);
+                i = ItemUtil.applyRawNBT(i, compound);
 
+                Bukkit.broadcastMessage(new Gson().toJson(compound) + " ----------------------- ");
 
                 // Call loadItem in ClaraItem
 
-                AtomicReference<NBTTagCompound> ref = new AtomicReference<>(compound);
-                item.loadItem(i, ref);
+                ItemBuilderContext context = new ItemBuilderContext(compound, i.getItemMeta());
+                item.loadItem(i, context);
 
                 i = item.getItem();
-                applyItemData(i, item);
+                applyItemData(i, i.getItemMeta(), item);
                 compound = ItemUtil.getRawNBT(i);
+
+                Bukkit.broadcastMessage(new Gson().toJson(compound));
 
                 // No need to set item id since it should already be available
 
@@ -183,7 +186,7 @@ public class ItemManager implements Listener {
             }
             return;
         }
-        NBTTagCompound compound = ItemUtil.getOrSetRawNBT(item);
+        NBTTagCompound compound = (NBTTagCompound) ItemUtil.getOrSetRawNBT(item).clone();
         UUID uuid = UUID.randomUUID();
         ClaraItem claraItem;
         if(!compound.getString(ClaraItem.ITEM_ID_KEY).isEmpty() &&
@@ -198,10 +201,10 @@ public class ItemManager implements Listener {
             claraItem = new GenericClaraItem();
         }
 
-        AtomicReference<NBTTagCompound> ref = new AtomicReference<>(compound);
+        ItemBuilderContext context = new ItemBuilderContext(compound, item.getItemMeta());
         setDefaultNBT(compound, claraItem, uuid);
-        claraItem.loadItem(item, ref);
-        compound = ref.get();
+        claraItem.loadItem(item, context);
+        compound = context.getCompound();
 
         if(claraItem.getAmount() == 0)
             claraItem.setAmount(1);
@@ -210,10 +213,11 @@ public class ItemManager implements Listener {
         if(runtimeItem != null) {
             runtimeItem.getItem().setAmount(claraItem.getAmount());
         } else {
-            runtimeItem = new RuntimeClaraItem(uuid, claraItem, ItemUtil.getRawNBT(claraItem.getItem()));
+            runtimeItem = new RuntimeClaraItem(uuid, claraItem, null);
             setDefaultNBT(compound, claraItem, uuid);
+            runtimeItem.setNbt(compound);
             claraItem.setItem(ItemUtil.applyRawNBT(claraItem.getItem(), compound));
-            applyItemData(claraItem.getItem(), claraItem);
+            applyItemData(claraItem.getItem(), claraItem.getItem().getItemMeta(), claraItem);
             player.addRuntimeItem(runtimeItem);
         }
 
@@ -289,8 +293,7 @@ public class ItemManager implements Listener {
             compound.setString(ClaraItem.ITEM_ID_KEY, item.getId());
     }
 
-    private void applyItemData(ItemStack item, ClaraItem ci) {
-        ItemMeta meta = item.getItemMeta();
+    private void applyItemData(ItemStack item, ItemMeta meta, ClaraItem ci) {
         List<String> lore = Lists.newArrayList();
         ItemRarity rarity = ItemRarity.STANDARD;
         if(ci != null) {
