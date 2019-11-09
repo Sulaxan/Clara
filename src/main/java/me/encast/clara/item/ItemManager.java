@@ -96,13 +96,13 @@ public class ItemManager implements Listener {
                 int slot = compound.hasKey(ClaraItem.SLOT_KEY) ? compound.getInt(ClaraItem.SLOT_KEY) : -1;
 
                 removeUnneededSaveNBT(compound);
+                copyUniqueKeyNBT(ItemUtil.getRawNBT(i), compound);
+
 
                 UUID uuid = UUID.randomUUID();
 
                 setDefaultNBT(compound, null, uuid); // make it null so the item id isn't set twice
                 i = ItemUtil.applyRawNBT(i, compound);
-
-                Bukkit.broadcastMessage(new Gson().toJson(compound) + " ----------------------- ");
 
                 // Call loadItem in ClaraItem
 
@@ -110,10 +110,10 @@ public class ItemManager implements Listener {
                 item.loadItem(i, context);
 
                 i = item.getItem();
-                applyItemData(i, i.getItemMeta(), item);
+                applyItemData(i, context.getMeta(), item);
                 compound = ItemUtil.getRawNBT(i);
 
-                Bukkit.broadcastMessage(new Gson().toJson(compound));
+                item.setItem(i);
 
                 // No need to set item id since it should already be available
 
@@ -215,9 +215,11 @@ public class ItemManager implements Listener {
         } else {
             runtimeItem = new RuntimeClaraItem(uuid, claraItem, null);
             setDefaultNBT(compound, claraItem, uuid);
-            runtimeItem.setNbt(compound);
+            applyItemData(claraItem.getItem(), context.getMeta(), claraItem);
+            copyUniqueKeyNBT(ItemUtil.getRawNBT(claraItem.getItem()), compound);
             claraItem.setItem(ItemUtil.applyRawNBT(claraItem.getItem(), compound));
-            applyItemData(claraItem.getItem(), claraItem.getItem().getItemMeta(), claraItem);
+
+            runtimeItem.setNbt(compound);
             player.addRuntimeItem(runtimeItem);
         }
 
@@ -291,6 +293,14 @@ public class ItemManager implements Listener {
         // Just in case it is a generic item
         if(item != null)
             compound.setString(ClaraItem.ITEM_ID_KEY, item.getId());
+    }
+
+    private void copyUniqueKeyNBT(NBTTagCompound from, NBTTagCompound to) {
+        for(String key : from.c()) {
+            if(!to.hasKey(key)) {
+                to.set(key, from.get(key));
+            }
+        }
     }
 
     private void applyItemData(ItemStack item, ItemMeta meta, ClaraItem ci) {

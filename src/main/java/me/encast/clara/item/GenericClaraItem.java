@@ -12,7 +12,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class GenericClaraItem implements ClaraItem {
 
@@ -47,7 +46,7 @@ public class GenericClaraItem implements ClaraItem {
 
     @Override
     public ItemRarity getRarity() {
-        return special ? ItemRarity.GODLY : this.corrupted ? ItemRarity.CORRUPTED : ItemRarity.STANDARD;
+        return special ? ItemRarity.ANGELIC : this.corrupted ? ItemRarity.CORRUPTED : ItemRarity.STANDARD;
     }
 
     @Override
