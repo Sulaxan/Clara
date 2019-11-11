@@ -62,7 +62,6 @@ public class ItemManager implements Listener {
         if(item == null)
             return null;
         String uuid = ItemUtil.getOrDefaultRawNBT(item).getString(ClaraItem.UUID_KEY);
-        Bukkit.broadcastMessage("UUID = " + uuid);
         if(uuid != null && !uuid.isEmpty())
             try {
                 return getRuntimeItem(player, UUID.fromString(uuid));
@@ -216,6 +215,7 @@ public class ItemManager implements Listener {
         claraItem.setAmount(Math.max(1, claraItem.getAmount()));
 
         RuntimeClaraItem runtimeItem = getSimilarRuntime(player, claraItem);
+
         if(runtimeItem != null) {
             runtimeItem.getItem().setAmount(runtimeItem.getItem().getAmount() + claraItem.getAmount());
         } else {
@@ -250,7 +250,8 @@ public class ItemManager implements Listener {
         if(!item.isStackable())
             return null;
         for(RuntimeClaraItem runtime : player.getRuntimeItems()) {
-            if(runtime.getItem().isSimilar(item))
+            if(item.isSimilar(runtime.getItem())) // Switching around since nbt data isn't set (perhaps set nbt data beforehand?)
+            //if(runtime.getItem().isSimilar(item))
                 return runtime;
         }
         return null;

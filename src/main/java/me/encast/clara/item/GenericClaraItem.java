@@ -47,6 +47,9 @@ public class GenericClaraItem implements ClaraItem {
 
     @Override
     public String getName(Locale locale) {
+        if(item.getType() == Material.PORK) {
+            return "Piece of Rina";
+        }
         return null;
     }
 
