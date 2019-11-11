@@ -2,7 +2,6 @@ package me.encast.clara;
 
 import com.google.common.collect.Lists;
 import lombok.Getter;
-import me.encast.clara.boss.Sephrem;
 import me.encast.clara.command.ItemCommand;
 import me.encast.clara.item.ItemManager;
 import me.encast.clara.player.ClaraPlayerManager;
