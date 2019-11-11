@@ -5,6 +5,7 @@ import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class ItemUtil {
 
@@ -17,7 +18,11 @@ public class ItemUtil {
     }
 
     public static NBTTagCompound getRawNBT(ItemStack item) {
+        if(item == null)
+            return new NBTTagCompound();
         net.minecraft.server.v1_8_R3.ItemStack i = CraftItemStack.asNMSCopy(item);
+        if(i == null)
+            return new NBTTagCompound();
         return i.getTag();
     }
 
@@ -51,14 +56,20 @@ public class ItemUtil {
         return CraftItemStack.asBukkitCopy(applyRawNBTAndGetNMS(item, compound));
     }
 
-    public static ItemStack fetchAndApplyRawNBT(ItemStack item, Consumer<NBTTagCompound> consumer) {
+    public static ItemStack applyRawNBT(CraftItemStack item, NBTTagCompound compound) {
+        net.minecraft.server.v1_8_R3.ItemStack i = CraftItemStack.asNMSCopy(item);
+        i.setTag(compound);
+        return CraftItemStack.asBukkitCopy(i);
+    }
+
+    public static ItemStack fetchAndApplyRawNBT(ItemStack item, Function<NBTTagCompound, NBTTagCompound> func) {
         net.minecraft.server.v1_8_R3.ItemStack i = CraftItemStack.asNMSCopy(item);
         NBTTagCompound compound = i.getTag();
         if(compound == null) {
             compound = new NBTTagCompound();
             i.setTag(compound);
         }
-        consumer.accept(compound);
+        i.setTag(func.apply(compound));
 
         return CraftItemStack.asBukkitCopy(i);
     }

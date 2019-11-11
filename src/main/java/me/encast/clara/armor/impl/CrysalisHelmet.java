@@ -7,6 +7,8 @@ import me.encast.clara.player.ClaraPlayer;
 import me.encast.clara.util.Util;
 import me.encast.clara.util.item.ItemBuilder;
 import me.encast.clara.util.item.ItemBuilderContext;
+import me.encast.clara.util.item.interact.InteractData;
+import me.encast.clara.util.item.interact.InteractableItem;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -14,10 +16,10 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
-public class CrysalisHelmet implements ClaraArmor {
+public class CrysalisHelmet implements ClaraArmor, InteractableItem {
 
     private ItemStack item;
 
@@ -25,6 +27,11 @@ public class CrysalisHelmet implements ClaraArmor {
     private double defense = 0.02; // 2%
 
     public static final String ID = "crysalis_helmet";
+
+    @Override
+    public void interact(InteractData data) {
+        data.getPlayer().sendMessage("§aWoah you clicked on me!");
+    }
 
     @Override
     public void apply(ClaraPlayer player) {
@@ -44,6 +51,11 @@ public class CrysalisHelmet implements ClaraArmor {
     @Override
     public String getId() {
         return ID;
+    }
+
+    @Override
+    public String getName(Locale locale) {
+        return "Crysalis Helmet";
     }
 
     @Override
@@ -69,7 +81,6 @@ public class CrysalisHelmet implements ClaraArmor {
     @Override
     public ItemStack getNewItemInstance() {
         return new ItemBuilder(Material.LEATHER_HELMET, ItemBuilder.ItemType.LEATHER_ARMOUR)
-                .setDisplayName("§5Crysalis Helmet")
                 .setColor(Color.WHITE)
                 .setUnbreakable(true)
                 .addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ATTRIBUTES)

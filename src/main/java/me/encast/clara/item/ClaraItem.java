@@ -5,6 +5,7 @@ import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 public interface ClaraItem {
@@ -37,6 +38,8 @@ public interface ClaraItem {
     String SLOT_KEY = "clara_slot";
 
     String getId(); // this id is already set in the nbt tag compound
+
+    String getName(Locale locale); // friendly name
 
     ItemRarity getRarity();
 

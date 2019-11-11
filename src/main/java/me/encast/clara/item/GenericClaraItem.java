@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
+import java.util.Locale;
 
 public class GenericClaraItem implements ClaraItem {
 
@@ -42,6 +43,11 @@ public class GenericClaraItem implements ClaraItem {
     @Override
     public String getId() {
         return "generic_item";
+    }
+
+    @Override
+    public String getName(Locale locale) {
+        return null;
     }
 
     @Override
@@ -151,7 +157,7 @@ public class GenericClaraItem implements ClaraItem {
 
     @Override
     public boolean isSimilar(ItemStack item) {
-        NBTTagCompound compound = ItemUtil.getRawNBT(item);
+        NBTTagCompound compound = ItemUtil.getOrDefaultRawNBT(item);
         boolean special = compound.hasKey(SPECIAL_KEY) && compound.getBoolean(SPECIAL_KEY);
         boolean corrupted = compound.hasKey(CORRUPTED_KEY) && compound.getBoolean(CORRUPTED_KEY);
         if(this.item.getType() == item.getType() && this.item.getDurability() == item.getDurability()) {

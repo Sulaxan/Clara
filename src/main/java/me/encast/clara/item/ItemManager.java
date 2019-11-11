@@ -9,9 +9,13 @@ import me.encast.clara.util.item.ItemBuilderContext;
 import me.encast.clara.util.item.ItemUtil;
 import me.encast.clara.util.item.interact.InteractData;
 import me.encast.clara.util.item.interact.InteractableItem;
+import net.minecraft.server.v1_8_R3.NBTBase;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import net.minecraft.server.v1_8_R3.NBTTagList;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,7 +26,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -56,6 +62,7 @@ public class ItemManager implements Listener {
         if(item == null)
             return null;
         String uuid = ItemUtil.getOrDefaultRawNBT(item).getString(ClaraItem.UUID_KEY);
+        Bukkit.broadcastMessage("UUID = " + uuid);
         if(uuid != null && !uuid.isEmpty())
             try {
                 return getRuntimeItem(player, UUID.fromString(uuid));
@@ -69,14 +76,21 @@ public class ItemManager implements Listener {
         NBTTagCompound compound = ItemUtil.getOrDefaultRawNBT(i);
         // Set unique id
         UUID uuid = UUID.randomUUID();
-        setDefaultNBT(compound, item, uuid);
 
         ItemBuilderContext context = new ItemBuilderContext(compound, i.getItemMeta());
         item.loadItem(i, context);
         compound = context.getCompound();
-
-        i = ItemUtil.applyRawNBT(i, compound);
+        i = item.getItem();
         applyItemData(i, context.getMeta(), item);
+        setDefaultNBT(compound, item, uuid);
+
+        AtomicReference<NBTTagCompound> ref = new AtomicReference<>(compound);
+        i = ItemUtil.fetchAndApplyRawNBT(i, tag -> {
+            copyUniqueKeyNBT(tag, ref.get());
+            return ref.get();
+        });
+
+        item.setItem(i);
 
         if(addAsRuntime) {
             player.addRuntimeItem(new RuntimeClaraItem(uuid, item, compound));
@@ -206,13 +220,15 @@ public class ItemManager implements Listener {
             runtimeItem.getItem().setAmount(runtimeItem.getItem().getAmount() + claraItem.getAmount());
         } else {
             runtimeItem = new RuntimeClaraItem(uuid, claraItem, null);
-            setDefaultNBT(compound, claraItem, uuid); // apply default nbt after just in case it got replaced
-
             applyItemData(claraItem.getItem(), context.getMeta(), claraItem);
 
+            setDefaultNBT(compound, claraItem, uuid); // apply default nbt after just in case it got replaced
+
             AtomicReference<NBTTagCompound> tempRef = new AtomicReference<>(compound);
-            claraItem.setItem(ItemUtil.fetchAndApplyRawNBT(claraItem.getItem(),
-                    tag -> copyUniqueKeyNBT(tag, tempRef.get())));
+            claraItem.setItem(ItemUtil.fetchAndApplyRawNBT(claraItem.getItem(), tag -> {
+                copyUniqueKeyNBT(tag, tempRef.get());
+                return tempRef.get();
+            }));
 
             runtimeItem.setNbt(compound);
             player.addRuntimeItem(runtimeItem);
@@ -254,11 +270,36 @@ public class ItemManager implements Listener {
             compound.setString(ClaraItem.ITEM_ID_KEY, item.getId());
     }
 
+    // Copies all unique keys in from into to
+    // If a key is a list, it'll add all the key elements into to (assuming that same key is a list)
+    // If a key is a compound, it'll recursively add the unique keys
     private void copyUniqueKeyNBT(NBTTagCompound from, NBTTagCompound to) {
         for(String key : from.c()) {
             if(!to.hasKey(key)) {
                 to.set(key, from.get(key));
+            } else {
+                NBTBase fromBase = from.get(key);
+                NBTBase toBase = to.get(key);
+                if(fromBase instanceof NBTTagList && toBase instanceof NBTTagList) {
+                    NBTTagList fromList = (NBTTagList) fromBase;
+                    NBTTagList toList = (NBTTagList) toBase;
+                    // Check list types (f)
+                    if(fromList.f() == toList.f()) {
+                        try {
+                            Field list = fromList.getClass().getDeclaredField("list");
+                            list.setAccessible(true);
+                            for(NBTBase base : (List<NBTBase>) list.get(fromList)) {
+                                toList.add(base);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else if(fromBase instanceof NBTTagCompound && toBase instanceof NBTTagCompound) {
+                    copyUniqueKeyNBT((NBTTagCompound) fromBase, (NBTTagCompound) toBase);
+                }
             }
+            // Possibly account for adding elements to a list or inner compound
         }
     }
 
@@ -268,6 +309,10 @@ public class ItemManager implements Listener {
         if(ci != null) {
             // Just in case it is a generic item
             rarity = ci.getRarity();
+
+            if(ci.getName(Locale.ENGLISH) != null)
+                meta.setDisplayName(rarity.getColor() + ci.getName(Locale.ENGLISH));
+
             lore = Lists.newArrayList(ci.getLore());
             lore.add(" ");
         } else {
@@ -285,16 +330,14 @@ public class ItemManager implements Listener {
         Player p = (Player) e.getWhoClicked();
         ClaraPlayer cp = Clara.getInstance().getPlayerManager().getPlayer(p.getUniqueId());
         ItemStack item = e.getCurrentItem();
-        if(item != null) {
-            Bukkit.broadcastMessage(item.hashCode() + "");
-            NBTTagCompound compound = ItemUtil.getStaticNBT(item);
-            if(compound != null) {
-                RuntimeClaraItem runtime = getRuntimeItem(cp, item);
-                if(runtime.getItem() instanceof InteractableItem) {
-                    InteractData data = new InteractData(null, e.getAction(), item, e.getCursor(), p);
-                    ((InteractableItem) runtime.getItem()).interact(data);
-                    e.setCancelled(data.isCancel());
-                }
+        if(item != null && item.getType() != Material.AIR) {
+            RuntimeClaraItem runtime = getRuntimeItem(cp, item);
+            if(runtime != null && runtime.getItem() instanceof InteractableItem) {
+                Bukkit.broadcastMessage("!");
+                // add data for the inventory
+                InteractData data = new InteractData(null, e.getAction(), item, e.getCursor(), p);
+                ((InteractableItem) runtime.getItem()).interact(data);
+                e.setCancelled(data.isCancel());
             }
         }
     }
