@@ -12,19 +12,22 @@ public class ItemUtil {
     private ItemUtil() {
     }
 
-    public static NBTTagCompound getRawNBT(ItemStack item) {
-        NBTTagCompound compound = getSaveableNBT(item);
-        // NBTTagCompound#getCompound(String) will either return the compound in the map
-        // or a new one if it is null.
-        return compound.getCompound("tag");
+    public static NBTTagCompound getStaticNBT(ItemStack item) {
+        return StaticItemContext.getCompound(item);
     }
 
-    public static NBTTagCompound getOrSetRawNBT(ItemStack item) {
+    public static NBTTagCompound getRawNBT(ItemStack item) {
+        net.minecraft.server.v1_8_R3.ItemStack i = CraftItemStack.asNMSCopy(item);
+        return i.getTag();
+    }
+
+    public static NBTTagCompound getOrDefaultRawNBT(ItemStack item) {
         if(item == null)
             return null;
         net.minecraft.server.v1_8_R3.ItemStack i = CraftItemStack.asNMSCopy(item);
         NBTTagCompound compound = i.getTag();
         if(compound == null)
+            // This is kind of unnecessary since it isn't directly modifying the item
             i.setTag(compound = new NBTTagCompound());
 
         return compound;

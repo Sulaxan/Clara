@@ -1,6 +1,7 @@
 package me.encast.clara.util.item.interact;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryAction;
@@ -14,6 +15,9 @@ public class InteractData {
     private ItemStack item;
     private ItemStack cursorItem;
     private Player player;
+
+    @Setter
+    private boolean cancel = false;
 
     public InteractData(Action action, InventoryAction invAction, ItemStack item, ItemStack cursorItem, Player player) {
         this.action = action;
