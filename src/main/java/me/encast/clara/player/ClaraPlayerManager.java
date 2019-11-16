@@ -1,15 +1,12 @@
 package me.encast.clara.player;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import lombok.Getter;
 import me.encast.clara.Clara;
 import me.encast.clara.item.ClaraItem;
 import me.encast.clara.item.ItemManager;
 import me.encast.clara.item.RuntimeClaraItem;
-import me.encast.clara.util.nbt.SaveableNBT;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

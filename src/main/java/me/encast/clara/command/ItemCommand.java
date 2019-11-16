@@ -9,7 +9,6 @@ import me.encast.clara.player.ClaraSavePlayer;
 import me.encast.clara.util.item.ItemUtil;
 import me.encast.clara.util.nbt.NBTTagCompoundSerializer;
 import net.minecraft.server.v1_8_R3.NBTBase;
-import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
