@@ -1,7 +1,6 @@
 package me.encast.clara.util.inventory.invx;
 
 import com.google.common.collect.Lists;
-import me.encast.clara.util.inventory.ClickData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -81,7 +80,7 @@ public class GenericInventory implements UndefinedInv, ConstructableInv, Interac
     }
 
     @Override
-    public ItemContext setItem(ItemStack item, int slot, Consumer<ClickData> data) {
+    public ItemContext setItem(ItemStack item, int slot, Consumer<ClickContext> data) {
         return setItem(item, slot).setData(data);
     }
 

@@ -3,9 +3,6 @@ package me.encast.clara.util.inventory;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-/**
- * Defines the size of an {@link AbstractInventory} inventory.
- */
 @AllArgsConstructor
 @Getter
 public enum InvSize {

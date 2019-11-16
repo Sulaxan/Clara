@@ -1,6 +1,5 @@
 package me.encast.clara.util.inventory.invx;
 
-import me.encast.clara.util.inventory.ClickData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
@@ -32,7 +31,7 @@ public interface UndefinedInv {
 
     ItemContext setItem(ItemStack item, int slot);
 
-    ItemContext setItem(ItemStack item, int slot, Consumer<ClickData> data);
+    ItemContext setItem(ItemStack item, int slot, Consumer<ClickContext> data);
 
     ItemContext removeItem(int slot);
 

@@ -2,7 +2,6 @@ package me.encast.clara.util.inventory.invx;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import me.encast.clara.util.inventory.ClickData;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Consumer;
@@ -14,7 +13,7 @@ public class ItemContext {
     private UndefinedInv inventory;
     private ItemStack item;
     private int slot;
-    private Consumer<ClickData> data;
+    private Consumer<ClickContext> data;
     private boolean invokeEvent;
 
     public ItemContext setItem(ItemStack item) {
@@ -27,7 +26,7 @@ public class ItemContext {
         return this;
     }
 
-    public ItemContext setData(Consumer<ClickData> data) {
+    public ItemContext setData(Consumer<ClickContext> data) {
         this.data = data;
         return this;
     }
