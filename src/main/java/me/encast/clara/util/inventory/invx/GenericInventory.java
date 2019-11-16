@@ -126,7 +126,7 @@ public class GenericInventory implements UndefinedInv, ConstructableInv, Interac
         for(ItemContext ctx : items) {
             if(ctx.getSlot() == ADD_CONSTANT) {
                 inv.addItem(ctx.getItem());
-            } else {
+            } else if(ctx.getSlot() < getSize()) {
                 inv.setItem(ctx.getSlot(), ctx.getItem());
             }
         }

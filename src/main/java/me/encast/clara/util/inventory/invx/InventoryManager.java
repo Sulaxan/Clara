@@ -69,6 +69,8 @@ public class InventoryManager implements Listener {
             );
             if(session.getUndefInv() instanceof InteractableInv)
                 ((InteractableInv) session.getUndefInv()).onClick(ctx);
+
+            e.setCancelled(ctx.isCancel());
         }
     }
 
