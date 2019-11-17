@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public interface UndefinedInv {
@@ -26,6 +27,8 @@ public interface UndefinedInv {
     int getSize();
 
     void setSize(int size);
+
+    List<ItemContext> getItems();
 
     ItemContext addItem(ItemStack item);
 

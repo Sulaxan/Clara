@@ -68,6 +68,11 @@ public class GenericInventory implements UndefinedInv, ConstructableInv, Interac
     }
 
     @Override
+    public List<ItemContext> getItems() {
+        return items;
+    }
+
+    @Override
     public ItemContext addItem(ItemStack item) {
         ItemContext context = new ItemContext(this, item, ADD_CONSTANT, null, true);
         this.items.add(context);

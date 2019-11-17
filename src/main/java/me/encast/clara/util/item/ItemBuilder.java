@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.Getter;
 import me.encast.clara.Clara;
-import me.encast.clara.util.concurrent.Callable;
 import me.encast.clara.util.inventory.ItemStackUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -27,6 +26,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Item builder (wrapper) for Bukkit's {@link ItemStack}.
@@ -54,7 +54,7 @@ public class ItemBuilder implements Listener {
 
     private Map<String, String> metadata = Maps.newHashMap();
 
-    private Map<Action, Callable<Player>> listeners = Maps.newConcurrentMap();
+    private Map<Action, Consumer<Player>> listeners = Maps.newConcurrentMap();
 
     /**
      * Constructs a new instance of ItemBuilder for internal
@@ -348,7 +348,7 @@ public class ItemBuilder implements Listener {
      * @param listeners The listeners to set.
      * @return The instance of {@link ItemBuilder}.
      */
-    public ItemBuilder setListeners(Map<Action, Callable<Player>> listeners) {
+    public ItemBuilder setListeners(Map<Action, Consumer<Player>> listeners) {
         this.listeners = listeners;
         return this;
     }
@@ -358,11 +358,11 @@ public class ItemBuilder implements Listener {
      * item with the specified action.
      *
      * @param action The type of action to invoke the call.
-     * @param callable The call to invoke.
+     * @param consumer The call to invoke.
      * @return The instance of {@link ItemBuilder}.
      */
-    public ItemBuilder addListener(Action action, Callable<Player> callable) {
-        this.listeners.put(action, callable);
+    public ItemBuilder addListener(Action action, Consumer<Player> consumer) {
+        this.listeners.put(action, consumer);
         return this;
     }
 
@@ -371,13 +371,13 @@ public class ItemBuilder implements Listener {
      * item, no matter what action is used. If another action is
      * already set, it will be skipped over.
      *
-     * @param callable The call to invoke.
+     * @param consumer The call to invoke.
      * @return The instance of {@link ItemBuilder}.
      */
-    public ItemBuilder addListener(Callable<Player> callable) {
+    public ItemBuilder addListener(Consumer<Player> consumer) {
         Arrays.stream(Action.values()).forEach(action -> {
             if(this.listeners.getOrDefault(action, null) == null)
-                this.listeners.put(action, callable);
+                this.listeners.put(action, consumer);
         });
         return this;
     }
@@ -441,9 +441,9 @@ public class ItemBuilder implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
         if(e.getItem() != null && e.getItem().hashCode() == build().hashCode()) {
-            Callable<Player> call = this.listeners.getOrDefault(e.getAction(), null);
+            Consumer<Player> call = this.listeners.getOrDefault(e.getAction(), null);
             if(call != null)
-                call.onCall(e.getPlayer());
+                call.accept(e.getPlayer());
         }
     }
 

@@ -37,6 +37,10 @@ public class InventoryManager implements Listener {
         return new GenericInventory(this, open, close, click, player -> openInvs.getOrDefault(player.getUniqueId(), null));
     }
 
+    public LayerInventory constructLayerInv(BiConsumer<Player, InvSession> open, BiConsumer<Player, InvSession> close, Consumer<ClickContext> click) {
+        return new LayerInventory(this, open, close, click, player -> openInvs.getOrDefault(player.getUniqueId(), null));
+    }
+
     public void openInv(Player player, UndefinedInv inv) {
         if(!(inv instanceof ConstructableInv))
             throw new UnsupportedOperationException("Inventory must be constructable, implement ConstructableInv");
@@ -67,7 +71,16 @@ public class InventoryManager implements Listener {
                     e.getClick(),
                     e.getAction()
             );
-            if(session.getUndefInv() instanceof InteractableInv)
+
+            boolean invokeGlobal = true;
+
+            for(ItemContext itemCtx : session.getUndefInv().getItems()) {
+                if(itemCtx.getSlot() == e.getSlot() && itemCtx.getData() != null) {
+                    itemCtx.getData().accept(ctx);
+                    invokeGlobal = itemCtx.isInvokeEvent();
+                }
+            }
+            if(invokeGlobal && session.getUndefInv() instanceof InteractableInv)
                 ((InteractableInv) session.getUndefInv()).onClick(ctx);
 
             e.setCancelled(ctx.isCancel());

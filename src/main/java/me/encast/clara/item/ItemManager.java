@@ -13,6 +13,7 @@ import net.minecraft.server.v1_8_R3.NBTBase;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import net.minecraft.server.v1_8_R3.NBTTagList;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -311,14 +312,17 @@ public class ItemManager implements Listener {
             rarity = ci.getRarity();
 
             if(ci.getName(Locale.ENGLISH) != null)
-                meta.setDisplayName(rarity.getColor() + ci.getName(Locale.ENGLISH));
+                meta.setDisplayName((rarity != ItemRarity.NONE ? rarity.getColor() : ChatColor.GREEN) +
+                        ci.getName(Locale.ENGLISH));
 
             lore = Lists.newArrayList(ci.getLore());
-            lore.add(" ");
+            if(rarity != ItemRarity.NONE)
+                lore.add(" ");
         } else {
             lore.add("§7This is a generic item!");
         }
-        lore.add("§7⚔ " + rarity.getDisplay());
+        if(rarity != ItemRarity.NONE)
+            lore.add("§7⚔ " + rarity.getDisplay());
 
 
         meta.setLore(lore);

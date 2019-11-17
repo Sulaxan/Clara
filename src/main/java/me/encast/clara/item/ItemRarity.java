@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 @Getter
 public enum ItemRarity {
 
+    NONE("", "", ChatColor.DARK_GRAY),
     STANDARD("Standard", "§a§lSTANDARD", ChatColor.GREEN),
     REFINED("Refined", "§9§lREFINED", ChatColor.BLUE),
     ANGELIC("Angelic", "§f§lANGELIC", ChatColor.WHITE),

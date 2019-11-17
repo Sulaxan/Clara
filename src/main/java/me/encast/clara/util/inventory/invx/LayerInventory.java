@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,7 @@ import java.util.function.Function;
 public class LayerInventory extends GenericInventory {
 
     private List<String> layers = Lists.newArrayList();
-    private Map<Character, ItemStack> itemMapping = Maps.newConcurrentMap();
+    private Map<Character, ItemContext> itemMapping = Maps.newConcurrentMap();
 
     public LayerInventory(InventoryManager manager, BiConsumer<Player, InventoryManager.InvSession> open, BiConsumer<Player, InventoryManager.InvSession> close, Consumer<ClickContext> click, Function<Player, InventoryManager.InvSession> funcSession) {
         super(manager, open, close, click, funcSession);
@@ -28,24 +27,25 @@ public class LayerInventory extends GenericInventory {
         return this;
     }
 
-    public LayerInventory map(char c, ItemStack item) {
-        this.itemMapping.put(c, item);
+    public LayerInventory map(char c, ItemContext ctx) {
+        this.itemMapping.put(c, ctx);
         return this;
     }
 
-    public void apply() {
+    public LayerInventory apply() {
         int slot = -1;
         for(String layer : layers) {
             slot++;
             for(char c : layer.toCharArray()) {
                 if(c == ' ')
                     continue;
-                ItemStack item = itemMapping.getOrDefault(c, null);
-                if(item == null)
+                ItemContext ctx = itemMapping.getOrDefault(c, null);
+                if(ctx == null)
                     throw new NullPointerException("No mapping provided for character: " + c);
-                setItem(item, slot);
+                setItem(ctx.getItem(), slot);
             }
         }
+        return this;
     }
 
     @Override

@@ -39,4 +39,13 @@ public class ItemContext {
     public UndefinedInv complete() {
         return this.inventory;
     }
+
+    public static ItemContext of(ItemStack item) {
+        return new ItemContext(null, item, UndefinedInv.ADD_CONSTANT, null, true);
+    }
+
+    public static ItemContext of(ItemStack item, Consumer<ClickContext> click) {
+        return new ItemContext(null, item, UndefinedInv.ADD_CONSTANT, click, true);
+    }
+
 }

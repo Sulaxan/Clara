@@ -6,6 +6,7 @@ import me.encast.clara.command.ItemCommand;
 import me.encast.clara.item.ItemManager;
 import me.encast.clara.player.ClaraPlayerManager;
 import me.encast.clara.util.event.ArmorListener;
+import me.encast.clara.util.inventory.invx.InventoryManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @Getter
@@ -16,6 +17,7 @@ public final class Clara extends JavaPlugin {
 
     private ItemManager itemManager;
     private ClaraPlayerManager playerManager;
+    private InventoryManager inventoryManager;
 
     @Override
     public void onEnable() {
@@ -30,6 +32,7 @@ public final class Clara extends JavaPlugin {
         // Managers
         this.itemManager = new ItemManager(this);
         this.playerManager = new ClaraPlayerManager();
+        this.inventoryManager = new InventoryManager(this);
 
         getCommand("item").setExecutor(new ItemCommand());
     }
