@@ -40,5 +40,6 @@ public final class Clara extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        inventoryManager.shutdown();
     }
 }

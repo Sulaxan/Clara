@@ -30,6 +30,8 @@ public interface UndefinedInv {
 
     List<ItemContext> getItems();
 
+    void addItem(ItemContext context);
+
     ItemContext addItem(ItemStack item);
 
     ItemContext setItem(ItemStack item, int slot);

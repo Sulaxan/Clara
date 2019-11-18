@@ -9,6 +9,8 @@ public interface ClaraArmor extends ClaraItem {
 
     void unapply(ClaraPlayer player);
 
+    Type getType();
+
     @Override
     default int getAmount() {
         return 1;
@@ -25,5 +27,13 @@ public interface ClaraArmor extends ClaraItem {
 
     @Override
     default void setDurability(short durability) {
+    }
+
+    enum Type {
+
+        HELMET,
+        CHESTPLATE,
+        LEGGINGS,
+        BOOTS
     }
 }

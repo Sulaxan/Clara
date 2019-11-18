@@ -49,6 +49,11 @@ public class CrysalisHelmet implements ClaraArmor, InteractableItem {
     }
 
     @Override
+    public Type getType() {
+        return Type.HELMET;
+    }
+
+    @Override
     public String getId() {
         return ID;
     }

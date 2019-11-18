@@ -10,6 +10,7 @@ import me.encast.clara.util.inventory.invx.UndefinedInv;
 import me.encast.clara.util.item.ItemBuilderContext;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class SkillTreeItem implements MenuItem {
         INV = Clara.getInstance().getInventoryManager().constructLayerInv(
                 (player, inv) -> {},
                 (player, inv) -> {},
-                click -> {}
+                click -> click.setCancel(true)
         )
                 .withLayer("aaaaiaaaa")
                 .withLayer("ssasssass")
@@ -42,19 +43,20 @@ public class SkillTreeItem implements MenuItem {
                 .map('i', ItemContext.of(new ItemStack(Material.SAPLING)))
                 .map('s', ItemContext.of(new ItemStack(Material.PUMPKIN_SEEDS)))
                 .map('p', ItemContext.of(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5)))
-                .map('b', ItemContext.of(new ItemStack(Material.CARROT)))
+                .map('b', ItemContext.of(new ItemStack(Material.CARROT_ITEM)))
                 .map('c', ItemContext.of(new ItemStack(Material.BOOK_AND_QUILL), click -> {
                     click.getPlayer().sendMessage("§cClosing...");
                     click.getPlayer().closeInventory();
                 }))
                 .map('n', ItemContext.of(new ItemStack(Material.GOLDEN_CARROT)))
                 .apply();
+        INV.setName("Skill Tree");
     }
 
     @Override
-    public UndefinedInv getInventory() {
+    public UndefinedInv getInventory(Player player) {
         return INV;
-    }
+    } // add player parameter to getInventory
 
     @Override
     public String getId() {
@@ -108,12 +110,12 @@ public class SkillTreeItem implements MenuItem {
 
     @Override
     public void setItem(ItemStack item) {
-
+        this.item = item;
     }
 
     @Override
     public void loadItem(ItemStack item, ItemBuilderContext context) {
-
+        this.item = item;
     }
 
     @Override

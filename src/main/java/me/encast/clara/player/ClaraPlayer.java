@@ -49,6 +49,16 @@ public class ClaraPlayer {
         this.runtimeItems.remove(item);
     }
 
+    public ClaraArmor getEquippedArmor(ClaraArmor.Type type) {
+        for(RuntimeClaraItem runtime : equippedArmor) {
+            // Safe to cast since we ensure only ClaraArmor is in equippedArmor
+            ClaraArmor armor = (ClaraArmor) runtime.getItem();
+            if(armor.getType() == type)
+                return armor;
+        }
+        return null;
+    }
+
     // returns whether it was equipped
     public boolean addEquippedArmor(RuntimeClaraItem item) {
         if(item.getItem() instanceof ClaraArmor) {

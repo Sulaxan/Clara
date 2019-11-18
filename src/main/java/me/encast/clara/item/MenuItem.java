@@ -4,10 +4,13 @@ import me.encast.clara.Clara;
 import me.encast.clara.util.inventory.invx.UndefinedInv;
 import me.encast.clara.util.item.interact.InteractData;
 import me.encast.clara.util.item.interact.InteractableItem;
+import org.bukkit.entity.Player;
+
+import java.util.Locale;
 
 public interface MenuItem extends ClaraItem, InteractableItem {
 
-    UndefinedInv getInventory();
+    UndefinedInv getInventory(Player player);
 
     @Override
     default ItemRarity getRarity() {
@@ -17,8 +20,10 @@ public interface MenuItem extends ClaraItem, InteractableItem {
     @Override
     default void interact(InteractData data) {
         data.setCancel(true);
-        UndefinedInv inv = getInventory();
-        if(inv != null)
-            Clara.getInstance().getInventoryManager().openInv(data.getPlayer(), getInventory());
+        UndefinedInv inv = getInventory(data.getPlayer());
+        if(inv != null) {
+            inv.setName(getName(Locale.ENGLISH));
+            Clara.getInstance().getInventoryManager().openInv(data.getPlayer(), inv);
+        }
     }
 }

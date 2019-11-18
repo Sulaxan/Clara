@@ -33,16 +33,18 @@ public class LayerInventory extends GenericInventory {
     }
 
     public LayerInventory apply() {
+        setSize(9 * Math.min(6, layers.size()));
         int slot = -1;
         for(String layer : layers) {
-            slot++;
             for(char c : layer.toCharArray()) {
+                slot++;
                 if(c == ' ')
                     continue;
                 ItemContext ctx = itemMapping.getOrDefault(c, null);
                 if(ctx == null)
                     throw new NullPointerException("No mapping provided for character: " + c);
-                setItem(ctx.getItem(), slot);
+                ctx.setSlot(slot); // set the slot so that inventory manager knows which slot the item is in
+                addItem(ctx.clone());
             }
         }
         return this;

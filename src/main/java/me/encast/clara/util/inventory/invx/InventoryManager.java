@@ -3,12 +3,15 @@ package me.encast.clara.util.inventory.invx;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
 
@@ -46,20 +49,25 @@ public class InventoryManager implements Listener {
             throw new UnsupportedOperationException("Inventory must be constructable, implement ConstructableInv");
         if(inv instanceof InteractableInv)
             ((InteractableInv) inv).onOpen(player);
-        openInvs.put(player.getUniqueId(), new InvSession(inv, ((ConstructableInv) inv).build()));
+        Inventory bukkitInv =  ((ConstructableInv) inv).build();
+        player.openInventory(bukkitInv);
+        openInvs.put(player.getUniqueId(), new InvSession(inv, bukkitInv));
     }
 
     @EventHandler
     public void onInvClose(InventoryCloseEvent e) {
-        InvSession session = openInvs.remove(e.getPlayer().getUniqueId());
-        if(session != null) {
-            if(session.getUndefInv() instanceof InteractableInv)
+        if(e.getInventory().getType() != InventoryType.PLAYER) {
+            InvSession session = openInvs.remove(e.getPlayer().getUniqueId());
+            if(session != null && session.getUndefInv() instanceof InteractableInv) {
                 ((InteractableInv) session.getUndefInv()).onClose((Player) e.getPlayer());
+            }
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onInvClick(InventoryClickEvent e) {
+        if(e.getClickedInventory().getType() == InventoryType.PLAYER)
+            return;
         InvSession session = openInvs.getOrDefault(e.getWhoClicked().getUniqueId(), null);
         if(session != null) {
             ClickContext ctx = new ClickContext(

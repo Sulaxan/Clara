@@ -1,6 +1,7 @@
 package me.encast.clara.util.inventory.invx;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -8,6 +9,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -73,6 +75,12 @@ public class GenericInventory implements UndefinedInv, ConstructableInv, Interac
     }
 
     @Override
+    public void addItem(ItemContext context) {
+        this.items.add(context);
+        context.setInventory(this);
+    }
+
+    @Override
     public ItemContext addItem(ItemStack item) {
         ItemContext context = new ItemContext(this, item, ADD_CONSTANT, null, true);
         this.items.add(context);
@@ -127,13 +135,33 @@ public class GenericInventory implements UndefinedInv, ConstructableInv, Interac
             inv = Bukkit.getServer().createInventory(null, type, name);
         }
 
+        Set<Integer> alloted = Sets.newHashSet();
+        List<ItemContext> toProcess = Lists.newArrayList();
         for(ItemContext ctx : items) {
             if(ctx.getSlot() == ADD_CONSTANT) {
-                inv.addItem(ctx.getItem());
+                toProcess.add(ctx);
             } else if(ctx.getSlot() < getSize()) {
                 inv.setItem(ctx.getSlot(), ctx.getItem());
+                alloted.add(ctx.getSlot());
             }
         }
+
+        // Possibly add whether the slot should be recomputed in ItemContext
+        // (just in case another item is set later on and it collides with an add item)
+        if(toProcess.size() > 1) {
+            int slot = 0;
+            for(ItemContext ctx : toProcess) {
+                do {
+                    slot++;
+                } while(alloted.contains(slot));
+                if(slot >= getSize())
+                    break;
+                ctx.setSlot(slot);
+                inv.setItem(slot, ctx.getItem());
+                slot++; // so that the same slot doesn't get overwritten
+            }
+        }
+
         if((this.mode & MODE_UNIFIED) == MODE_UNIFIED)
             this.inventory = inv;
         return inv;

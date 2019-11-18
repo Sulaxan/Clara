@@ -18,6 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -329,7 +330,7 @@ public class ItemManager implements Listener {
         item.setItemMeta(meta);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onInvItemClick(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
         ClaraPlayer cp = Clara.getInstance().getPlayerManager().getPlayer(p.getUniqueId());
@@ -337,7 +338,6 @@ public class ItemManager implements Listener {
         if(item != null && item.getType() != Material.AIR) {
             RuntimeClaraItem runtime = getRuntimeItem(cp, item);
             if(runtime != null && runtime.getItem() instanceof InteractableItem) {
-                Bukkit.broadcastMessage("!");
                 // add data for the inventory
                 InteractData data = new InteractData(null, e.getAction(), item, e.getCursor(), p);
                 ((InteractableItem) runtime.getItem()).interact(data);

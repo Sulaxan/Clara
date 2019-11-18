@@ -1,6 +1,7 @@
 package me.encast.clara.util.inventory.invx;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -17,6 +18,8 @@ public class ClickContext {
     private InventoryType.SlotType slotType;
     private ClickType clickType;
     private InventoryAction invAction;
+
+    @Setter
     private boolean cancel = false;
 
     public ClickContext(Player player, InventoryManager.InvSession session, ItemStack item, int slot, InventoryType.SlotType slotType, ClickType clickType, InventoryAction invAction) {
