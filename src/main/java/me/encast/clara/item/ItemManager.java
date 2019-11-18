@@ -21,6 +21,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
@@ -332,6 +333,8 @@ public class ItemManager implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onInvItemClick(InventoryClickEvent e) {
+        if(e.getClickedInventory().getType() != InventoryType.PLAYER)
+            return;
         Player p = (Player) e.getWhoClicked();
         ClaraPlayer cp = Clara.getInstance().getPlayerManager().getPlayer(p.getUniqueId());
         ItemStack item = e.getCurrentItem();

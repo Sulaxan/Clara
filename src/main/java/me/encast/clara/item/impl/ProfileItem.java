@@ -52,19 +52,19 @@ public class ProfileItem extends AbstractMenuItem {
                 .withLayer("<v  c   m")
                 .map('i', ItemContext.of(new ItemBuilder(Material.GHAST_TEAR, ItemBuilder.ItemType.NORMAL)
                         .setDisplayName("§5Character Information")
-                        .addLore(" ", "§7Hover over a button below to", "§7view more information!")
+                        .addLore(" ", "§7Hover over an item below to", "§7view more information!")
                         .build())
                 )
                 .map('h', ItemContext.of(new ItemBuilder(Material.APPLE, ItemBuilder.ItemType.NORMAL)
                         .setDisplayName("§cHealth")
-                        .setData((short) 5)
                         .addLore(
                                 " ",
                                 "§7You currently have",
                                 "§c" + cp.getHealth() + " HP§7!",
                                 " ",
-                                "§7§oNote: Includes armor and any",
-                                "§7§oaddtional HP buffs!"
+                                "§7Note: Includes armor and any",
+                                "§7addtional HP buffs!",
+                                " "
                         )
                         .build())
                 )
@@ -86,7 +86,6 @@ public class ProfileItem extends AbstractMenuItem {
                 )
                 .map('d', ItemContext.of(new ItemBuilder(Material.IRON_CHESTPLATE, ItemBuilder.ItemType.NORMAL)
                         .setDisplayName("§9Defense")
-                        .setData((short) 5)
                         .addLore(
                                 " ",
                                 "§7You currently have",
@@ -95,8 +94,9 @@ public class ProfileItem extends AbstractMenuItem {
                                 "§7Maximum obtainable defense is",
                                 "§9100%§7!",
                                 " ",
-                                "§7§oNote: Includes armor and any",
-                                "§7§oaddtional defense buffs!"
+                                "§7Note: Includes armor and any",
+                                "§7addtional defense buffs!",
+                                " "
                         )
                         .build())
                 )
@@ -110,12 +110,18 @@ public class ProfileItem extends AbstractMenuItem {
                 .map('>', ItemContext.of(chestplateItem))
                 .map('<', ItemContext.of(leggingsItem))
                 .map('v', ItemContext.of(bootsItem))
+                // make an item constant for closing
                 .map('c', ItemContext.of(new ItemBuilder(Material.LONG_GRASS, ItemBuilder.ItemType.NORMAL)
                         .setDisplayName("§cClose")
                         .setData((short) 2)
                         .addLore(" ", "§7Click to close!")
                         .build(),
-                        click -> click.setCancel(true))
+                        click -> click.getPlayer().closeInventory())
+                )
+                .map('m', ItemContext.of(new ItemBuilder(Material.BOOK, ItemBuilder.ItemType.NORMAL)
+                        .setDisplayName("§4Slain Mob History")
+                        .addLore(" ", "§7Coming Soon!")
+                        .build())
                 )
                 .apply();
     }

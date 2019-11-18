@@ -66,7 +66,7 @@ public class InventoryManager implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInvClick(InventoryClickEvent e) {
-        if(e.getClickedInventory().getType() == InventoryType.PLAYER)
+        if(e.getClickedInventory() == null || e.getClickedInventory().getType() == InventoryType.PLAYER)
             return;
         InvSession session = openInvs.getOrDefault(e.getWhoClicked().getUniqueId(), null);
         if(session != null) {

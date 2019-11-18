@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.encast.clara.Clara;
 import me.encast.clara.item.ClaraItemType;
+import me.encast.clara.item.impl.ProfileItem;
 import me.encast.clara.item.impl.SkillTreeItem;
 import me.encast.clara.player.ClaraPlayer;
 import me.encast.clara.player.ClaraSavePlayer;
@@ -36,6 +37,8 @@ public class ItemCommand implements CommandExecutor {
                 if(args[0].equalsIgnoreCase("apply")) {
                     ItemStack i = Clara.getInstance().getItemManager().constructNewItem(cp, new SkillTreeItem(), true);
                     p.getInventory().setItem(35, i);
+                    i = Clara.getInstance().getItemManager().constructNewItem(cp, new ProfileItem(), true);
+                    p.getInventory().setItem(27, i);
                 }
                 if(args[0].equalsIgnoreCase("nbt")) {
                     if(p.getItemInHand() != null) {
