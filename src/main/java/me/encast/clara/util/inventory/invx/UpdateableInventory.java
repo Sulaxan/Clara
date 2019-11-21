@@ -19,38 +19,38 @@ public class UpdateableInventory extends BukkitRunnable implements DefinableInv 
 
     private Function<UndefinedInv, UndefinedInv> updateFunction;
 
-    private boolean run = true;
+    private boolean running = true;
     @Getter
     private boolean updating = false;
 
+    public UpdateableInventory(UndefinedInv inventory, InventoryManager manager, Player player) {
+        this(inventory, manager, player, 0, 20);
+    }
+
     public UpdateableInventory(UndefinedInv inventory, InventoryManager manager, Player player, int delay, int period) {
+        this(inventory, manager, player, delay, period, true);
+    }
+
+    public UpdateableInventory(UndefinedInv inventory, InventoryManager manager, Player player, int delay, int period, boolean running) {
         if(inventory == null)
             throw new NullPointerException("Null inventory");
         this.inventory = inventory;
         this.manager = manager;
         this.player = player;
+        this.running = running;
         this.runTaskTimer(manager.getPlugin(), delay, period);
     }
 
-    public void setInterval(int initialDelay, int period) {
-        this.cancel();
-        this.runTaskTimer(manager.getPlugin(), initialDelay, period);
+    public void setInterval(int delay, int period) {
+        super.runTaskTimer(manager.getPlugin(), delay, period);
     }
 
     public void setUpdateFunction(Function<UndefinedInv, UndefinedInv> updateFunction) {
         this.updateFunction = updateFunction;
     }
 
-    public void setRun(boolean run) {
-        this.run = run;
-    }
-
-    public void resume() {
-        this.run = true;
-    }
-
-    public void pause() {
-        this.run = false;
+    public void setRunning(boolean running) {
+        this.running = running;
     }
 
     public void update() {
@@ -70,7 +70,7 @@ public class UpdateableInventory extends BukkitRunnable implements DefinableInv 
 
     @Override
     public void run() {
-        if(run)
+        if(running)
             update();
     }
 

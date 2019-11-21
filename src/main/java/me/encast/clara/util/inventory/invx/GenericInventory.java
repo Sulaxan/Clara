@@ -14,7 +14,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class GenericInventory implements UndefinedInv, ConstructableInv, InteractableInv {
+public class GenericInventory implements DefinableInv {
 
     private InventoryManager manager;
     private BiConsumer<Player, InventoryManager.InvSession> open;

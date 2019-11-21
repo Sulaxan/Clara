@@ -1,10 +1,8 @@
 package me.encast.clara.util.inventory.invx;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,7 +14,6 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -99,7 +96,7 @@ public class InventoryManager implements Listener {
             e.setCancelled(ctx.isCancel());
 
             // Run end processes
-            ctx.getProcessesAtEnd().forEach(Runnable::run);
+            ctx.getEndProcesses().forEach(Runnable::run);
         }
     }
 

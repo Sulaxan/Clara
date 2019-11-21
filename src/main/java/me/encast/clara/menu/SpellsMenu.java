@@ -33,10 +33,10 @@ public class SpellsMenu implements NullInv {
         this.pageable = new PageableInventory();
         // Circle spells menu
         this.circleSpellsInv = Clara.getInstance().getInventoryManager().constructLayerInv(
-                (p, session) -> spellsUpdater.resume(),
+                (p, session) -> spellsUpdater.setRunning(true),
                 (p, session) -> {
                     if(pageable.isSwitchingPages()) { // pageable is not switching pages
-                        spellsUpdater.pause();
+                        spellsUpdater.setRunning(false);
                     } else if(!spellsUpdater.isUpdating()) { // updateable inv is not updating
                         spellsUpdater.cancel();
                     }
@@ -53,7 +53,7 @@ public class SpellsMenu implements NullInv {
                         .setDisplayName("§aGo back to Spells")
                         .build(),
                         click -> {
-                            spellsUpdater.pause();
+                            spellsUpdater.setRunning(false);
                             click.addEndProcess(() -> pageable.openAndSetNext(player.getBukkitPlayer(), 0));
                         }));
         circleSpellsInv.setName("Spells Alt");
@@ -61,7 +61,7 @@ public class SpellsMenu implements NullInv {
         mapItems();
 
         this.fullDisplaySpellsInv = Clara.getInstance().getInventoryManager().constructLayerInv(
-                (p, session) -> spellsUpdater.pause(),
+                (p, session) -> spellsUpdater.setRunning(false),
                 null,
                 ctx -> ctx.setCancel(true)
         )
@@ -92,7 +92,7 @@ public class SpellsMenu implements NullInv {
 
         pageable.add(fullDisplaySpellsInv);
         pageable.add(spellsUpdater = new UpdateableInventory(circleSpellsInv, Clara.getInstance().getInventoryManager(), player.getBukkitPlayer(), 0, 20));
-        spellsUpdater.pause();
+        spellsUpdater.setRunning(false);
         spellsUpdater.setUpdateFunction(inv -> {
             mapItems();
             return inv;

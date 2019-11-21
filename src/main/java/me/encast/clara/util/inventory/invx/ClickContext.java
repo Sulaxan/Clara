@@ -11,6 +11,18 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
+/**
+ * Slot form:
+ *
+ * bit 17: 0 - normal set slot    1 - compute slot at runtime
+ * 0000 0000 0000  0000 0000 0000 0000 0000
+ * ^                  ^ ^       ^ ^       ^
+ * |    add/compute___| |_______| |_______|
+ * |_ 2's comp          computed   set slot value
+ *                      slot
+ *
+ *                      Max 128
+ */
 @Getter
 public class ClickContext {
 
@@ -26,7 +38,7 @@ public class ClickContext {
     private boolean cancel = false;
 
     @Setter
-    private List<Runnable> processesAtEnd = Lists.newArrayList();
+    private List<Runnable> endProcesses = Lists.newArrayList();
 
     public ClickContext(Player player, InventoryManager.InvSession session, ItemStack item, int slot, InventoryType.SlotType slotType, ClickType clickType, InventoryAction invAction) {
         this.player = player;
@@ -40,6 +52,6 @@ public class ClickContext {
 
     // Ran at the very end of the event (after the event is cancelled or not)
     public void addEndProcess(Runnable runnable) {
-        processesAtEnd.add(runnable);
+        endProcesses.add(runnable);
     }
 }
