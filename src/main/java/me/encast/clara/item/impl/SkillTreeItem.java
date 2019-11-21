@@ -2,6 +2,7 @@ package me.encast.clara.item.impl;
 
 import com.google.common.collect.Lists;
 import me.encast.clara.Clara;
+import me.encast.clara.item.AbstractMenuItem;
 import me.encast.clara.item.ClaraItem;
 import me.encast.clara.item.MenuItem;
 import me.encast.clara.util.inventory.invx.ItemContext;
@@ -16,7 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.Locale;
 
-public class SkillTreeItem implements MenuItem {
+public class SkillTreeItem extends AbstractMenuItem {
 
     private ItemStack item;
 
@@ -33,13 +34,12 @@ public class SkillTreeItem implements MenuItem {
                 (player, inv) -> {},
                 click -> click.setCancel(true)
         )
-                .withLayer("aaaaiaaaa")
-                .withLayer("ssasssass")
-                .withLayer("asasasasa")
-                .withLayer("asssasssa")
+                .withLayer("    i    ")
+                .withLayer("ss sss ss")
+                .withLayer(" s s s s ")
+                .withLayer(" sss sss ")
                 .withLayer("ppppppppp")
-                .withLayer("baaacaaan")
-                .map('a', ItemContext.of(new ItemStack(Material.AIR)))
+                .withLayer("b   c   n")
                 .map('i', ItemContext.of(new ItemStack(Material.SAPLING)))
                 .map('s', ItemContext.of(new ItemStack(Material.PUMPKIN_SEEDS)))
                 .map('p', ItemContext.of(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5)))
@@ -56,7 +56,7 @@ public class SkillTreeItem implements MenuItem {
     @Override
     public UndefinedInv getInventory(Player player) {
         return INV;
-    } // add player parameter to getInventory
+    }
 
     @Override
     public String getId() {
@@ -101,40 +101,5 @@ public class SkillTreeItem implements MenuItem {
     @Override
     public ItemStack getNewItemInstance() {
         return new ItemStack(Material.SAPLING);
-    }
-
-    @Override
-    public ItemStack getItem() {
-        return item;
-    }
-
-    @Override
-    public void setItem(ItemStack item) {
-        this.item = item;
-    }
-
-    @Override
-    public void loadItem(ItemStack item, ItemBuilderContext context) {
-        this.item = item;
-    }
-
-    @Override
-    public <T> T getValue(String key, Class<T> clazz) {
-        return null;
-    }
-
-    @Override
-    public void save(NBTTagCompound compound) {
-
-    }
-
-    @Override
-    public boolean isSimilar(ClaraItem item) {
-        return false;
-    }
-
-    @Override
-    public boolean isSimilar(ItemStack item) {
-        return false;
     }
 }

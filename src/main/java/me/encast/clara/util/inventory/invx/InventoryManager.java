@@ -22,9 +22,12 @@ import java.util.function.Consumer;
 
 public class InventoryManager implements Listener {
 
+    @Getter
+    private Plugin plugin;
     private Map<UUID, InvSession> openInvs = Maps.newConcurrentMap();
 
     public InventoryManager(Plugin plugin) {
+        this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
