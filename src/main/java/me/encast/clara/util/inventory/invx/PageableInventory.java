@@ -1,6 +1,7 @@
 package me.encast.clara.util.inventory.invx;
 
 import com.google.common.collect.Lists;
+import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -12,7 +13,16 @@ import java.util.function.Consumer;
 public class PageableInventory implements DefinableInv, Cloneable {
 
     private List<UndefinedInv> inventories;
+    @Getter
     private int currentPage;
+
+    // Whether or not the current page is about to be switched
+    // Since the currentPage value is updated after an inventory is open,
+    // implementations cannot tell whether the current page is staying as is
+    // or updating when doing an action on the current inventory (e.g., whether
+    // or not to cancel a task).
+    @Getter
+    private boolean switchingPages;
 
     public PageableInventory() {
         this.inventories = Lists.newArrayList();
@@ -36,6 +46,10 @@ public class PageableInventory implements DefinableInv, Cloneable {
         return null;
     }
 
+    public int getPageOf(UndefinedInv inv) {
+        return inventories.indexOf(inv);
+    }
+
     // page starts at 0
     public boolean hasPage(int page) {
         return page < this.inventories.size();
@@ -43,6 +57,20 @@ public class PageableInventory implements DefinableInv, Cloneable {
 
     public void setCurrentPage(int page) {
         this.currentPage = page;
+    }
+
+    public void openAndSetNext(Player player) {
+        openAndSetNext(player, currentPage + 1);
+    }
+
+    public void openAndSetNext(Player player, int page) {
+        if(hasPage(page)) {
+            switchingPages = true;
+            getPage(page).openInv(player);
+            // Do this after so that the previous menu onClose invocation gets properly invoked
+            switchingPages = false;
+            setCurrentPage(page);
+        }
     }
 
     @Override

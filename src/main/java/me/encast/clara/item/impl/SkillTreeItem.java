@@ -3,13 +3,9 @@ package me.encast.clara.item.impl;
 import com.google.common.collect.Lists;
 import me.encast.clara.Clara;
 import me.encast.clara.item.AbstractMenuItem;
-import me.encast.clara.item.ClaraItem;
-import me.encast.clara.item.MenuItem;
 import me.encast.clara.util.inventory.invx.ItemContext;
 import me.encast.clara.util.inventory.invx.LayerInventory;
 import me.encast.clara.util.inventory.invx.UndefinedInv;
-import me.encast.clara.util.item.ItemBuilderContext;
-import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -18,8 +14,6 @@ import java.util.List;
 import java.util.Locale;
 
 public class SkillTreeItem extends AbstractMenuItem {
-
-    private ItemStack item;
 
     private static final List<String> LORE = Lists.newArrayList(
             "§7Click to view your §askill",

@@ -4,6 +4,7 @@ import me.encast.clara.util.item.ItemBuilderContext;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Collections;
 import java.util.List;
 
 public abstract class AbstractMenuItem implements MenuItem {
@@ -37,7 +38,7 @@ public abstract class AbstractMenuItem implements MenuItem {
 
     @Override
     public List<String> getLore() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

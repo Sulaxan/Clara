@@ -333,7 +333,7 @@ public class ItemManager implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onInvItemClick(InventoryClickEvent e) {
-        if(e.getClickedInventory().getType() != InventoryType.PLAYER)
+        if(e.getClickedInventory() == null || e.getClickedInventory().getType() != InventoryType.PLAYER)
             return;
         Player p = (Player) e.getWhoClicked();
         ClaraPlayer cp = Clara.getInstance().getPlayerManager().getPlayer(p.getUniqueId());

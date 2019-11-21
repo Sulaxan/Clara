@@ -1,5 +1,6 @@
 package me.encast.clara.util.inventory.invx;
 
+import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -17,6 +18,10 @@ public class UpdateableInventory extends BukkitRunnable implements DefinableInv 
     private Player player;
 
     private Function<UndefinedInv, UndefinedInv> updateFunction;
+
+    private boolean run = true;
+    @Getter
+    private boolean updating = false;
 
     public UpdateableInventory(UndefinedInv inventory, InventoryManager manager, Player player, int delay, int period) {
         if(inventory == null)
@@ -36,13 +41,27 @@ public class UpdateableInventory extends BukkitRunnable implements DefinableInv 
         this.updateFunction = updateFunction;
     }
 
+    public void setRun(boolean run) {
+        this.run = run;
+    }
+
+    public void resume() {
+        this.run = true;
+    }
+
+    public void pause() {
+        this.run = false;
+    }
+
     public void update() {
         if(player == null || !player.isOnline())
             super.cancel();
 
+        updating = true;
         if(updateFunction != null)
             this.inventory = updateFunction.apply(inventory);
         manager.openInv(player, inventory);
+        updating = false;
     }
 
     public void cancel() {
@@ -51,7 +70,8 @@ public class UpdateableInventory extends BukkitRunnable implements DefinableInv 
 
     @Override
     public void run() {
-        update();
+        if(run)
+            update();
     }
 
     @Override

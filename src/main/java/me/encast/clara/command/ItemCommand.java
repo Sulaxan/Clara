@@ -6,6 +6,7 @@ import me.encast.clara.Clara;
 import me.encast.clara.item.ClaraItemType;
 import me.encast.clara.item.impl.ProfileItem;
 import me.encast.clara.item.impl.SkillTreeItem;
+import me.encast.clara.item.impl.SpellItem;
 import me.encast.clara.player.ClaraPlayer;
 import me.encast.clara.player.ClaraSavePlayer;
 import me.encast.clara.util.item.ItemUtil;
@@ -36,9 +37,11 @@ public class ItemCommand implements CommandExecutor {
             if(args.length >= 1) {
                 if(args[0].equalsIgnoreCase("apply")) {
                     ItemStack i = Clara.getInstance().getItemManager().constructNewItem(cp, new SkillTreeItem(), true);
-                    p.getInventory().setItem(35, i);
+                    p.getInventory().setItem(26, i);
                     i = Clara.getInstance().getItemManager().constructNewItem(cp, new ProfileItem(), true);
                     p.getInventory().setItem(27, i);
+                    i = Clara.getInstance().getItemManager().constructNewItem(cp, new SpellItem(), true);
+                    p.getInventory().setItem(35, i);
                 }
                 if(args[0].equalsIgnoreCase("nbt")) {
                     if(p.getItemInHand() != null) {
