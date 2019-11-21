@@ -32,7 +32,7 @@ import java.util.function.Consumer;
  * Item builder (wrapper) for Bukkit's {@link ItemStack}.
  */
 @Getter
-public class ItemBuilder implements Listener {
+public class ItemBuilder implements Listener, Cloneable {
 
     private Material material;
     private ItemType itemType;
@@ -444,6 +444,15 @@ public class ItemBuilder implements Listener {
             Consumer<Player> call = this.listeners.getOrDefault(e.getAction(), null);
             if(call != null)
                 call.accept(e.getPlayer());
+        }
+    }
+
+    @Override
+    public ItemBuilder clone() {
+        try {
+            return (ItemBuilder) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
         }
     }
 

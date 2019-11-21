@@ -169,16 +169,19 @@ public class GenericInventory implements UndefinedInv, ConstructableInv, Interac
 
     @Override
     public void onOpen(Player player) {
-        open.accept(player, funcSession.apply(player));
+        if(open != null)
+            open.accept(player, funcSession.apply(player));
     }
 
     @Override
     public void onClose(Player player) {
-        close.accept(player, funcSession.apply(player));
+        if(close != null)
+            close.accept(player, funcSession.apply(player));
     }
 
     @Override
     public void onClick(ClickContext ctx) {
-        click.accept(ctx);
+        if(ctx != null)
+            click.accept(ctx);
     }
 }

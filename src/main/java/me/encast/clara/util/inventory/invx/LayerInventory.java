@@ -20,6 +20,11 @@ public class LayerInventory extends GenericInventory {
         super(manager, open, close, click, funcSession);
     }
 
+    public LayerInventory clearLayers() {
+        this.layers.clear();
+        return this;
+    }
+
     public LayerInventory withLayer(String layer) {
         if(layer.length() > 9)
             throw new UnsupportedOperationException("String length must less than or equal to 9");

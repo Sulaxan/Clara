@@ -8,12 +8,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class UpdateableInventory extends BukkitRunnable implements DefinableInv {
 
     private UndefinedInv inventory;
     private InventoryManager manager;
     private Player player;
+
+    private Function<UndefinedInv, UndefinedInv> updateFunction;
 
     public UpdateableInventory(UndefinedInv inventory, InventoryManager manager, Player player, int delay, int period) {
         if(inventory == null)
@@ -29,10 +32,16 @@ public class UpdateableInventory extends BukkitRunnable implements DefinableInv 
         this.runTaskTimer(manager.getPlugin(), initialDelay, period);
     }
 
+    public void setUpdateFunction(Function<UndefinedInv, UndefinedInv> updateFunction) {
+        this.updateFunction = updateFunction;
+    }
+
     public void update() {
         if(player == null || !player.isOnline())
             super.cancel();
 
+        if(updateFunction != null)
+            this.inventory = updateFunction.apply(inventory);
         manager.openInv(player, inventory);
     }
 

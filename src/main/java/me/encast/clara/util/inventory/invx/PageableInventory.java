@@ -20,6 +20,7 @@ public class PageableInventory implements DefinableInv, Cloneable {
 
     public PageableInventory(List<UndefinedInv> inventories, int startPage) {
         this.inventories = inventories;
+        this.currentPage = startPage;
     }
 
     public PageableInventory add(UndefinedInv inv) {
@@ -38,6 +39,10 @@ public class PageableInventory implements DefinableInv, Cloneable {
     // page starts at 0
     public boolean hasPage(int page) {
         return page < this.inventories.size();
+    }
+
+    public void setCurrentPage(int page) {
+        this.currentPage = page;
     }
 
     @Override
