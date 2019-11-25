@@ -6,10 +6,11 @@ import lombok.Getter;
 import lombok.Setter;
 import me.encast.clara.armor.ClaraArmor;
 import me.encast.clara.item.RuntimeClaraItem;
-import me.encast.clara.item.SaveableItem;
+import me.encast.clara.spell.Spell;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,8 +23,10 @@ public class ClaraPlayer {
 
     private double health = 1000;
     private double defense = 0; // between 0 and 1
+    private int skillTokens = 0;
 
-    private List<SaveableItem> item = Lists.newCopyOnWriteArrayList();
+    private String[] equippedSpells = new String[0];
+    private List<String> unlockedSpells = Lists.newCopyOnWriteArrayList();
 
     // Runtime
     private transient List<RuntimeClaraItem> runtimeItems = Lists.newCopyOnWriteArrayList();
@@ -82,6 +85,31 @@ public class ClaraPlayer {
 
     public void unapplyAllArmorBuffs() {
         equippedArmor.forEach(armor -> ((ClaraArmor) armor.getItem()).unapply(this));
+    }
+
+    public boolean addSpell(Spell spell) {
+        return unlockedSpells.add(spell.getId());
+    }
+
+    public boolean removeSpell(Spell spell) {
+        return unlockedSpells.remove(spell.getId());
+    }
+
+    public boolean hasSpell(Spell spell) {
+        return unlockedSpells.contains(spell.getId());
+    }
+
+    public String getEquippedSpell(int slot) {
+        if(slot >= equippedSpells.length)
+            throw new IndexOutOfBoundsException("Spell slot must be between 0 and " + (equippedSpells.length - 1));
+        return equippedSpells[slot];
+    }
+
+    // spell can be null
+    public void setEquippedSpell(int slot, @Nullable Spell spell) {
+        if(slot >= equippedSpells.length)
+            throw new IndexOutOfBoundsException("Spell slot must be between 0 and " + (equippedSpells.length - 1));
+        equippedSpells[slot] = spell == null ? null : spell.getName();
     }
 
     public Player getBukkitPlayer() {
