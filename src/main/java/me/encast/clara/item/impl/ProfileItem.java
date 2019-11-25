@@ -79,6 +79,9 @@ public class ProfileItem extends AbstractMenuItem {
                                 "§cHealth: §7" + cp.getHealth(),
                                 "§9Defense: §7" + (cp.getDefense() * 100) + "%",
                                 " ",
+                                "§6You have learned a total of",
+                                "§6" + cp.getUnlockedSpells().size() + " spell(s)!",
+                                " ",
                                 "§7" + cp.getEquippedArmor().size() + " piece(s) of armor equipped!",
                                 "§7" + cp.getRuntimeItems().size() + " item(s) in your inventory!"
                         )

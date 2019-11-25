@@ -72,6 +72,14 @@ public class SpellManager {
         cooldown.runTaskLater(plugin, spell.getCooldown() / 50);
     }
 
+    public void removeCooldown(UUID uuid, Spell spell) {
+        SpellCooldown cooldown = getCooldown(uuid, spell);;
+        if(cooldown != null) {
+            cooldown.cancel();
+            cooldown.run(); // forcing it to be removed
+        }
+    }
+
     @Getter
     public class SpellCooldown extends BukkitRunnable {
 
