@@ -1,0 +1,12 @@
+package me.encast.clara.util.resource;
+
+import java.util.regex.Pattern;
+
+public interface ResourceLoader {
+
+    Pattern REPLACE_PATTERN = Pattern.compile("%%*%%");
+
+    String get(String key);
+
+    String getAndFormat(String key, Object... args);
+}
