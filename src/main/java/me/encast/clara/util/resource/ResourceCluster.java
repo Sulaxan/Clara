@@ -39,32 +39,18 @@ public class ResourceCluster<T extends ResourceLoader> {
         this.defaultLoader = getResource(key);
     }
 
-    public String get(String resourceKey, String key) {
+    public String get(String resourceKey, String key, Object... args) {
         ResourceLoader loader = getResource(resourceKey);
         if(loader != null) {
-            return loader.get(key);
+            return loader.get(key, args);
         } else if(defaultLoader != null) {
-            return defaultLoader.get(key);
+            return defaultLoader.get(key, args);
         }
         return "";
     }
 
-    public String get(Locale locale, String key) {
-        return get(locale.getKey(), key);
-    }
-
-    public String getAndFormat(String resourceKey, String key, Object... args) {
-        ResourceLoader loader = getResource(resourceKey);
-        if(loader != null) {
-            return loader.getAndFormat(key, args);
-        } else if(defaultLoader != null) {
-            return defaultLoader.getAndFormat(key, args);
-        }
-        return "";
-    }
-
-    public String getAndFormat(Locale locale, String key, Object... args) {
-        return getAndFormat(locale.getKey(), key, args);
+    public String get(Locale locale, String key, Object... args) {
+        return get(locale.getKey(), key, args);
     }
 
     // gets all the files within the directory (recursively) and maps a resource loader to the file
