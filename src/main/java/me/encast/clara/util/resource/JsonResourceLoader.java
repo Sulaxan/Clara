@@ -15,7 +15,7 @@ public class JsonResourceLoader implements ResourceLoader {
     public JsonResourceLoader(InputStream stream) {
         try {
             InputStreamReader reader = new InputStreamReader(stream);
-            GSON_INSTANCE.fromJson(reader, JsonObject.class);
+            object = GSON_INSTANCE.fromJson(reader, JsonObject.class);
             reader.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -24,13 +24,15 @@ public class JsonResourceLoader implements ResourceLoader {
 
     @Override
     public String get(String key) {
-        return object.get(key).getAsString();
+        if(object.has(key))
+            return object.get(key).getAsString();
+        return null;
     }
 
     @Override
     public String getAndFormat(String key, Object... args) {
         String val = get(key);
-        if(args != null && args.length >= 1) {
+        if(val != null && args != null && args.length >= 1) {
             for(Object arg : args) {
                 val = REPLACE_PATTERN.matcher(val).replaceFirst(arg.toString());
             }

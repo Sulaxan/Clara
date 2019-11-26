@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 public interface ResourceLoader {
 
-    Pattern REPLACE_PATTERN = Pattern.compile("%%*%%");
+    Pattern REPLACE_PATTERN = Pattern.compile("%%[a-zA-Z0-9]*%%");
 
     String get(String key);
 

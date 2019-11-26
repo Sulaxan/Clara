@@ -104,6 +104,8 @@ public class ItemCommand implements CommandExecutor {
                     return true;
                 }
                 p.sendMessage("§aRUNTIME ITEMS: " + cp.getRuntimeItems().size());
+                p.sendMessage("RESOURCE MESSAGE:");
+                p.sendMessage(Clara.MSG_RESOURCE.getAndFormat("en_US", "command.item.runtime_items", cp.getRuntimeItems().size()));
                 return true;
             }
 

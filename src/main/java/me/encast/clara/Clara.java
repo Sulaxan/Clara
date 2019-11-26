@@ -7,7 +7,16 @@ import me.encast.clara.item.ItemManager;
 import me.encast.clara.player.ClaraPlayerManager;
 import me.encast.clara.util.event.ArmorListener;
 import me.encast.clara.util.inventory.invx.InventoryManager;
+import me.encast.clara.util.resource.JsonResourceLoader;
+import me.encast.clara.util.resource.ResourceCluster;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
 
 @Getter
 public final class Clara extends JavaPlugin {
@@ -19,10 +28,28 @@ public final class Clara extends JavaPlugin {
     private ClaraPlayerManager playerManager;
     private InventoryManager inventoryManager;
 
+    public static ResourceCluster MSG_RESOURCE;
+
     @Override
     public void onEnable() {
         // Plugin startup logic
         instance = this;
+
+        MSG_RESOURCE = new ResourceCluster();
+        try {
+            URI uri = Clara.class.getResource("/lang/messages").toURI();
+            Path path;
+            if(uri.getScheme().equals("jar")) {
+                FileSystem system = FileSystems.getFileSystem(uri);
+                path = system.getPath("/lang/messages");
+            } else {
+                path = Paths.get(uri);
+            }
+            MSG_RESOURCE.traverseDirectory(path, (name, in) -> new JsonResourceLoader(in));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         //Sephrem.add();
 //        Sephrem.registerEntity("Sephrem", 989, EntityPigZombie.class, Sephrem.class);
 
