@@ -5,7 +5,11 @@ import lombok.Getter;
 import me.encast.clara.Clara;
 import me.encast.clara.item.ClaraItem;
 import me.encast.clara.item.ItemManager;
+import me.encast.clara.item.MenuItem;
 import me.encast.clara.item.RuntimeClaraItem;
+import me.encast.clara.item.impl.ProfileItem;
+import me.encast.clara.item.impl.SkillTreeItem;
+import me.encast.clara.item.impl.SpellItem;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -43,7 +47,7 @@ public class ClaraPlayerManager {
         for(ItemStack item : p.getInventory().getContents()) {
             if(item != null) {
                 RuntimeClaraItem runtime = manager.getRuntimeItem(player, item);
-                if (runtime != null) {
+                if (runtime != null && !(runtime.getItem() instanceof MenuItem)) {
                     // Check to make sure item count does not go above the runtime count by using a map
                     compound = manager.saveItem(item, runtime);
                     compound.setInt(ClaraItem.SLOT_KEY, slot);
@@ -95,5 +99,15 @@ public class ClaraPlayerManager {
         player.updateInventory();
 
         return cp;
+    }
+
+    public void applyMenuIcons(ClaraPlayer player) {
+        Player p = player.getBukkitPlayer();
+        ItemStack i = Clara.getInstance().getItemManager().constructNewItem(player, new SkillTreeItem(), true);
+        p.getInventory().setItem(26, i);
+        i = Clara.getInstance().getItemManager().constructNewItem(player, new ProfileItem(), true);
+        p.getInventory().setItem(27, i);
+        i = Clara.getInstance().getItemManager().constructNewItem(player, new SpellItem(), true);
+        p.getInventory().setItem(35, i);
     }
 }
