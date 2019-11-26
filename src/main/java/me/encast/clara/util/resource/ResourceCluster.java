@@ -1,34 +1,36 @@
 package me.encast.clara.util.resource;
 
 import com.google.common.collect.Maps;
-import org.bukkit.Bukkit;
 
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
-public class ResourceCluster {
+public class ResourceCluster<T extends ResourceLoader> {
 
-    private Map<String, ResourceLoader> resources = Maps.newConcurrentMap();
-    private ResourceLoader defaultLoader;
+    private Map<String, T> resources = Maps.newConcurrentMap();
+    private T defaultLoader;
 
     public ResourceCluster() {
     }
 
-    public void addResource(String key, ResourceLoader loader) {
+    public void addResource(String key, T loader) {
         this.resources.put(key, loader);
     }
 
-    public ResourceLoader getResource(String key) {
+    public T getResource(String key) {
         return this.resources.getOrDefault(key, null);
     }
 
-    public void setDefaultLoader(ResourceLoader defaultLoader) {
+    public T getDefaultLoader() {
+        return defaultLoader;
+    }
+
+    public void setDefaultLoader(T defaultLoader) {
         this.defaultLoader = defaultLoader;
     }
 
@@ -65,7 +67,8 @@ public class ResourceCluster {
                     String name = p.getFileName().toString();
                     ResourceLoader loader = resourceFunc.apply(name, Files.newInputStream(p));
                     if(loader != null) {
-                        addResource(name.split("\\.")[0], loader);
+                        // Try to add the loader as an instance of T
+                        addResource(name.split("\\.")[0], (T) loader);
                     }
                 }
             }

@@ -1,6 +1,7 @@
 package me.encast.clara.util.resource;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.io.InputStream;
@@ -38,6 +39,33 @@ public class JsonResourceLoader implements ResourceLoader {
             }
         }
         return val;
+    }
+
+    public String[] getMultiline(String key) {
+        if(object.has(key)) {
+            JsonArray array = object.get(key).getAsJsonArray();
+            if(array != null) {
+                String[] strings = new String[array.size()];
+            }
+        }
+        return null;
+    }
+
+    public String[] getAndFormatMultiline(String key, Object... args) {
+        String[] lines = getMultiline(key);
+        int i;
+        if(lines != null && args != null && args.length >= 1) {
+            for(Object arg : args) {
+                for(i = 0; i < lines.length; i++) {
+                    String newLine = REPLACE_PATTERN.matcher(lines[i]).replaceFirst(arg.toString());
+                    if(!lines[i].equals(newLine)) {
+                        lines[i] = newLine;
+                        break;
+                    }
+                }
+            }
+        }
+        return lines;
     }
 
     public static JsonResourceLoader fromJAR(String path) {
