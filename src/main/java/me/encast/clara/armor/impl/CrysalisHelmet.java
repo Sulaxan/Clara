@@ -73,7 +73,7 @@ public class CrysalisHelmet implements ClaraArmor, InteractableItem {
 
     @Override
     public String[] getLore(Locale locale) {
-        return Clara.ITEM_MSG.getAndFormatMultiline(
+        return Clara.ITEM_MSG.getMultiline(
                 locale.getKey(),
                 "item.armor.crysalis.helmet.lore",
                 HEALTH,

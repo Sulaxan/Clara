@@ -9,10 +9,10 @@ import me.encast.clara.util.item.ItemBuilderContext;
 import me.encast.clara.util.item.ItemUtil;
 import me.encast.clara.util.item.interact.InteractData;
 import me.encast.clara.util.item.interact.InteractableItem;
+import me.encast.clara.util.resource.Locale;
 import net.minecraft.server.v1_8_R3.NBTBase;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import net.minecraft.server.v1_8_R3.NBTTagList;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -30,7 +30,6 @@ import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -313,11 +312,11 @@ public class ItemManager implements Listener {
             // Just in case it is a generic item
             rarity = ci.getRarity();
 
-            if(ci.getName(Locale.ENGLISH) != null)
+            if(ci.getName(Locale.EN_US) != null)
                 meta.setDisplayName((rarity != ItemRarity.NONE ? rarity.getColor() : ChatColor.GREEN) +
-                        ci.getName(Locale.ENGLISH));
+                        ci.getName(Locale.EN_US));
 
-            lore = Lists.newArrayList(ci.getLore());
+            lore = Lists.newArrayList(ci.getLore(Locale.EN_US));
             if(rarity != ItemRarity.NONE)
                 lore.add(" ");
         } else {
