@@ -1,10 +1,12 @@
 package me.encast.clara.util.resource;
 
 import com.google.common.collect.Maps;
+import me.encast.clara.Clara;
 
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.*;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -70,6 +72,56 @@ public class ResourceCluster<T extends ResourceLoader> {
                     }
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void traverseJarDirectory(String path, BiFunction<String, InputStream, T> resourceFunc) {
+        try {
+            ClassLoader loader = ResourceCluster.class.getClassLoader();
+            URI uri = loader.getResource(path).toURI();
+            if(uri.getScheme().equals("jar")) {
+                // jar case
+                URL jar = Clara.class.getProtectionDomain().getCodeSource().getLocation();
+                Path jarFile = Paths.get(jar.toString().substring("file:".length()));
+                FileSystem fs = FileSystems.newFileSystem(jarFile, null);
+                DirectoryStream<Path> stream = Files.newDirectoryStream(fs.getPath(path));
+                for(Path p : stream) {
+                    String name = p.getFileName().toString();
+                    T resLoader = resourceFunc.apply(name, Files.newInputStream(p));
+                    if(resLoader != null) {
+                        addResource(name.split("\\.")[0], resLoader);
+                    }
+                }
+            } else {
+                // ide case (not relevant)
+                Path p = Paths.get(path);
+                DirectoryStream<Path> stream = Files.newDirectoryStream(p);
+                for(Path p2 : stream) {
+                    String name = p2.getFileName().toString();
+                    T resLoader = resourceFunc.apply(name, Files.newInputStream(p2));
+                    if(resLoader != null) {
+                        addResource(name.split("\\.")[0], resLoader);
+                    }
+                }
+            }
+
+
+
+//            else{
+//                /** IDE case */
+//                Path path = Paths.get(uri);
+//                try {
+//                    DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path);
+//                    for(Path p : directoryStream){
+//                        InputStream is = new FileInputStream(p.toFile());
+//                        performFooOverInputStream(is);
+//                    }
+//                } catch (IOException _e) {
+//                    throw new FooException(_e.getMessage());
+//                }
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }

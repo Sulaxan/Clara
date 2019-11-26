@@ -35,8 +35,8 @@ public final class Clara extends JavaPlugin {
         // Plugin startup logic
         instance = this;
 
-        GENERAL_MSG = loadResourceDirectory("lang/general");
-        ITEM_MSG = loadResourceDirectory("lang/items");
+        GENERAL_MSG = loadResourceDirectory("/lang/general");
+        ITEM_MSG = loadResourceDirectory("/lang/items");
 
         //Sephrem.add();
 //        Sephrem.registerEntity("Sephrem", 989, EntityPigZombie.class, Sephrem.class);
@@ -61,15 +61,18 @@ public final class Clara extends JavaPlugin {
     private JsonResourceCluster loadResourceDirectory(String dirPath) {
         JsonResourceCluster cluster = new JsonResourceCluster();
         try {
-            URI uri = Clara.class.getResource("/lang/general").toURI();
+            URI uri = Clara.class.getResource(dirPath).toURI();
             Path path;
             if(uri.getScheme().equals("jar")) {
                 FileSystem system = FileSystems.getFileSystem(uri);
-                path = system.getPath("/lang/general");
+                path = system.getPath(dirPath);
             } else {
                 path = Paths.get(uri);
             }
             cluster.traverseDirectory(path, (name, in) -> new JsonResourceLoader(in));
+
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
