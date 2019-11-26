@@ -22,7 +22,8 @@ public class ResourceCluster {
         return this.resources.getOrDefault(key, null);
     }
 
+    // gets all the files within the directory (recursively) and maps a resource loader to the file
     public void traverseDirectory(Path path, Function<InputStream, ResourceLoader> resourceFunc) {
-        
+
     }
 }
