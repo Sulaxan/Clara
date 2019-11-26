@@ -9,8 +9,6 @@ import me.encast.clara.util.event.ArmorListener;
 import me.encast.clara.util.inventory.invx.InventoryManager;
 import me.encast.clara.util.resource.JsonResourceCluster;
 import me.encast.clara.util.resource.JsonResourceLoader;
-import me.encast.clara.util.resource.ResourceCluster;
-import me.encast.clara.util.resource.ResourceLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.net.URI;
@@ -29,27 +27,16 @@ public final class Clara extends JavaPlugin {
     private ClaraPlayerManager playerManager;
     private InventoryManager inventoryManager;
 
-    public static JsonResourceCluster MSG_RESOURCE;
+    public static JsonResourceCluster GENERAL_MSG;
+    public static JsonResourceCluster ITEM_MSG;
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         instance = this;
 
-        MSG_RESOURCE = new JsonResourceCluster();
-        try {
-            URI uri = Clara.class.getResource("/lang/messages").toURI();
-            Path path;
-            if(uri.getScheme().equals("jar")) {
-                FileSystem system = FileSystems.getFileSystem(uri);
-                path = system.getPath("/lang/messages");
-            } else {
-                path = Paths.get(uri);
-            }
-            MSG_RESOURCE.traverseDirectory(path, (name, in) -> new JsonResourceLoader(in));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        GENERAL_MSG = loadResourceDirectory("lang/general");
+        ITEM_MSG = loadResourceDirectory("lang/items");
 
         //Sephrem.add();
 //        Sephrem.registerEntity("Sephrem", 989, EntityPigZombie.class, Sephrem.class);
@@ -69,5 +56,24 @@ public final class Clara extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         inventoryManager.shutdown();
+    }
+
+    private JsonResourceCluster loadResourceDirectory(String dirPath) {
+        JsonResourceCluster cluster = new JsonResourceCluster();
+        try {
+            URI uri = Clara.class.getResource("/lang/general").toURI();
+            Path path;
+            if(uri.getScheme().equals("jar")) {
+                FileSystem system = FileSystems.getFileSystem(uri);
+                path = system.getPath("/lang/general");
+            } else {
+                path = Paths.get(uri);
+            }
+            cluster.traverseDirectory(path, (name, in) -> new JsonResourceLoader(in));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        cluster.makeDefault("en_US");
+        return cluster;
     }
 }

@@ -1,11 +1,11 @@
 package me.encast.clara.item;
 
 import me.encast.clara.util.item.ItemBuilderContext;
+import me.encast.clara.util.resource.Locale;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
-import java.util.Locale;
 
 public interface ClaraItem {
 
@@ -52,7 +52,7 @@ public interface ClaraItem {
 
     boolean isStackable();
 
-    List<String> getLore();
+    List<String> getLore(Locale locale);
 
     ItemStack getNewItemInstance();
 

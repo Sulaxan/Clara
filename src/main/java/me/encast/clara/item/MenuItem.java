@@ -4,9 +4,8 @@ import me.encast.clara.Clara;
 import me.encast.clara.util.inventory.invx.UndefinedInv;
 import me.encast.clara.util.item.interact.InteractData;
 import me.encast.clara.util.item.interact.InteractableItem;
+import me.encast.clara.util.resource.Locale;
 import org.bukkit.entity.Player;
-
-import java.util.Locale;
 
 public interface MenuItem extends ClaraItem, InteractableItem {
 
@@ -22,7 +21,7 @@ public interface MenuItem extends ClaraItem, InteractableItem {
         data.setCancel(true);
         UndefinedInv inv = getInventory(data.getPlayer());
         if(inv != null) {
-            inv.setName(getName(Locale.ENGLISH));
+            inv.setName(getName(Locale.EN_US));
             Clara.getInstance().getInventoryManager().openInv(data.getPlayer(), inv);
         }
     }

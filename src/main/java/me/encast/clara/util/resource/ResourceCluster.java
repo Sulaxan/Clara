@@ -34,6 +34,11 @@ public class ResourceCluster<T extends ResourceLoader> {
         this.defaultLoader = defaultLoader;
     }
 
+    // will try to make the default loader the loader mapped to key, or null if it doesn't exist
+    public void makeDefault(String key) {
+        this.defaultLoader = getResource(key);
+    }
+
     public String get(String resourceKey, String key) {
         ResourceLoader loader = getResource(resourceKey);
         if(loader != null) {

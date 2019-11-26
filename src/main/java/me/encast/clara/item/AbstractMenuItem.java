@@ -1,6 +1,7 @@
 package me.encast.clara.item;
 
 import me.encast.clara.util.item.ItemBuilderContext;
+import me.encast.clara.util.resource.Locale;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.inventory.ItemStack;
 
@@ -37,7 +38,7 @@ public abstract class AbstractMenuItem implements MenuItem {
     }
 
     @Override
-    public List<String> getLore() {
+    public List<String> getLore(Locale locale) {
         return Collections.emptyList();
     }
 
