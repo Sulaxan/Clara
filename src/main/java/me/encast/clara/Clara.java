@@ -7,8 +7,10 @@ import me.encast.clara.item.ItemManager;
 import me.encast.clara.player.ClaraPlayerManager;
 import me.encast.clara.util.event.ArmorListener;
 import me.encast.clara.util.inventory.invx.InventoryManager;
+import me.encast.clara.util.resource.JsonResourceCluster;
 import me.encast.clara.util.resource.JsonResourceLoader;
 import me.encast.clara.util.resource.ResourceCluster;
+import me.encast.clara.util.resource.ResourceLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.net.URI;
@@ -16,7 +18,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 
 @Getter
 public final class Clara extends JavaPlugin {
@@ -28,14 +29,14 @@ public final class Clara extends JavaPlugin {
     private ClaraPlayerManager playerManager;
     private InventoryManager inventoryManager;
 
-    public static ResourceCluster MSG_RESOURCE;
+    public static JsonResourceCluster MSG_RESOURCE;
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         instance = this;
 
-        MSG_RESOURCE = new ResourceCluster();
+        MSG_RESOURCE = new JsonResourceCluster();
         try {
             URI uri = Clara.class.getResource("/lang/messages").toURI();
             Path path;

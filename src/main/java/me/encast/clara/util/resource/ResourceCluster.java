@@ -55,7 +55,7 @@ public class ResourceCluster<T extends ResourceLoader> {
     }
 
     // gets all the files within the directory (recursively) and maps a resource loader to the file
-    public void traverseDirectory(Path path, BiFunction<String, InputStream, ResourceLoader> resourceFunc) {
+    public void traverseDirectory(Path path, BiFunction<String, InputStream, T> resourceFunc) {
         try {
             Stream<Path> walk = Files.walk(path);
             Iterator<Path> iterator = walk.iterator();
@@ -65,10 +65,9 @@ public class ResourceCluster<T extends ResourceLoader> {
                     continue;
                 if(p.getNameCount() > 1) {
                     String name = p.getFileName().toString();
-                    ResourceLoader loader = resourceFunc.apply(name, Files.newInputStream(p));
+                    T loader = resourceFunc.apply(name, Files.newInputStream(p));
                     if(loader != null) {
-                        // Try to add the loader as an instance of T
-                        addResource(name.split("\\.")[0], (T) loader);
+                        addResource(name.split("\\.")[0], loader);
                     }
                 }
             }
