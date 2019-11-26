@@ -2,10 +2,12 @@ package me.encast.clara.util.resource;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Iterator;
 
 public class JsonResourceLoader implements ResourceLoader {
 
@@ -24,48 +26,54 @@ public class JsonResourceLoader implements ResourceLoader {
     }
 
     @Override
-    public String get(String key) {
-        if(object.has(key))
-            return object.get(key).getAsString();
+    public String get(String key, Object... args) {
+        if(object.has(key)) {
+            String s = object.get(key).getAsString();
+            if(args != null && args.length > 0) {
+                for(Object arg : args) {
+                    s = REPLACE_PATTERN.matcher(s).replaceFirst(arg.toString());
+                }
+            }
+            return s;
+        }
         return null;
     }
 
-    @Override
-    public String getAndFormat(String key, Object... args) {
-        String val = get(key);
-        if(val != null && args != null && args.length >= 1) {
-            for(Object arg : args) {
-                val = REPLACE_PATTERN.matcher(val).replaceFirst(arg.toString());
-            }
-        }
-        return val;
-    }
-
-    public String[] getMultiline(String key) {
+    public String[] getMultiline(String key, Object... args) {
         if(object.has(key)) {
             JsonArray array = object.get(key).getAsJsonArray();
             if(array != null) {
                 String[] strings = new String[array.size()];
+                int i = 0;
+                Iterator<JsonElement> iterator = array.iterator();
+                while(iterator.hasNext()) {
+                    strings[i] = iterator.next().getAsString();
+                    i++;
+                }
+
+                if(args != null && args.length > 0)
+                    strings = format(strings, args);
+
+                return strings;
             }
         }
         return null;
     }
 
-    public String[] getAndFormatMultiline(String key, Object... args) {
-        String[] lines = getMultiline(key);
+    private String[] format(String[] strings, Object... args) {
         int i;
-        if(lines != null && args != null && args.length >= 1) {
+        if(strings != null && args != null && args.length >= 1) {
             for(Object arg : args) {
-                for(i = 0; i < lines.length; i++) {
-                    String newLine = REPLACE_PATTERN.matcher(lines[i]).replaceFirst(arg.toString());
-                    if(!lines[i].equals(newLine)) {
-                        lines[i] = newLine;
+                for(i = 0; i < strings.length; i++) {
+                    String newLine = REPLACE_PATTERN.matcher(strings[i]).replaceFirst(arg.toString());
+                    if(!strings[i].equals(newLine)) {
+                        strings[i] = newLine;
                         break;
                     }
                 }
             }
         }
-        return lines;
+        return strings;
     }
 
     public static JsonResourceLoader fromJAR(String path) {

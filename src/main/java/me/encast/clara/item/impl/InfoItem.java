@@ -6,12 +6,12 @@ import me.encast.clara.item.AbstractMenuItem;
 import me.encast.clara.util.inventory.invx.ItemContext;
 import me.encast.clara.util.inventory.invx.UndefinedInv;
 import me.encast.clara.util.item.ItemBuilder;
+import me.encast.clara.util.resource.Locale;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
-import java.util.Locale;
 
 public class InfoItem extends AbstractMenuItem {
 
@@ -60,12 +60,12 @@ public class InfoItem extends AbstractMenuItem {
 
     @Override
     public String getName(Locale locale) {
-        return "Info";
+        return Clara.ITEM_MSG.get(locale, "item.menu.info.name");
     }
 
     @Override
-    public List<String> getLore() {
-        return LORE;
+    public String[] getLore(Locale locale) {
+        return Clara.ITEM_MSG.getMultiline(locale, "item.menu.info.lore");
     }
 
     @Override

@@ -49,6 +49,10 @@ public class ResourceCluster<T extends ResourceLoader> {
         return "";
     }
 
+    public String get(Locale locale, String key) {
+        return get(locale.getKey(), key);
+    }
+
     public String getAndFormat(String resourceKey, String key, Object... args) {
         ResourceLoader loader = getResource(resourceKey);
         if(loader != null) {
@@ -57,6 +61,10 @@ public class ResourceCluster<T extends ResourceLoader> {
             return defaultLoader.getAndFormat(key, args);
         }
         return "";
+    }
+
+    public String getAndFormat(Locale locale, String key, Object... args) {
+        return getAndFormat(locale.getKey(), key, args);
     }
 
     // gets all the files within the directory (recursively) and maps a resource loader to the file

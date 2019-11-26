@@ -1,24 +1,16 @@
 package me.encast.clara.item.impl;
 
-import com.google.common.collect.Lists;
 import me.encast.clara.Clara;
 import me.encast.clara.item.AbstractMenuItem;
 import me.encast.clara.util.inventory.invx.ItemContext;
 import me.encast.clara.util.inventory.invx.LayerInventory;
 import me.encast.clara.util.inventory.invx.UndefinedInv;
+import me.encast.clara.util.resource.Locale;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
-import java.util.Locale;
-
 public class SkillTreeItem extends AbstractMenuItem {
-
-    private static final List<String> LORE = Lists.newArrayList(
-            "§7Click to view your §askill",
-            "§atree§7!"
-    );
 
     private static final LayerInventory INV;
 
@@ -59,7 +51,7 @@ public class SkillTreeItem extends AbstractMenuItem {
 
     @Override
     public String getName(Locale locale) {
-        return "Skill Tree";
+        return Clara.ITEM_MSG.get(locale, "item.menu.skill_tree.name");
     }
 
     @Override
@@ -88,8 +80,8 @@ public class SkillTreeItem extends AbstractMenuItem {
     }
 
     @Override
-    public List<String> getLore() {
-        return LORE;
+    public String[] getLore(Locale locale) {
+        return Clara.ITEM_MSG.getMultiline(locale, "item.menu.skill_tree.lore");
     }
 
     @Override

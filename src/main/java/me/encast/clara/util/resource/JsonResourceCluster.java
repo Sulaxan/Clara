@@ -8,23 +8,17 @@ public class JsonResourceCluster extends ResourceCluster<JsonResourceLoader> {
     public JsonResourceCluster() {
     }
 
-    public String[] getMultiline(String resourceKey, String key) {
+    public String[] getMultiline(String resourceKey, String key, Object... args) {
         JsonResourceLoader loader = getResource(resourceKey);
         if(loader != null) {
-            return loader.getMultiline(key);
+            return loader.getMultiline(key, args);
         } else if(getDefaultLoader() != null) {
-            return getDefaultLoader().getMultiline(key);
+            return getDefaultLoader().getMultiline(key, args);
         }
         return EMPTY_ARRAY;
     }
 
-    public String[] getAndFormatMultiline(String resourceKey, String key, Object... args) {
-        JsonResourceLoader loader = getResource(resourceKey);
-        if(loader != null) {
-            return loader.getAndFormatMultiline(key, args);
-        } else if(getDefaultLoader() != null) {
-            return getDefaultLoader().getAndFormatMultiline(key, args);
-        }
-        return EMPTY_ARRAY;
+    public String[] getMultiline(Locale locale, String key, Object... args) {
+        return getMultiline(locale.getKey(), key, args);
     }
 }

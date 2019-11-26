@@ -1,5 +1,6 @@
 package me.encast.clara.armor.impl;
 
+import me.encast.clara.Clara;
 import me.encast.clara.armor.ClaraArmor;
 import me.encast.clara.item.ClaraItem;
 import me.encast.clara.item.ItemRarity;
@@ -9,22 +10,19 @@ import me.encast.clara.util.item.ItemBuilder;
 import me.encast.clara.util.item.ItemBuilderContext;
 import me.encast.clara.util.item.interact.InteractData;
 import me.encast.clara.util.item.interact.InteractableItem;
+import me.encast.clara.util.resource.Locale;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
-
 public class CrysalisHelmet implements ClaraArmor, InteractableItem {
 
     private ItemStack item;
 
-    private double health = 100; // +100
-    private double defense = 0.02; // 2%
+    private static double HEALTH = 100; // +100
+    private static double DEFENSE = 0.02; // 2%
 
     public static final String ID = "crysalis_helmet";
 
@@ -35,16 +33,16 @@ public class CrysalisHelmet implements ClaraArmor, InteractableItem {
 
     @Override
     public void apply(ClaraPlayer player) {
-        player.addHealth(health);
-        player.addDefense(defense);
+        player.addHealth(HEALTH);
+        player.addDefense(DEFENSE);
         player.getBukkitPlayer().sendMessage("§aAPPLIED!");
 
     }
 
     @Override
     public void unapply(ClaraPlayer player) {
-        player.addHealth(-health);
-        player.addDefense(-defense);
+        player.addHealth(-HEALTH);
+        player.addDefense(-DEFENSE);
         player.getBukkitPlayer().sendMessage("§cUNAPPLIED!");
     }
 
@@ -73,14 +71,14 @@ public class CrysalisHelmet implements ClaraArmor, InteractableItem {
         return false;
     }
 
-    // make improvements later
     @Override
-    public List<String> getLore() {
-        return Util.formatStringToList("This helmet provides you with §a" + health + " §ahealth §7and §5+" +
-                (defense * 100) + "% §5defense§7.", 30)
-                .stream()
-                .map(str -> "§7" + str)
-                .collect(Collectors.toList());
+    public String[] getLore(Locale locale) {
+        return Clara.ITEM_MSG.getAndFormatMultiline(
+                locale.getKey(),
+                "item.armor.crysalis.helmet.lore",
+                HEALTH,
+                DEFENSE
+        );
     }
 
     @Override

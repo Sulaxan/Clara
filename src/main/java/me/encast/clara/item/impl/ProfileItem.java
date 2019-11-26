@@ -8,12 +8,12 @@ import me.encast.clara.player.ClaraPlayer;
 import me.encast.clara.util.inventory.invx.ItemContext;
 import me.encast.clara.util.inventory.invx.UndefinedInv;
 import me.encast.clara.util.item.ItemBuilder;
+import me.encast.clara.util.resource.Locale;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
-import java.util.Locale;
 
 public class ProfileItem extends AbstractMenuItem {
 
@@ -51,56 +51,40 @@ public class ProfileItem extends AbstractMenuItem {
                 .withLayer("^>       ")
                 .withLayer("<v  c   m")
                 .map('i', ItemContext.of(new ItemBuilder(Material.GHAST_TEAR, ItemBuilder.ItemType.NORMAL)
-                        .setDisplayName("§5Character Information")
-                        .addLore(" ", "§7Hover over an item below to", "§7view more information!")
+                        .setDisplayName(Clara.ITEM_MSG.get(cp.getLocale(), "item.menu.profile.name"))
+                        .addLore(Clara.ITEM_MSG.getMultiline(cp.getLocale(), "item.menu.profile.menu_icon.lore"))
                         .build())
                 )
                 .map('h', ItemContext.of(new ItemBuilder(Material.APPLE, ItemBuilder.ItemType.NORMAL)
-                        .setDisplayName("§cHealth")
-                        .addLore(
-                                " ",
-                                "§7You currently have",
-                                "§c" + cp.getHealth() + " HP§7!",
-                                " ",
-                                "§7Note: Includes armor and any",
-                                "§7addtional HP buffs!",
-                                " "
-                        )
+                        .setDisplayName(Clara.ITEM_MSG.get(cp.getLocale(), "item.menu.profile.icon.health.name"))
+                        .addLore(Clara.ITEM_MSG.getMultiline(
+                                cp.getLocale(),
+                                "item.menu.profile.icon.health.lore",
+                                cp.getHealth()
+                        ))
                         .build())
                 )
                 .map('p', ItemContext.of(new ItemBuilder(Material.SKULL_ITEM, ItemBuilder.ItemType.SKULL)
-                        .setDisplayName("§5" + player.getName() + " §a§lYOU!")
+                        .setDisplayName(Clara.ITEM_MSG.get(cp.getLocale(), "item.menu.profile.icon.summary.name"))
                         .setData((short) 3)
                         .setSkullOwner(player.getName())
-                        .addLore(
-                                " ",
-                                "§7Summary of your stats:",
-                                " ",
-                                "§cHealth: §7" + cp.getHealth(),
-                                "§9Defense: §7" + (cp.getDefense() * 100) + "%",
-                                " ",
-                                "§6You have learned a total of",
-                                "§6" + cp.getUnlockedSpells().size() + " spell(s)!",
-                                " ",
-                                "§7" + cp.getEquippedArmor().size() + " piece(s) of armor equipped!",
-                                "§7" + cp.getRuntimeItems().size() + " item(s) in your inventory!"
-                        )
+                        .addLore(Clara.ITEM_MSG.getMultiline(
+                                cp.getLocale(),
+                                "item.menu.profile.icon.summary.lore",
+                                cp.getHealth(),
+                                cp.getDefense() * 100,
+                                cp.getUnlockedSpells().size(),
+                                cp.getEquippedArmor().size(),
+                                cp.getRuntimeItems().size()
+                        ))
                         .build())
                 )
                 .map('d', ItemContext.of(new ItemBuilder(Material.IRON_CHESTPLATE, ItemBuilder.ItemType.NORMAL)
-                        .setDisplayName("§9Defense")
-                        .addLore(
-                                " ",
-                                "§7You currently have",
-                                "§9" + (cp.getDefense() * 100) + "% Defense§7!",
-                                " ",
-                                "§7Maximum obtainable defense is",
-                                "§9100%§7!",
-                                " ",
-                                "§7Note: Includes armor and any",
-                                "§7addtional defense buffs!",
-                                " "
-                        )
+                        .setDisplayName(Clara.ITEM_MSG.get(cp.getLocale(), "item.menu.profile.icon.defense.name"))
+                        .addLore(Clara.ITEM_MSG.getMultiline(
+                                cp.getLocale(),
+                                "item.menu.profile.icon.defense.lore"
+                        ))
                         .build())
                 )
                 .map('s', ItemContext.of(new ItemBuilder(Material.INK_SACK, ItemBuilder.ItemType.NORMAL)
@@ -115,9 +99,9 @@ public class ProfileItem extends AbstractMenuItem {
                 .map('v', ItemContext.of(bootsItem))
                 // make an item constant for closing
                 .map('c', ItemContext.of(new ItemBuilder(Material.LONG_GRASS, ItemBuilder.ItemType.NORMAL)
-                        .setDisplayName("§cClose")
+                        .setDisplayName(Clara.ITEM_MSG.get(cp.getLocale(), "item.menu.general.close.name"))
                         .setData((short) 2)
-                        .addLore(" ", "§7Click to close!")
+                        .addLore(Clara.ITEM_MSG.getMultiline(cp.getLocale(), "item.menu.general.close.lore"))
                         .build(),
                         click -> click.getPlayer().closeInventory())
                 )
@@ -136,12 +120,12 @@ public class ProfileItem extends AbstractMenuItem {
 
     @Override
     public String getName(Locale locale) {
-        return "Character Info";
+        return Clara.GENERAL_MSG.get(locale, "item.menu.profile.name");
     }
 
     @Override
-    public List<String> getLore() {
-        return LORE;
+    public String[] getLore(Locale locale) {
+        return Clara.GENERAL_MSG.getMultiline(locale, "item.menu.profile.lore");
     }
 
     @Override

@@ -36,6 +36,8 @@ public interface ClaraItem {
      */
     String SLOT_KEY = "clara_slot";
 
+    String[] EMPTY_LORE = new String[0];
+
     String getId(); // this id is already set in the nbt tag compound
 
     String getName(Locale locale); // friendly name
@@ -52,7 +54,7 @@ public interface ClaraItem {
 
     boolean isStackable();
 
-    List<String> getLore(Locale locale);
+    String[] getLore(Locale locale);
 
     ItemStack getNewItemInstance();
 

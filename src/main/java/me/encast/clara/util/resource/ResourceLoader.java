@@ -6,7 +6,5 @@ public interface ResourceLoader {
 
     Pattern REPLACE_PATTERN = Pattern.compile("%%[a-zA-Z0-9]*%%");
 
-    String get(String key);
-
-    String getAndFormat(String key, Object... args);
+    String get(String key, Object... args);
 }

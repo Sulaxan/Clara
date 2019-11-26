@@ -1,4 +1,80 @@
 {
+  "item.armor.crysalis.helmet.lore": [
+    " ",
+    "§7This helmet provides you with",
+    "§a%%health%% health §7and §9+%%defense%% defense§7!"
+  ],
+
+  "item.menu.general.close.name": "§cClose",
+  "item.menu.general.close.lore": [
+    " ",
+    "§7Click to close this menu!"
+  ],
+
+  "item.menu.info.name": "§aInfo",
+  "item.menu.info.lore": [
+    "§7Click to view the §aInfo §7menu!"
+  ],
+
+  "item.menu.profile.name": "§5Character Info",
+  "item.menu.profile.lore": [
+    "§7Click to view your §5Character",
+    "§5Information§7!"
+  ],
+  "item.menu.profile.menu_icon.lore": [
+    " ",
+    "§7Hover over an item below to",
+    "§7view more information!"
+  ],
+  "item.menu.profile.icon.summary.name": "§5%%name%% §a§lYOU!",
+  "item.menu.profile.icon.summary.lore": [
+    " ",
+    "§7Summary of your stats:",
+    " ",
+    "§cHealth: §7%%hp%%",
+    "§9Defense: §7%%def%%",
+    " ",
+    "§6You have learned a total of",
+    "§6%%count%% spells!",
+    " ",
+    "§7%%count%% piece(s) of armor equipped!",
+    "§7%%count%% item(s) in your inventory!"
+  ],
+  "item.menu.profile.icon.health.name": "§cHealth",
+  "item.menu.profile.icon.health.lore": [
+    " ",
+    "§7You currently have",
+    "§c%%hp%% HP§7!",
+    " ",
+    "§7Note: Includes armor and any",
+    "§7additional HP bufffs!"
+  ],
+  "item.menu.profile.icon.defense.name": "§9Defense",
+  "item.menu.profile.icon.defense.lore": [
+    " ",
+    "§7You currently have",
+    "§9%%defense%% Defense§7!",
+    " ",
+    "§7Maximum obtainable defense is",
+    "§9100%§7!",
+    " ",
+    "§7Note: Includes armor and any",
+    "§7additional defense bufffs!"
+  ],
+
+  "item.menu.spell.name": "§aSpell",
+  "item.menu.spell.lore": [
+    "§7Click to view the §6Spell",
+    "§7menu!"
+  ],
+
+  "item.menu.skill_tree.name": "Skill Tree",
+  "item.menu.skill_tree.lore": [
+    "§7Click to view your §aSkill",
+    "§aTree§7!"
+  ],
+
+  "item.menu.drop.name": "§cDrop",
   "item.menu.drop.lore": [
     " ",
     "§7Drag and drop an item here",

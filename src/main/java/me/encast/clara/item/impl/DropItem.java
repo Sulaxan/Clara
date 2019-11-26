@@ -1,14 +1,12 @@
 package me.encast.clara.item.impl;
 
-import com.google.common.collect.Lists;
+import me.encast.clara.Clara;
 import me.encast.clara.item.AbstractMenuItem;
 import me.encast.clara.util.inventory.invx.UndefinedInv;
 import me.encast.clara.util.resource.Locale;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.List;
 
 public class DropItem extends AbstractMenuItem {
 
@@ -24,12 +22,12 @@ public class DropItem extends AbstractMenuItem {
 
     @Override
     public String getName(Locale locale) {
-        return "§cDrop Item";
+        return Clara.ITEM_MSG.get(locale, "item.menu.drop.name");
     }
 
     @Override
-    public List<String> getLore(Locale locale) {
-        return Clara;
+    public String[] getLore(Locale locale) {
+        return Clara.ITEM_MSG.getMultiline(locale, "item.menu.drop.lore");
     }
 
     @Override

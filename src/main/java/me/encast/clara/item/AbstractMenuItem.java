@@ -5,9 +5,6 @@ import me.encast.clara.util.resource.Locale;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Collections;
-import java.util.List;
-
 public abstract class AbstractMenuItem implements MenuItem {
 
     private ItemStack item;
@@ -38,8 +35,8 @@ public abstract class AbstractMenuItem implements MenuItem {
     }
 
     @Override
-    public List<String> getLore(Locale locale) {
-        return Collections.emptyList();
+    public String[] getLore(Locale locale) {
+        return EMPTY_LORE;
     }
 
     @Override
