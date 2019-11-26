@@ -1,4 +1,18 @@
 {
+  "item.generic.generic_lore": [
+    "§8Common Item"
+  ],
+  "item.generic.special_lore": [
+    " ",
+    "§7This is a §dnot-so-common",
+    "§7common item!",
+    " ",
+    "§7Some say it may be useful..."
+  ],
+  "item.generic.corrupted_lore": [
+    "§8???"
+  ],
+
   "item.armor.crysalis.helmet.lore": [
     " ",
     "§7This helmet provides you with",

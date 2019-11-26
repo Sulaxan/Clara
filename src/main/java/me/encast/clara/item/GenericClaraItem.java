@@ -2,8 +2,10 @@ package me.encast.clara.item;
 
 import com.google.common.collect.Lists;
 import lombok.Getter;
+import me.encast.clara.Clara;
 import me.encast.clara.util.item.ItemBuilderContext;
 import me.encast.clara.util.item.ItemUtil;
+import me.encast.clara.util.resource.Locale;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -12,7 +14,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
-import java.util.Locale;
 
 public class GenericClaraItem implements ClaraItem {
 
@@ -85,8 +86,12 @@ public class GenericClaraItem implements ClaraItem {
     }
 
     @Override
-    public List<String> getLore() {
-        return special ? UNGENERIC_LORE : this.corrupted ? CORRUPTED_LORE : GENERIC_LORE;
+    public String[] getLore(Locale locale) {
+        return this.special ?
+                Clara.ITEM_MSG.getMultiline(locale, "item.generic.special_lore") :
+                this.corrupted ?
+                        Clara.ITEM_MSG.getMultiline(locale, "item.generic.corrupted_lore") :
+                        Clara.ITEM_MSG.getMultiline(locale, "item.generic.generic_lore");
     }
 
     @Override
