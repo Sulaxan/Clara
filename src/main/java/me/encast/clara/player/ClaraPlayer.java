@@ -7,6 +7,7 @@ import lombok.Setter;
 import me.encast.clara.armor.ClaraArmor;
 import me.encast.clara.item.RuntimeClaraItem;
 import me.encast.clara.spell.Spell;
+import me.encast.clara.util.resource.Locale;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -27,6 +28,8 @@ public class ClaraPlayer {
 
     private String[] equippedSpells = new String[0];
     private List<String> unlockedSpells = Lists.newCopyOnWriteArrayList();
+
+    private Locale locale = Locale.EN_US;
 
     // Runtime
     private transient List<RuntimeClaraItem> runtimeItems = Lists.newCopyOnWriteArrayList();
