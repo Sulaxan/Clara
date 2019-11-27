@@ -70,9 +70,6 @@ public final class Clara extends JavaPlugin {
                 path = Paths.get(uri);
             }
             cluster.traverseDirectory(path, (name, in) -> new JsonResourceLoader(in));
-
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
