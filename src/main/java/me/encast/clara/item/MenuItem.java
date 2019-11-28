@@ -12,6 +12,11 @@ public interface MenuItem extends ClaraItem, InteractableItem {
     UndefinedInv getInventory(Player player);
 
     @Override
+    default ItemCategory getCategory() {
+        return ItemCategory.MENU_ITEM;
+    }
+
+    @Override
     default ItemRarity getRarity() {
         return ItemRarity.NONE;
     }

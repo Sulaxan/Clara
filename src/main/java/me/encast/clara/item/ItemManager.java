@@ -81,7 +81,7 @@ public class ItemManager implements Listener {
         item.loadItem(i, context);
         compound = context.getCompound();
         i = item.getItem();
-        applyItemData(i, context.getMeta(), item);
+        applyItemData(player, i, context.getMeta(), item);
         setDefaultNBT(compound, item, uuid);
 
         AtomicReference<NBTTagCompound> ref = new AtomicReference<>(compound);
@@ -130,7 +130,7 @@ public class ItemManager implements Listener {
                 i = item.getItem(); // just in case it changes
                 setDefaultNBT(compound, null, uuid);
                 i = ItemUtil.applyRawNBT(i, compound);
-                applyItemData(i, context.getMeta(), item);
+                applyItemData(player, i, context.getMeta(), item);
 
                 compound = ItemUtil.getRawNBT(i);
 
@@ -210,14 +210,7 @@ public class ItemManager implements Listener {
 
             if(!items.isEmpty()) {
                 for(Map.Entry<RuntimeClaraItem, Integer> runtime : items.entrySet()) {
-                    player.getBukkitPlayer().sendMessage(Clara.GENERAL_MSG.get(
-                            player.getLocale(),
-                            "player.item.pickup",
-                            runtime.getValue(),
-                            runtime.getKey().getItem().getRarity() == null ? ItemRarity.STANDARD :
-                                    runtime.getKey().getItem().getRarity().getColor(),
-                            runtime.getKey().getItem().getName(player.getLocale())
-                    ));
+                    sendPickupMessage(player, runtime.getValue(), runtime.getKey().getItem());
                 }
             }
 
@@ -247,12 +240,14 @@ public class ItemManager implements Listener {
             runtimeItem.getItem().setAmount(runtimeItem.getItem().getAmount() + claraItem.getAmount());
         } else {
             runtimeItem = new RuntimeClaraItem(uuid, claraItem, null);
-            applyItemData(claraItem.getItem(), context.getMeta(), claraItem);
+            applyItemData(player, claraItem.getItem(), context.getMeta(), claraItem);
 
             setDefaultNBT(compound, claraItem, uuid); // apply default nbt after just in case it got replaced
 
             AtomicReference<NBTTagCompound> tempRef = new AtomicReference<>(compound);
             claraItem.setItem(ItemUtil.fetchAndApplyRawNBT(claraItem.getItem(), tag -> {
+                // Remove lore from the old tag, since we don't want it to pile up
+                tempRef.get().getCompound("display").remove("Lore");
                 copyUniqueKeyNBT(tag, tempRef.get());
                 return tempRef.get();
             }));
@@ -262,14 +257,7 @@ public class ItemManager implements Listener {
         }
 
         if(notifyPlayer) {
-            player.getBukkitPlayer().sendMessage(Clara.GENERAL_MSG.get(
-                    player.getLocale(),
-                    "player.item.pickup",
-                    item.getAmount(),
-                    runtimeItem.getItem().getRarity() == null ? ItemRarity.STANDARD :
-                            runtimeItem.getItem().getRarity().getColor(),
-                    runtimeItem.getItem().getName(player.getLocale())
-            ));
+            sendPickupMessage(player, item.getAmount(), claraItem);
         }
 
         if(giveItem) {
@@ -302,6 +290,17 @@ public class ItemManager implements Listener {
         ItemStack i = item.getItem().clone();
         i.setAmount(1);
         return player.getBukkitPlayer().getInventory().addItem(i);
+    }
+
+    private void sendPickupMessage(ClaraPlayer player, int count, ClaraItem item) {
+        player.getBukkitPlayer().sendMessage(Clara.GENERAL_MSG.get(
+                player.getLocale(),
+                "player.item.pickup",
+                count,
+                item.getRarity() == null ? ItemRarity.STANDARD :
+                        item.getRarity().getColor(),
+                item.getName(player.getLocale())
+        ));
     }
 
     private void setDefaultNBT(NBTTagCompound compound, ClaraItem item, UUID uuid) {
@@ -340,20 +339,23 @@ public class ItemManager implements Listener {
                     copyUniqueKeyNBT((NBTTagCompound) fromBase, (NBTTagCompound) toBase);
                 }
             }
-            // Possibly account for adding elements to a list or inner compound
         }
     }
 
-    private void applyItemData(ItemStack item, ItemMeta meta, ClaraItem ci) {
+    private void applyItemData(ClaraPlayer player, ItemStack item, ItemMeta meta, ClaraItem ci) {
         List<String> lore = Lists.newArrayList();
+        ItemCategory category;
         ItemRarity rarity = ItemRarity.STANDARD;
         if(ci != null) {
+            category = ci.getCategory() == null ? ItemCategory.ITEM : ci.getCategory();
+            lore.add(Clara.ITEM_MSG.get(player.getLocale(), category.getMessageKey()));
+
             // Just in case it is a generic item
             rarity = ci.getRarity();
 
-            if(ci.getName(Locale.EN_US) != null)
+            if(ci.getName(player.getLocale()) != null)
                 meta.setDisplayName((rarity != ItemRarity.NONE ? rarity.getColor() : ChatColor.GREEN) +
-                        ci.getName(Locale.EN_US));
+                        ci.getName(player.getLocale()));
 
             lore = Lists.newArrayList(ci.getLore(Locale.EN_US));
             if(rarity != ItemRarity.NONE)

@@ -42,6 +42,8 @@ public interface ClaraItem {
 
     String getName(Locale locale); // friendly name
 
+    ItemCategory getCategory();
+
     ItemRarity getRarity();
 
     int getAmount();

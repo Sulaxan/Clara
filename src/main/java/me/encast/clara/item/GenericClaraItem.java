@@ -54,6 +54,11 @@ public class GenericClaraItem implements ClaraItem {
     }
 
     @Override
+    public ItemCategory getCategory() {
+        return ItemCategory.ITEM;
+    }
+
+    @Override
     public ItemRarity getRarity() {
         return special ? ItemRarity.ANGELIC : this.corrupted ? ItemRarity.CORRUPTED : ItemRarity.STANDARD;
     }

@@ -1,6 +1,7 @@
 package me.encast.clara.armor;
 
 import me.encast.clara.item.ClaraItem;
+import me.encast.clara.item.ItemCategory;
 import me.encast.clara.player.ClaraPlayer;
 
 public interface ClaraArmor extends ClaraItem {
@@ -10,6 +11,11 @@ public interface ClaraArmor extends ClaraItem {
     void unapply(ClaraPlayer player);
 
     Type getType();
+
+    @Override
+    default ItemCategory getCategory() {
+        return ItemCategory.ARMOR;
+    }
 
     @Override
     default int getAmount() {
