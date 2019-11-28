@@ -3,6 +3,7 @@ package me.encast.clara.command;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.encast.clara.Clara;
+import me.encast.clara.item.ClaraItem;
 import me.encast.clara.item.ClaraItemType;
 import me.encast.clara.player.ClaraPlayer;
 import me.encast.clara.player.ClaraSavePlayer;
@@ -101,9 +102,11 @@ public class ItemCommand implements CommandExecutor {
                 return true;
             }
 
-            ItemStack item = Clara.getInstance().getItemManager()
-                    .constructNewItem(cp, ClaraItemType.CRYSALIS_HELMET.getItem(), true);
-            p.getInventory().addItem(item);
+            for(ClaraItemType type : ClaraItemType.VALUES) {
+                ItemStack item = Clara.getInstance().getItemManager()
+                        .constructNewItem(cp, type.getItem(), true);
+                p.getInventory().addItem(item);
+            }
             p.sendMessage("§aGiven!");
         }
         return true;
