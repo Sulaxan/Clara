@@ -7,6 +7,7 @@ import me.encast.clara.item.ClaraItem;
 import me.encast.clara.item.ItemManager;
 import me.encast.clara.item.MenuItem;
 import me.encast.clara.item.RuntimeClaraItem;
+import me.encast.clara.item.impl.DropItem;
 import me.encast.clara.item.impl.ProfileItem;
 import me.encast.clara.item.impl.SkillTreeItem;
 import me.encast.clara.item.impl.SpellItem;
@@ -104,6 +105,8 @@ public class ClaraPlayerManager {
     public void applyMenuIcons(ClaraPlayer player) {
         Player p = player.getBukkitPlayer();
         ItemStack i = Clara.getInstance().getItemManager().constructNewItem(player, new SkillTreeItem(), true);
+        p.getInventory().setItem(17, i);
+        i = Clara.getInstance().getItemManager().constructNewItem(player, new DropItem(), true);
         p.getInventory().setItem(26, i);
         i = Clara.getInstance().getItemManager().constructNewItem(player, new ProfileItem(), true);
         p.getInventory().setItem(27, i);

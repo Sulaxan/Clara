@@ -59,9 +59,11 @@ public class InventoryManager implements Listener {
     @EventHandler
     public void onInvClose(InventoryCloseEvent e) {
         if(e.getInventory().getType() != InventoryType.PLAYER) {
-            InvSession session = openInvs.remove(e.getPlayer().getUniqueId());
+            InvSession session = openInvs.getOrDefault(e.getPlayer().getUniqueId(), null);
             if(session != null && session.getUndefInv() instanceof InteractableInv) {
                 ((InteractableInv) session.getUndefInv()).onClose((Player) e.getPlayer());
+                // Remove after so that the InvSession function used by implementations is not null
+                openInvs.remove(e.getPlayer().getUniqueId());
             }
         }
     }

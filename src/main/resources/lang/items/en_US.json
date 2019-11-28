@@ -130,6 +130,13 @@
   "item.menu.drop.lore": [
     " ",
     "§7Drag and drop an item here",
-    "§7to drop it!"
+    "§7to drop it!",
+    " ",
+    "§8Optionally,",
+    "§e§lSHIFT CLICK §7to bulk drop!",
+    " ",
+    "§c§l!! WARNING !!",
+    "§7You have %%time%% seconds before",
+    "§7you can pickup stuff!"
   ]
 }

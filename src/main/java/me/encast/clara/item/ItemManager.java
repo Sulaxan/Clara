@@ -46,6 +46,8 @@ public class ItemManager implements Listener {
             and if so, change the item UUIDs and stack it
      */
 
+    private static final List<Integer> RESERVED_SLOTS = Lists.newArrayList(17, 26, 27, 35);
+
     public ItemManager(Plugin plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
@@ -380,9 +382,13 @@ public class ItemManager implements Listener {
             RuntimeClaraItem runtime = getRuntimeItem(cp, item);
             if(runtime != null && runtime.getItem() instanceof InteractableItem) {
                 // add data for the inventory
-                InteractData data = new InteractData(null, e.getAction(), item, e.getCursor(), p);
+                InteractData data = new InteractData(null, e.getAction(), e.getClick(), item, e.getCursor(), e.getSlot(), p);
                 ((InteractableItem) runtime.getItem()).interact(data);
+                if(e.getCurrentItem() != data.getCursorItem())
+                    e.setCursor(data.getCursorItem());
                 e.setCancelled(data.isCancel());
+            } else if(RESERVED_SLOTS.contains(e.getSlot())) {
+                e.setCancelled(true);
             }
         }
     }
