@@ -16,7 +16,7 @@
   "item.armor.crysalis.helmet.lore": [
     " ",
     "§7This helmet provides you with",
-    "§a%%health%% health §7and §9+%%defense%% defense§7!"
+    "§a%%health%% health §7and §9+%%defense%%% defense§7!"
   ],
 
   "item.menu.general.close.name": "§cClose",
@@ -46,7 +46,7 @@
     "§7Summary of your stats:",
     " ",
     "§cHealth: §7%%hp%%",
-    "§9Defense: §7%%def%%",
+    "§9Defense: §7%%def%%%",
     " ",
     "§6You have learned a total of",
     "§6%%count%% spells!",
@@ -61,19 +61,19 @@
     "§c%%hp%% HP§7!",
     " ",
     "§7Note: Includes armor and any",
-    "§7additional HP bufffs!"
+    "§7additional HP buffs!"
   ],
   "item.menu.profile.icon.defense.name": "§9Defense",
   "item.menu.profile.icon.defense.lore": [
     " ",
     "§7You currently have",
-    "§9%%defense%% Defense§7!",
+    "§9%%defense%%% Defense§7!",
     " ",
     "§7Maximum obtainable defense is",
     "§9100%§7!",
     " ",
     "§7Note: Includes armor and any",
-    "§7additional defense bufffs!"
+    "§7additional defense buffs!"
   ],
 
   "item.menu.spell.name": "§aSpell",

@@ -44,16 +44,12 @@ public class JsonResourceLoader implements ResourceLoader {
             JsonArray array = object.get(key).getAsJsonArray();
             if(array != null) {
                 String[] strings = new String[array.size()];
-                int i = 0;
-                Iterator<JsonElement> iterator = array.iterator();
-                while(iterator.hasNext()) {
-                    strings[i] = iterator.next().getAsString();
-                    i++;
+                for(int i = 0; i < array.size(); i++) {
+                    strings[i] = array.get(i).getAsString();
                 }
 
                 if(args != null && args.length > 0)
                     strings = format(strings, args);
-
                 return strings;
             }
         }

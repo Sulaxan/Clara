@@ -77,7 +77,7 @@ public class CrysalisHelmet implements ClaraArmor, InteractableItem {
                 locale.getKey(),
                 "item.armor.crysalis.helmet.lore",
                 HEALTH,
-                DEFENSE
+                DEFENSE * 100
         );
     }
 

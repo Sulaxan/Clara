@@ -13,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class ProfileItem extends AbstractMenuItem {
@@ -65,7 +66,7 @@ public class ProfileItem extends AbstractMenuItem {
                         .build())
                 )
                 .map('p', ItemContext.of(new ItemBuilder(Material.SKULL_ITEM, ItemBuilder.ItemType.SKULL)
-                        .setDisplayName(Clara.ITEM_MSG.get(cp.getLocale(), "item.menu.profile.icon.summary.name"))
+                        .setDisplayName(Clara.ITEM_MSG.get(cp.getLocale(), "item.menu.profile.icon.summary.name", player.getName()))
                         .setData((short) 3)
                         .setSkullOwner(player.getName())
                         .addLore(Clara.ITEM_MSG.getMultiline(
@@ -83,7 +84,8 @@ public class ProfileItem extends AbstractMenuItem {
                         .setDisplayName(Clara.ITEM_MSG.get(cp.getLocale(), "item.menu.profile.icon.defense.name"))
                         .addLore(Clara.ITEM_MSG.getMultiline(
                                 cp.getLocale(),
-                                "item.menu.profile.icon.defense.lore"
+                                "item.menu.profile.icon.defense.lore",
+                                cp.getDefense() * 100
                         ))
                         .build())
                 )
@@ -120,12 +122,12 @@ public class ProfileItem extends AbstractMenuItem {
 
     @Override
     public String getName(Locale locale) {
-        return Clara.GENERAL_MSG.get(locale, "item.menu.profile.name");
+        return Clara.ITEM_MSG.get(locale, "item.menu.profile.name");
     }
 
     @Override
     public String[] getLore(Locale locale) {
-        return Clara.GENERAL_MSG.getMultiline(locale, "item.menu.profile.lore");
+        return Clara.ITEM_MSG.getMultiline(locale, "item.menu.profile.lore");
     }
 
     @Override

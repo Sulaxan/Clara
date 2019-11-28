@@ -16,6 +16,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 
 @Getter
 public final class Clara extends JavaPlugin {
@@ -63,13 +64,23 @@ public final class Clara extends JavaPlugin {
         try {
             URI uri = Clara.class.getResource(dirPath).toURI();
             Path path;
+            FileSystem system = null;
             if(uri.getScheme().equals("jar")) {
-                FileSystem system = FileSystems.getFileSystem(uri);
+                // Try to create a new file system, if it exists, get the already existing one
+                try {
+                    system = FileSystems.newFileSystem(uri, Collections.emptyMap());
+                } catch (Exception e) {
+                    system = FileSystems.getFileSystem(uri);
+                }
                 path = system.getPath(dirPath);
             } else {
                 path = Paths.get(uri);
             }
             cluster.traverseDirectory(path, (name, in) -> new JsonResourceLoader(in));
+
+            // Close the file system, we don't need it anymore for now
+            if(system != null)
+                system.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
