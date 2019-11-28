@@ -15,7 +15,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
-public class CrysalisArmorPiece implements ClaraArmor {
+public class DemonArmorPiece implements ClaraArmor {
 
     private Type type;
     private Material material;
@@ -23,15 +23,15 @@ public class CrysalisArmorPiece implements ClaraArmor {
 
     private ItemStack item;
 
-    private static double HEALTH = 100; // +100
-    private static double DEFENSE = 0.02; // 2%
+    private static double HEALTH = 750; // +750
+    private static double DEFENSE = 0.1; // 10%
 
-    public static final String HELMET_ID = "crysalis_helmet";
-    public static final String CHESTPLATE_ID = "crysalis_chestplate";
-    public static final String LEGGINGS_ID = "crysalis_leggings";
-    public static final String BOOTS_ID = "crysalis_boots";
+    public static final String HELMET_ID = "demon_helmet";
+    public static final String CHESTPLATE_ID = "demon_chestplate";
+    public static final String LEGGINGS_ID = "demon_leggings";
+    public static final String BOOTS_ID = "demon_boots";
 
-    public CrysalisArmorPiece(Type type, Material material, String id) {
+    public DemonArmorPiece(Type type, Material material, String id) {
         this.type = type;
         this.material = material;
         this.id = id;
@@ -62,12 +62,12 @@ public class CrysalisArmorPiece implements ClaraArmor {
 
     @Override
     public String getName(Locale locale) {
-        return "Crysalis " + StringUtils.capitalize(type.name().toLowerCase());
+        return "Demon " + StringUtils.capitalize(type.name().toLowerCase());
     }
 
     @Override
     public ItemRarity getRarity() {
-        return ItemRarity.STANDARD;
+        return ItemRarity.ANGELIC;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class CrysalisArmorPiece implements ClaraArmor {
     public String[] getLore(Locale locale) {
         return Clara.ITEM_MSG.getMultiline(
                 locale.getKey(),
-                "item.armor.crysalis.armor.lore",
+                "item.armor.demon.armor.lore",
                 HEALTH,
                 DEFENSE * 100
         );
@@ -88,7 +88,7 @@ public class CrysalisArmorPiece implements ClaraArmor {
     @Override
     public ItemStack getNewItemInstance() {
         return new ItemBuilder(material, ItemBuilder.ItemType.LEATHER_ARMOUR)
-                .setColor(Color.WHITE)
+                .setColor(Color.fromRGB(125, 168, 59))
                 .setUnbreakable(true)
                 .addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ATTRIBUTES)
                 .build();

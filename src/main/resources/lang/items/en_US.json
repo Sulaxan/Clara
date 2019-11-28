@@ -21,6 +21,42 @@
     "§a%%health%% health §7and §9+%%defense%%% defense§7!"
   ],
 
+  "item.armor.saphron.armor.lore": [
+    " ",
+    "§7This helmet provides you with",
+    "§a%%health%% health §7and §9+%%defense%%% defense§7!"
+  ],
+
+  "item.armor.solidified_dauna.armor.lore": [
+    " ",
+    "§7This helmet provides you with",
+    "§a%%health%% health §7and §9+%%defense%%% defense§7!"
+  ],
+
+  "item.armor.moonshadow.armor.lore": [
+    " ",
+    "§7This helmet provides you with",
+    "§a%%health%% health §7and §9+%%defense%%% defense§7!"
+  ],
+
+  "item.armor.demon.armor.lore": [
+    " ",
+    "§7This helmet provides you with",
+    "§a%%health%% health §7and §9+%%defense%%% defense§7!"
+  ],
+
+  "item.armor.mutated_demon.armor.lore": [
+    " ",
+    "§7This helmet provides you with",
+    "§a%%health%% health §7and §9+%%defense%%% defense§7!"
+  ],
+
+  "item.armor.time_crystal.armor.lore": [
+    " ",
+    "§7This helmet provides you with",
+    "§a%%health%% health §7and §9+%%defense%%% defense§7!"
+  ],
+
   "item.menu.general.close.name": "§cClose",
   "item.menu.general.close.lore": [
     " ",
