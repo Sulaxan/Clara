@@ -1,4 +1,6 @@
 {
   "command.item.runtime_items": "§aRUNTIME ITEMS: %%count%%",
-  "player.item.pickup": "§7+%%count%%x %%color%%%%item%%"
+  "player.item.pickup": "§7+%%count%%x %%color%%%%item%%",
+  "player.armor.equip": "§7§lEQUIPPED §7%%name%%",
+  "player.armor.unequip": "§8§lUNEQUIPPED §8%%name%%"
 }

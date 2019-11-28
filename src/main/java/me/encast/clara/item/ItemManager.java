@@ -398,6 +398,11 @@ public class ItemManager implements Listener {
         if(e.getOldArmorPiece() != null) {
             item = getRuntimeItem(cp, e.getOldArmorPiece());
             if(item != null && item.getItem() instanceof ClaraArmor) {
+                p.sendMessage(Clara.GENERAL_MSG.get(
+                        cp.getLocale(),
+                        "player.armor.unequip",
+                        item.getItem().getName(cp.getLocale())
+                ));
                 cp.removeEquippedArmor(item);
             }
         }
@@ -406,6 +411,13 @@ public class ItemManager implements Listener {
             item = getRuntimeItem(cp, e.getNewArmorPiece());
             if(item != null && item.getItem() instanceof ClaraArmor) {
                 if(cp.addEquippedArmor(item)) {
+                    p.sendMessage(Clara.GENERAL_MSG.get(
+                            cp.getLocale(),
+                            "player.armor.equip",
+                            (item.getItem().getRarity() == null ?
+                                    ItemRarity.STANDARD.getColor() : item.getItem().getRarity().getColor()) +
+                                    item.getItem().getName(cp.getLocale())
+                    ));
                     // Simulating armour equip sound
                     p.playSound(p.getLocation(), Sound.NOTE_STICKS, 5, 1);
                 }

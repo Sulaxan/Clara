@@ -7,18 +7,15 @@ import me.encast.clara.item.ItemRarity;
 import me.encast.clara.player.ClaraPlayer;
 import me.encast.clara.util.item.ItemBuilder;
 import me.encast.clara.util.item.ItemBuilderContext;
-import me.encast.clara.util.item.interact.InteractData;
-import me.encast.clara.util.item.interact.InteractableItem;
 import me.encast.clara.util.resource.Locale;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
-import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
-public class CrysalisArmorPiece implements ClaraArmor, InteractableItem {
+public class CrysalisArmorPiece implements ClaraArmor {
 
     private Type type;
     private Material material;
@@ -41,15 +38,9 @@ public class CrysalisArmorPiece implements ClaraArmor, InteractableItem {
     }
 
     @Override
-    public void interact(InteractData data) {
-        data.getPlayer().sendMessage("§aWoah you clicked on me!");
-    }
-
-    @Override
     public void apply(ClaraPlayer player) {
         player.addHealth(HEALTH);
         player.addDefense(DEFENSE);
-        player.getBukkitPlayer().sendMessage("§aAPPLIED!");
 
     }
 
@@ -57,7 +48,6 @@ public class CrysalisArmorPiece implements ClaraArmor, InteractableItem {
     public void unapply(ClaraPlayer player) {
         player.addHealth(-HEALTH);
         player.addDefense(-DEFENSE);
-        player.getBukkitPlayer().sendMessage("§cUNAPPLIED!");
     }
 
     @Override
