@@ -6,8 +6,10 @@ import me.encast.clara.Clara;
 import me.encast.clara.util.item.ItemBuilderContext;
 import me.encast.clara.util.item.ItemUtil;
 import me.encast.clara.util.resource.Locale;
+import net.minecraft.server.v1_8_R3.LocaleI18n;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -48,10 +50,7 @@ public class GenericClaraItem implements ClaraItem {
 
     @Override
     public String getName(Locale locale) {
-        if(item.getType() == Material.PORK) {
-            return "Piece of Rina";
-        }
-        return null;
+        return LocaleI18n.get(CraftItemStack.asNMSCopy(this.item).getItem().getName() + ".name");
     }
 
     @Override

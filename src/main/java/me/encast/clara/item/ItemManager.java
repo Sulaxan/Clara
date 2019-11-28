@@ -1,6 +1,8 @@
 package me.encast.clara.item;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import me.encast.clara.Clara;
 import me.encast.clara.armor.ClaraArmor;
 import me.encast.clara.player.ClaraPlayer;
@@ -29,9 +31,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ItemManager implements Listener {
@@ -183,19 +183,45 @@ public class ItemManager implements Listener {
         return null;
     }
 
+    public void addToRuntimeFromExisting(ClaraPlayer player, ItemStack item, boolean addIndividually, boolean giveItem) {
+        addToRuntimeFromExisting(player, item, addIndividually, giveItem, true);
+    }
+
+    public void addToRuntimeFromExisting(ClaraPlayer player, ItemStack item, boolean addIndividually,  boolean giveItem, boolean notifyPlayer) {
+        addToRuntimeFromExistingInternal(player, item, addIndividually, giveItem, notifyPlayer);
+    }
+
     // addIndividually just makes it so that if the item count is > 1, the method will be called again
     // with the same item
     // This is done so that if, for example, 5 items were picked up, generic item might make all 5
     // special items, when we actually just want at least 1 being special
-    public void addToRuntimeFromExisting(ClaraPlayer player, ItemStack item, boolean addIndividually, boolean giveItem) {
+    private RuntimeClaraItem addToRuntimeFromExistingInternal(ClaraPlayer player, ItemStack item, boolean addIndividually, boolean giveItem, boolean notifyPlayer) {
         if(addIndividually && item.getAmount() > 1) {
             int amount = item.getAmount();
             item.setAmount(1);
+            Map<RuntimeClaraItem, Integer> items = notifyPlayer ? Maps.newHashMap() : Collections.emptyMap();
             for(int i = 0; i < amount; i++) {
                 // Cloning the item so that data isn't overwritten
-                addToRuntimeFromExisting(player, item.clone(), false, giveItem);
+                RuntimeClaraItem runtime = addToRuntimeFromExistingInternal(player, item.clone(), false, giveItem, false);
+                if(notifyPlayer && runtime != null) {
+                    items.put(runtime, items.getOrDefault(runtime, 0) + 1);
+                }
             }
-            return;
+
+            if(!items.isEmpty()) {
+                for(Map.Entry<RuntimeClaraItem, Integer> runtime : items.entrySet()) {
+                    player.getBukkitPlayer().sendMessage(Clara.GENERAL_MSG.get(
+                            player.getLocale(),
+                            "player.item.pickup",
+                            runtime.getValue(),
+                            runtime.getKey().getItem().getRarity() == null ? ItemRarity.STANDARD :
+                                    runtime.getKey().getItem().getRarity().getColor(),
+                            runtime.getKey().getItem().getName(player.getLocale())
+                    ));
+                }
+            }
+
+            return null;
         }
 
         NBTTagCompound compound = ItemUtil.getOrDefaultRawNBT(item);
@@ -235,6 +261,17 @@ public class ItemManager implements Listener {
             player.addRuntimeItem(runtimeItem);
         }
 
+        if(notifyPlayer) {
+            player.getBukkitPlayer().sendMessage(Clara.GENERAL_MSG.get(
+                    player.getLocale(),
+                    "player.item.pickup",
+                    item.getAmount(),
+                    runtimeItem.getItem().getRarity() == null ? ItemRarity.STANDARD :
+                            runtimeItem.getItem().getRarity().getColor(),
+                    runtimeItem.getItem().getName(player.getLocale())
+            ));
+        }
+
         if(giveItem) {
             Map<Integer, ItemStack> remaining = normalizeAndAdd(player, runtimeItem.getItem());
             // Accounting for items that could not be added
@@ -245,6 +282,8 @@ public class ItemManager implements Listener {
                 }
             }
         }
+
+        return runtimeItem;
     }
 
     public RuntimeClaraItem getSimilarRuntime(ClaraPlayer player, ClaraItem item) {
