@@ -2,10 +2,8 @@
   "item.category.item": "§8Item",
   "item.category.menu_item": "§8Menu Item",
   "item.category.armor": "§8Armor",
-  
-  "item.generic.generic_lore": [
-    "§8Common Item"
-  ],
+
+  "item.generic.generic_lore": [],
   "item.generic.special_lore": [
     " ",
     "§7This is a §dnot-so-common",

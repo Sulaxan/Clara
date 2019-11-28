@@ -2,7 +2,6 @@ package me.encast.clara.item;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import me.encast.clara.Clara;
 import me.encast.clara.armor.ClaraArmor;
 import me.encast.clara.player.ClaraPlayer;
@@ -344,10 +343,9 @@ public class ItemManager implements Listener {
 
     private void applyItemData(ClaraPlayer player, ItemStack item, ItemMeta meta, ClaraItem ci) {
         List<String> lore = Lists.newArrayList();
-        ItemCategory category;
         ItemRarity rarity = ItemRarity.STANDARD;
         if(ci != null) {
-            category = ci.getCategory() == null ? ItemCategory.ITEM : ci.getCategory();
+            ItemCategory category = ci.getCategory() == null ? ItemCategory.ITEM : ci.getCategory();
             lore.add(Clara.ITEM_MSG.get(player.getLocale(), category.getMessageKey()));
 
             // Just in case it is a generic item
@@ -357,7 +355,7 @@ public class ItemManager implements Listener {
                 meta.setDisplayName((rarity != ItemRarity.NONE ? rarity.getColor() : ChatColor.GREEN) +
                         ci.getName(player.getLocale()));
 
-            lore = Lists.newArrayList(ci.getLore(Locale.EN_US));
+            lore.addAll(Arrays.asList(ci.getLore(Locale.EN_US)));
             if(rarity != ItemRarity.NONE)
                 lore.add(" ");
         } else {
