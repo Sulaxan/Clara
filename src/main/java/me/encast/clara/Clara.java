@@ -3,6 +3,7 @@ package me.encast.clara;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import me.encast.clara.command.ItemCommand;
+import me.encast.clara.command.RtMemoryFootprintCommand;
 import me.encast.clara.item.ItemManager;
 import me.encast.clara.player.ClaraPlayerManager;
 import me.encast.clara.util.event.ArmorListener;
@@ -51,6 +52,8 @@ public final class Clara extends JavaPlugin {
         this.inventoryManager = new InventoryManager(this);
 
         getCommand("item").setExecutor(new ItemCommand());
+        // "Realtime Memory Footprint"
+        getCommand("rtmf").setExecutor(new RtMemoryFootprintCommand());
     }
 
     @Override
