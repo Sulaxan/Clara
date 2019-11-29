@@ -46,12 +46,19 @@ public class RtMemoryFootprintCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player) {
             Player p = (Player) sender;
-            if(players.contains(p.getUniqueId())) {
-                players.remove(p.getUniqueId());
-                p.sendMessage("§cRemoved!");
+            if(args.length >= 1) {
+                if(args[0].equals("gc")) {
+                    p.sendMessage("§7Calling garbage collector...");
+                    System.gc();
+                }
             } else {
-                players.add(p.getUniqueId());
-                p.sendMessage("§aAdded!");
+                if (players.contains(p.getUniqueId())) {
+                    players.remove(p.getUniqueId());
+                    p.sendMessage("§cRemoved!");
+                } else {
+                    players.add(p.getUniqueId());
+                    p.sendMessage("§aAdded!");
+                }
             }
         } else {
             sender.sendMessage("Only players can use this command!");

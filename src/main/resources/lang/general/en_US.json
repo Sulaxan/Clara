@@ -1,6 +1,10 @@
 {
   "command.item.runtime_items": "§aRUNTIME ITEMS: %%count%%",
   "player.item.pickup": "§7+%%count%%x %%color%%%%item%%",
+  "player.item.drop": "§7-%%count%%x §7§m%%item%%",
+  "player.item.drop.no_item": "§cDrag and drop an item here to discard it!",
+  "player.item.drop.invalid": "§cLooks like you've dropped a null item hmm",
+  "player.item.drop.button_not_allowed": "§cUse the Drop item in your inventory to discard items!",
   "player.armor.equip": "§7§lEQUIPPED §7%%name%%",
   "player.armor.unequip": "§8§lUNEQUIPPED §8%%name%%"
 }

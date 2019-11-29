@@ -2,6 +2,8 @@ package me.encast.clara.item.impl;
 
 import me.encast.clara.Clara;
 import me.encast.clara.item.AbstractMenuItem;
+import me.encast.clara.item.RuntimeClaraItem;
+import me.encast.clara.player.ClaraPlayer;
 import me.encast.clara.util.inventory.InvSize;
 import me.encast.clara.util.inventory.invx.UndefinedInv;
 import me.encast.clara.util.item.interact.InteractData;
@@ -26,11 +28,12 @@ public class DropItem extends AbstractMenuItem implements InteractableItem {
 
     @Override
     public void interact(InteractData data) {
-        // Remove runtime item from the player instance
+        ClaraPlayer cp = Clara.getInstance().getPlayerManager().getPlayer(data.getPlayer().getUniqueId());
         if(data.getCursorItem() != null && data.getCursorItem().getType() != Material.AIR) {
             data.getPlayer().getWorld().dropItem(data.getPlayer().getLocation(), data.getCursorItem())
                     .setPickupDelay(20 * PICKUP_DELAY_SECONDS);
-            data.getPlayer().sendMessage("§7temp: §aDropped!");
+            drop(data.getPlayer(), data.getCursorItem());
+            // Set the current item to air so that the player doesn't pick it up
             data.getPlayer().getInventory().setItem(data.getSlot(), AIR);
             // Disabling the player's ability to pickup items so the item about to get deleted
             // doesn't get stacked with any items the player picks up
@@ -53,19 +56,35 @@ public class DropItem extends AbstractMenuItem implements InteractableItem {
                                 data.getPlayer().getWorld().dropItem(data.getPlayer().getLocation(), item)
                                         .setPickupDelay(20 * 2);
                                 // remove runtime item from the player instance
+                                drop(player, item);
                             }
                         }
                     },
                     ctx -> {}
             );
 
-            inv.setName("Bulk Drop");
+            inv.setName(Clara.ITEM_MSG.get(cp.getLocale(), "item.menu.drop.bulk.name"));
             inv.setSize(InvSize.THREE_ROWS.getSlots());
             Clara.getInstance().getInventoryManager().openInv(data.getPlayer(), inv);
         } else {
             data.setCancel(true);
-            data.getPlayer().sendMessage("§7temp: §cDrag and drop an item!");
+            data.getPlayer().sendMessage(Clara.GENERAL_MSG.get(cp.getLocale(), "player.item.drop.no_item"));
             data.getPlayer().playSound(data.getPlayer().getLocation(), Sound.NOTE_PLING, 5, 0.1f);
+        }
+    }
+
+    private void drop(Player player, ItemStack item) {
+        ClaraPlayer cp = Clara.getInstance().getPlayerManager().getPlayer(player.getUniqueId());
+        RuntimeClaraItem runtime = Clara.getInstance().getItemManager().dropItem(cp, item);
+        if(runtime != null) {
+            player.sendMessage(Clara.GENERAL_MSG.get(
+                    cp.getLocale(),
+                    "player.item.drop",
+                    item.getAmount(),
+                    runtime.getItem().getName(cp.getLocale())
+            ));
+        } else {
+            player.sendMessage(Clara.GENERAL_MSG.get(cp.getLocale(), "player.item.drop.invalid"));
         }
     }
 

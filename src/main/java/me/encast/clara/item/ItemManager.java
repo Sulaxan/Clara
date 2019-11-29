@@ -286,6 +286,22 @@ public class ItemManager implements Listener {
         return null;
     }
 
+    public RuntimeClaraItem dropItem(ClaraPlayer player, ItemStack item) {
+        RuntimeClaraItem runtime = getRuntimeItem(player, item);
+        if(runtime != null) {
+            ClaraItem claraItem = runtime.getItem();
+            claraItem.setAmount(claraItem.getAmount() - item.getAmount());
+
+            if(!claraItem.isStackable() || claraItem.getAmount() <= 0) {
+                player.removeRuntimeItem(runtime);
+            }
+
+            return runtime;
+        }
+
+        return null;
+    }
+
     // sets item count to one and gives the item to the player
     private Map<Integer, ItemStack> normalizeAndAdd(ClaraPlayer player, ClaraItem item) {
         ItemStack i = item.getItem().clone();

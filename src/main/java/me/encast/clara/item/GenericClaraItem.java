@@ -1,6 +1,5 @@
 package me.encast.clara.item;
 
-import com.google.common.collect.Lists;
 import lombok.Getter;
 import me.encast.clara.Clara;
 import me.encast.clara.util.item.ItemBuilderContext;
@@ -15,8 +14,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.List;
-
 public class GenericClaraItem implements ClaraItem {
 
     private ItemStack item;
@@ -24,18 +21,6 @@ public class GenericClaraItem implements ClaraItem {
     @Getter
     private boolean special = false;
     private boolean corrupted = false;
-
-    private static final List<String> GENERIC_LORE = Lists.newArrayList("§7This is a generic item!");
-    private static final List<String> UNGENERIC_LORE = Lists.newArrayList(
-            "§7This is a §dnot-so-generic",
-            "§7generic item!",
-            " ",
-            "§7Some say this item can be",
-            "§7useful..."
-    );
-    private static final List<String> CORRUPTED_LORE = Lists.newArrayList(
-            "§7???"
-    );
 
     // Keys can only have max length of 26 characters
     private static final String SPECIAL_KEY = "clara_gen_item_special";
