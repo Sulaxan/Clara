@@ -1,6 +1,8 @@
 package me.encast.clara;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import me.encast.clara.command.ItemCommand;
 import me.encast.clara.command.RtMemoryFootprintCommand;
@@ -32,6 +34,9 @@ public final class Clara extends JavaPlugin {
     public static JsonResourceCluster GENERAL_MSG;
     public static JsonResourceCluster ITEM_MSG;
 
+    public static Gson GSON = new Gson();
+    public static Gson PRETTY_GSON = new GsonBuilder().setPrettyPrinting().create();
+
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -46,9 +51,12 @@ public final class Clara extends JavaPlugin {
         // Armour listener should be registered before the other listeners
         getServer().getPluginManager().registerEvents(new ArmorListener(Lists.newArrayList()), this);
 
+        if(!getDataFolder().exists())
+            getDataFolder().mkdir();
+
         // Managers
         this.itemManager = new ItemManager(this);
-        this.playerManager = new ClaraPlayerManager();
+        this.playerManager = new ClaraPlayerManager(this);
         this.inventoryManager = new InventoryManager(this);
 
         getCommand("item").setExecutor(new ItemCommand());

@@ -13,17 +13,33 @@ import me.encast.clara.item.impl.SkillTreeItem;
 import me.encast.clara.item.impl.SpellItem;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import java.util.WeakHashMap;
 
 @Getter
-public class ClaraPlayerManager {
+public class ClaraPlayerManager implements Listener {
 
     private List<ClaraPlayer> players = Lists.newArrayList();
+    private WeakHashMap<UUID, ClaraSavePlayer> saveCache = new WeakHashMap<>();
+    private File saveDirectory;
 
-    public ClaraPlayerManager() {
+    public ClaraPlayerManager(Plugin plugin) {
+        this.saveDirectory = new File(plugin.getDataFolder().getAbsolutePath() + File.separatorChar + "player_saves");
+        if(!this.saveDirectory.exists())
+            this.saveDirectory.mkdir();
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     public ClaraPlayer getPlayer(UUID uuid) {
@@ -102,6 +118,39 @@ public class ClaraPlayerManager {
         return cp;
     }
 
+    public ClaraPlayer loadFromSaveDir(Player p) {
+        // Try to load from cache first
+        ClaraSavePlayer savePlayer = getSaveCache().getOrDefault(p.getUniqueId(), null);
+        if(savePlayer == null) {
+            File save = new File(getSaveDirectory().getAbsolutePath() + File.separatorChar + p.getUniqueId().toString() + ".json");
+            if(save.exists()) {
+                try (FileReader reader = new FileReader(save)) {
+                    savePlayer = Clara.GSON.fromJson(reader, ClaraSavePlayer.class);
+                    saveCache.put(p.getUniqueId(), savePlayer);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        if(savePlayer != null) {
+            return loadPlayer(p, savePlayer);
+        }
+        return null;
+    }
+
+    public void saveToFile(ClaraSavePlayer savePlayer) {
+        File save = new File(getSaveDirectory().getAbsolutePath() + File.separatorChar + savePlayer.getUuid().toString() + ".json");
+        if(save.exists()) {
+           save.delete();
+        }
+
+        try (FileWriter writer = new FileWriter(save)) {
+            Clara.PRETTY_GSON.toJson(savePlayer, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void applyMenuIcons(ClaraPlayer player) {
         Player p = player.getBukkitPlayer();
         ItemStack i = Clara.getInstance().getItemManager().constructNewItem(player, new SkillTreeItem(), true);
@@ -112,5 +161,33 @@ public class ClaraPlayerManager {
         p.getInventory().setItem(27, i);
         i = Clara.getInstance().getItemManager().constructNewItem(player, new SpellItem(), true);
         p.getInventory().setItem(35, i);
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e) {
+        Player p = e.getPlayer();
+        ClaraPlayer player = loadFromSaveDir(p);
+        if(player == null) {
+            // New player
+            player = new ClaraPlayer(p.getUniqueId());
+        }
+
+        // Add to current runtime players
+        players.add(player);
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        Player p = e.getPlayer();
+        ClaraPlayer player = getPlayer(p.getUniqueId());
+        if(player != null) {
+            // Remove from runtime players
+            players.remove(player);
+            ClaraSavePlayer savePlayer = savePlayer(player);
+            if(savePlayer != null) { // Just in case
+                saveCache.put(p.getUniqueId(), savePlayer);
+                saveToFile(savePlayer);
+            }
+        }
     }
 }
