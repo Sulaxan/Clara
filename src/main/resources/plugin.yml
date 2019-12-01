@@ -8,3 +8,4 @@ description: Project Clara
 commands:
   item:
   rtmf:
+  worldgen:

@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import me.encast.clara.command.ItemCommand;
 import me.encast.clara.command.RtMemoryFootprintCommand;
+import me.encast.clara.command.WorldGenCommand;
 import me.encast.clara.item.ItemManager;
 import me.encast.clara.player.ClaraPlayerManager;
 import me.encast.clara.util.event.ArmorListener;
@@ -62,6 +63,7 @@ public final class Clara extends JavaPlugin {
         getCommand("item").setExecutor(new ItemCommand());
         // "Realtime Memory Footprint"
         getCommand("rtmf").setExecutor(new RtMemoryFootprintCommand());
+        getCommand("worldgen").setExecutor(new WorldGenCommand());
     }
 
     @Override
