@@ -4,7 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
-import org.bukkit.util.noise.PerlinOctaveGenerator;
+import org.bukkit.util.noise.SimplexOctaveGenerator;
 
 import java.util.Random;
 
@@ -13,33 +13,44 @@ public class ClaraGenerator extends ChunkGenerator {
     @Override
     public ChunkData generateChunkData(World world, Random random, int x, int z, BiomeGrid biome) {
         ChunkData chunk = createChunkData(world);
-        PerlinOctaveGenerator gen = new PerlinOctaveGenerator(world, 8);
+        SimplexOctaveGenerator gen = new SimplexOctaveGenerator(new Random(world.getSeed()), 8);
+        gen.setScale(0.005d);
         for(int i = 0; i < 16; i++) {
             for(int k = 0; k < 16; k++) {
-                double elev = gen.noise(x * 16 + i, z * 16 + k, 1, 1) +
-                        gen.noise(x * 16 * 2 + i, z * 16 * 2 + k, 0.5, 1) +
-                        gen.noise(x * 16 * 4 + i, z * 16 * 4 + k, 0.25, 1);
-                elev = Math.pow(elev, 1.85);
-                int y = (int) elev * 1000;
-                for(int j = 0; j < y; j++) {
-                    chunk.setBlock(i, y, j, Material.STONE);
+                int nx = x * 16 + i;
+                int nz = z * 16 + k;
+                double elev = (1.00 * noise1(gen, nx,  nz)
+                        + 0.27 * noise1(gen, 2 * nx,  2 * nz)
+                        + 0.17 * noise1(gen, 4 * nx,  4 * nz)
+                        + 0.12 * noise1(gen, 8 * nx,  8 * nz)
+                        + 0.06 * noise1(gen, 16 * nx, 16 * nz)
+                        + 0.03 * noise1(gen, 32 * nx, 32 * nz));
+                elev /= 1.00 + 0.27 + 0.17 + 0.12 + 0.06 + 0.03;
+                elev = Math.pow(elev, 5.52);
+                int height = (int) (elev * 15 + 50d);
+                for(int j = 0; j < height; j++) {
+                    chunk.setBlock(i, j, k, Material.STONE);
                 }
-                chunk.setBlock(x, y, z, getMaterial(world, x * 16 + i, z * 16 + i, elev));
+                chunk.setBlock(i, height, k, Material.STONE);
             }
         }
         return chunk;
     }
 
+    private double noise1(SimplexOctaveGenerator gen, double nx, double nz) {
+        return gen.noise(nx, nz, 1, 1) / 2 + 0.25;
+    }
+
     private Material getMaterial(World world, int x, int z, double e) {
-        if (e < 0.1) {
+        if (e < 0.035) {
             world.setBiome(x, z, Biome.OCEAN);
-            return Material.WOOL;
+            return Material.WATER;
         }
-        else if (e < 0.2) {
+        else if (e < 0.075) {
             world.setBiome(x, z, Biome.BEACH);
             return Material.SAND;
         }
-        else if (e < 0.3) {
+        else if (e < 0.1) {
             world.setBiome(x, z, Biome.FOREST);
             return Material.GRASS;
         }
@@ -51,12 +62,12 @@ public class ClaraGenerator extends ChunkGenerator {
             world.setBiome(x, z, Biome.SAVANNA);
             return Material.GRASS;
         }
-        else if (e < 0.9) {
+        else if (e < 1.0) {
             world.setBiome(x, z, Biome.DESERT);
             return Material.SAND;
         }
 
         world.setBiome(x, z, Biome.TAIGA);
-        return Material.SNOW;
+        return Material.SNOW_BLOCK;
     }
 }
