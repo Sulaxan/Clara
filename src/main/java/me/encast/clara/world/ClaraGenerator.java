@@ -14,6 +14,7 @@ public class ClaraGenerator extends ChunkGenerator {
         ChunkData chunk = createChunkData(world);
         SimplexOctaveGenerator gen = new SimplexOctaveGenerator(new Random(world.getSeed()), 1);
         gen.setScale(0.005d);
+        // Creating a 16x16 island, everything else is water
         if((x < -16 || x > 16) || (z < -16 || z > 16)) {
             for(int i = 0; i < 16; i++) {
                 for(int k = 0; k < 16; k++) {
@@ -24,6 +25,8 @@ public class ClaraGenerator extends ChunkGenerator {
                     noise = (noise + 1) / 2; // further normalizing between [0, infinity]
                     noise = Math.abs(noise);
                     int y = (int) (noise * 100d + 20d);
+
+                    // Fill with water
                 }
             }
         }
