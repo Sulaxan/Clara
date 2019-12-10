@@ -3,77 +3,93 @@ package me.encast.clara.world;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
-import org.bukkit.util.noise.SimplexOctaveGenerator;
 
 import java.util.Random;
 
 public class ClaraGenerator extends ChunkGenerator {
 
+    private static final double CHANCE_TO_LIVE = 0.45;
+    private static final int STARVATION_LIMIT = 2;
+    private static final int BIRTH_NUMBER = 3;
+    private static final int GENERATIONS = 2;
+    private static final int WORLD_SIZE = 10000; // WORLD_SIZE * WORLD_SIZE chunks
+    private static final int CHUNKS = WORLD_SIZE / 16;
+
+    private static final int CUBE_Y_START = 95;
+    private static final int CUBE_Y_END = 100;
+
+    private static final byte ALIVE = 0b1;
+    private static final byte DEAD = 0b0;
+
+    private byte[][] map;
+
     @Override
     public ChunkData generateChunkData(World world, Random random, int x, int z, BiomeGrid biome) {
-        ChunkData chunk = createChunkData(world);
-        SimplexOctaveGenerator gen = new SimplexOctaveGenerator(new Random(world.getSeed()), 1);
-        gen.setScale(0.005d);
-        // Creating a 16x16 island, everything else is water
-        if((x < -16 || x > 16) || (z < -16 || z > 16)) {
-            for(int i = 0; i < 16; i++) {
-                for(int k = 0; k < 16; k++) {
-                    int nx = x * 16 + i;
-                    int nz = z * 16 + k;
-                    double noise =  1.00 * gen.noise(nx, nz, 16, 0.25, true) +
-                                    0.28 * gen.noise(4 * nx, 4 * nz, 12, 0.2, true);
-                    noise = (noise + 1) / 2; // further normalizing between [0, infinity]
-                    noise = Math.abs(noise);
-                    int y = (int) (noise * 100d + 20d);
-
-                    // Fill with water
-                }
-            }
+        if(map == null) {
+            map = performGen(getMap(WORLD_SIZE, random), GENERATIONS);
         }
-        for(int i = 0; i < 16; i++) {
-            for(int k = 0; k < 16; k++) {
-                int nx = x * 16 + i;
-                int nz = z * 16 + k;
-                double noise =  1.00 * gen.noise(nx, nz, 16, 0.72, true) +
-//                                0.52 * gen.noise(4 * nx, 4 * nz, 1, 1, true) +
-                                0.28 * gen.noise(4 * nx, 4 * nz, 12, 0.2, true) +
-                                0.07 * gen.noise(16 * nx, 16 * nz, 12, 0.1);
-//                                0.03 * gen.noise(32 * nx, 32 * nz, 1, 1, true);
-                noise = (noise + 1) / 2; // further normalizing between [0, infinity]
-                noise = Math.abs(noise);
-                int y = (int) (noise * 100d + 20d);
-
-
-                for(int j = 1; j < y; j++) {
-                    chunk.setBlock(i, j, k, Material.STONE);
-                }
-                chunk.setBlock(i, 0, k, Material.BEDROCK);
-                if(y <= world.getSeaLevel()) {
-                    for(int j = y; j <= world.getSeaLevel(); j++) {
-                        chunk.setBlock(i, j, k, Material.WATER);
+        ChunkData chunk = createChunkData(world);
+        if(Math.abs(x) < CHUNKS && Math.abs(z) < CHUNKS) {
+            if(map[x + WORLD_SIZE / 2][z + WORLD_SIZE / 2] == ALIVE) {
+                for(int i = 0; i < 16; i++) {
+                    for(int k = 0; k < 16; k++) {
+                        for(int y = CUBE_Y_START; y <= CUBE_Y_END; y++) {
+                            chunk.setBlock(i, y, k, Material.GRASS);
+                        }
                     }
-                    chunk.setBlock(i, y, k, Material.SAND);
-                } else if(y <= world.getSeaLevel() + 5) {
-                    chunk.setBlock(i, y, k, Material.SAND);
-                } else if(y >= 176) {
-                    if(y >= 200) {
-                        chunk.setBlock(i, y, k, Material.SNOW);
-                    } else {
-                        chunk.setBlock(i, y, k, Material.STONE);
-                    }
-                } else {
-                    chunk.setBlock(i, y, k, Material.GRASS);
                 }
             }
         }
         return chunk;
     }
 
-    private double noise1(SimplexOctaveGenerator gen, double nx, double nz) {
-        return gen.noise(nx, nz, 1, 1) / 2 + 0.25;
+    private Material getMaterial(World world, ChunkData data) {
+        return Material.GRASS;
     }
 
-    private Material getMaterial(World world, double noise) {
-        return Material.GRASS;
+    private byte[][] getMap(int worldSize, Random random) {
+        byte[][] world = new byte[worldSize][worldSize];
+        for(int i = 0; i < world.length; i++) {
+            for(int j = 0; j < world[i].length; i++) {
+                world[i][j] = random.nextDouble() < CHANCE_TO_LIVE ? ALIVE : DEAD;
+            }
+        }
+        return world;
+    }
+
+    private byte[][] performGen(byte[][] map, int generations) {
+        if(generations == 0)
+            return map;
+        byte[][] newMap = new byte[map.length][map.length];
+        for(int x = 0; x < map.length; x++) {
+            for(int z = 0; z < map[x].length; z++) {
+                int neighbours = getNeighbourCount(map, x, z);
+                if(map[x][z] == ALIVE) {
+                    newMap[x][z] = neighbours < STARVATION_LIMIT ? DEAD : ALIVE;
+                } else {
+                    newMap[x][z] = neighbours > BIRTH_NUMBER ? ALIVE : DEAD;
+                }
+            }
+        }
+        return performGen(newMap, generations - 1);
+    }
+
+    private int getNeighbourCount(byte[][] map, int x, int z) {
+        int count = 0;
+        int dx, dz;
+        for(int i = -1; i <= 1; i++) {
+            for(int k = -1; k <= 1; k++) {
+                if(i == 0 && k == 0)
+                    continue;
+                dx = x + i;
+                dz = z + i;
+                if(dx < 0 || dz < 0 || dx >= map.length || dz >= map.length)
+                    continue;
+
+                if(map[dx][dz] == ALIVE)
+                    count++;
+            }
+        }
+        return count;
     }
 }
