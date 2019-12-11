@@ -1,7 +1,10 @@
 package me.encast.clara.util;
 
 import com.google.common.collect.Lists;
+import me.encast.clara.Clara;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 
 public class Util {
@@ -29,5 +32,16 @@ public class Util {
             }
         }
         return list;
+    }
+
+    public static <T> T loadResourceFromJar(String path, Class<T> clazz) {
+        T t = null;
+        try (InputStreamReader reader = new InputStreamReader(Clara.getInstance().getResource(path))) {
+            t = Clara.GSON.fromJson(reader, clazz);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return t;
     }
 }

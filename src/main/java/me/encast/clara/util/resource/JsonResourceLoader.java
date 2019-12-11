@@ -2,13 +2,10 @@ package me.encast.clara.util.resource;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Iterator;
-import java.util.List;
 
 public class JsonResourceLoader implements ResourceLoader {
 

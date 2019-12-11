@@ -2,7 +2,9 @@ package me.encast.clara;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import me.encast.clara.util.resource.map.ClaraMapResource;
+import me.encast.clara.util.map.ClaraMapResource;
+import me.encast.clara.util.map.SerializableMaterialData;
+import org.bukkit.Material;
 
 public class Test {
 
@@ -81,6 +83,9 @@ public class Test {
         CIRCLE[4][2] = 2;
         CIRCLE[5][2] = 2;
         resource.setIslandAttributes(CIRCLE);
+        resource.setMaterials(new SerializableMaterialData[] {
+                new SerializableMaterialData(Material.GRASS, (byte) 0)
+        });
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         System.out.println(gson.toJson(resource));
     }

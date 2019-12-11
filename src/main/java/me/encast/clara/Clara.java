@@ -9,8 +9,10 @@ import me.encast.clara.command.RtMemoryFootprintCommand;
 import me.encast.clara.command.WorldGenCommand;
 import me.encast.clara.item.ItemManager;
 import me.encast.clara.player.ClaraPlayerManager;
+import me.encast.clara.util.Util;
 import me.encast.clara.util.event.ArmorListener;
 import me.encast.clara.util.inventory.invx.InventoryManager;
+import me.encast.clara.util.map.ClaraMapResource;
 import me.encast.clara.util.resource.JsonResourceCluster;
 import me.encast.clara.util.resource.JsonResourceLoader;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -34,6 +36,7 @@ public final class Clara extends JavaPlugin {
 
     public static JsonResourceCluster GENERAL_MSG;
     public static JsonResourceCluster ITEM_MSG;
+    public static ClaraMapResource MAP;
 
     public static Gson GSON = new Gson();
     public static Gson PRETTY_GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -45,6 +48,8 @@ public final class Clara extends JavaPlugin {
 
         GENERAL_MSG = loadResourceDirectory("/lang/general");
         ITEM_MSG = loadResourceDirectory("/lang/items");
+        MAP = Util.loadResourceFromJar("/data/map.json", ClaraMapResource.class);
+        MAP.loadBiomes();
 
         //Sephrem.add();
 //        Sephrem.registerEntity("Sephrem", 989, EntityPigZombie.class, Sephrem.class);

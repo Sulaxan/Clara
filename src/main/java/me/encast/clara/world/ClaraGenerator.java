@@ -4,11 +4,13 @@ import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import me.encast.clara.Clara;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.material.MaterialData;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -132,11 +134,11 @@ public class ClaraGenerator extends ChunkGenerator {
         for(int x = 0; x < 16; x++) {
             for(int z = 0; z < 16; z++) {
                 vertices.put(x * 50 + z, temp = new Vertex(x, z, false));
-                int val = CIRCLE[x][z];
+                int val = Clara.MAP.getIslandAttributes()[x][z];
                 if(val == 1) {
-                    for(int y = Y_START; y <= Y_END; y++) {
-                        if(y != Y_END) {
-                            data.setBlock(x, y, z, ISLAND_MATERIALS[random.nextInt(ISLAND_MATERIALS.length)]);
+                    for(int y = Clara.MAP.getIslandStartY(); y <= Clara.MAP.getIslandEndY(); y++) {
+                        if(y != Clara.MAP.getIslandEndY()) {
+                            data.setBlock(x, y, z, Clara.MAP.getMaterials()[random.nextInt(Clara.MAP.getMaterials().length)].toBukkitData());
                         } else {
                             // Change depending on the biome
                             data.setBlock(x, y, z, Material.GRASS);
@@ -148,7 +150,7 @@ public class ClaraGenerator extends ChunkGenerator {
                         continue;
                     for(int y = Y_END - 2 - random.nextInt(5); y <= Y_END - 1; y++) {
                         if(y != (Y_END - 1)) {
-                            data.setBlock(x, y, z, ISLAND_MATERIALS[random.nextInt(ISLAND_MATERIALS.length)]);
+                            data.setBlock(x, y, z, Clara.MAP.getMaterials()[random.nextInt(Clara.MAP.getMaterials().length)].toBukkitData());
                         } else {
                             // Change depending on the biome
                             data.setBlock(x, y, z, Material.GRASS);
@@ -183,6 +185,12 @@ public class ClaraGenerator extends ChunkGenerator {
             loc.setVisited(true);
             data.setBlock(loc.getX(), 100, loc.getZ(), Material.GRASS);
         }
+    }
+
+    public void setData(World world, ChunkData data, Random random, BiomeGrid grid) {
+        File dir = world.getWorldFolder();
+        File clusterFile = new File(dir.getAbsolutePath() + File.separatorChar + "clara_chunk_clusters");
+
     }
 
     private byte[][] getMap(int worldSize, Random random) {
