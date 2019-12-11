@@ -1,11 +1,13 @@
 package me.encast.clara.util.map;
 
+import com.google.common.collect.Lists;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;
 import me.encast.clara.util.Util;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 @Getter
 @Setter
@@ -27,8 +29,11 @@ public class ClaraMapResource {
     @SerializedName("island_end_y")
     private int islandEndY = 99;
 
+    @SerializedName("dungeon_spawn_rate")
+    private double dungeonSpawnRate = 0.05;
+
     @SerializedName("biomes")
-    private String[] biomes;
+    private String[] biomes = new String[0];
 
     @SerializedName("island_materials")
     private SerializableMaterialData[] materials;
@@ -51,6 +56,15 @@ public class ClaraMapResource {
                 return biome;
         }
         return null;
+    }
+
+    public List<Biome> getBiomes(Predicate<Biome> predicate) {
+        List<Biome> biomes = Lists.newArrayList();
+        for(Biome biome : biomeCache) {
+            if(predicate.test(biome))
+                biomes.add(biome);
+        }
+        return biomes;
     }
 
     public void loadBiomes() {

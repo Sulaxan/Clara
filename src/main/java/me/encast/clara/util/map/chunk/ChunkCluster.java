@@ -9,7 +9,7 @@ public class ChunkCluster {
     private int clusterZ;
     private ClaraChunk[] chunks = new ClaraChunk[SIZE * SIZE];
 
-    public static final int SIZE = 16;
+    public static final int SIZE = 32;
 
     public ChunkCluster(int clusterX, int clusterZ) {
         this.clusterX = clusterX;
@@ -21,15 +21,15 @@ public class ChunkCluster {
     }
 
     public ClaraChunk getClaraChunk(int x, int z) {
-        return chunks[x * SIZE + z];
+        return chunks[Math.abs(x) * SIZE + Math.abs(z)];
     }
 
     public void updateChunk(ClaraChunk chunk) {
-        chunks[(chunk.getX() % SIZE) * SIZE + (chunk.getZ() % SIZE)] = chunk;
+        chunks[(Math.abs(chunk.getX()) % SIZE) * SIZE + (Math.abs(chunk.getZ()) % SIZE)] = chunk;
     }
 
     public static String getClusterId(int chunkX, int chunkZ) {
-        return (chunkX % SIZE) + "_" + (chunkZ % SIZE);
+        return (chunkX / SIZE) + "_" + (chunkZ / SIZE);
     }
 
     public static String getClusterIdFromClusterCoord(int x, int z) {

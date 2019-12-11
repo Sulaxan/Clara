@@ -13,6 +13,7 @@ import me.encast.clara.util.Util;
 import me.encast.clara.util.event.ArmorListener;
 import me.encast.clara.util.inventory.invx.InventoryManager;
 import me.encast.clara.util.map.ClaraMapResource;
+import me.encast.clara.util.map.chunk.ChunkClusterManager;
 import me.encast.clara.util.resource.JsonResourceCluster;
 import me.encast.clara.util.resource.JsonResourceLoader;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -33,6 +34,7 @@ public final class Clara extends JavaPlugin {
     private ItemManager itemManager;
     private ClaraPlayerManager playerManager;
     private InventoryManager inventoryManager;
+    private ChunkClusterManager chunkClusterManager;
 
     public static JsonResourceCluster GENERAL_MSG;
     public static JsonResourceCluster ITEM_MSG;
@@ -48,7 +50,7 @@ public final class Clara extends JavaPlugin {
 
         GENERAL_MSG = loadResourceDirectory("/lang/general");
         ITEM_MSG = loadResourceDirectory("/lang/items");
-        MAP = Util.loadResourceFromJar("/data/map.json", ClaraMapResource.class);
+        MAP = Util.loadResourceFromJar("data/map.json", ClaraMapResource.class);
         MAP.loadBiomes();
 
         //Sephrem.add();
@@ -64,6 +66,7 @@ public final class Clara extends JavaPlugin {
         this.itemManager = new ItemManager(this);
         this.playerManager = new ClaraPlayerManager(this);
         this.inventoryManager = new InventoryManager(this);
+        this.chunkClusterManager = new ChunkClusterManager();
 
         getCommand("item").setExecutor(new ItemCommand());
         // "Realtime Memory Footprint"

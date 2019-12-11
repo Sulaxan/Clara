@@ -2,7 +2,6 @@ package me.encast.clara.util.map.chunk;
 
 import me.encast.clara.Clara;
 import org.bukkit.World;
-import org.bukkit.generator.ChunkGenerator;
 
 import java.io.File;
 import java.io.FileReader;
@@ -35,9 +34,9 @@ public class ChunkClusterManager {
                 e.printStackTrace();
             }
         } else {
-            cluster = new ChunkCluster(x % ChunkCluster.SIZE, z % ChunkCluster.SIZE);
+            cluster = new ChunkCluster(Math.abs(x) % ChunkCluster.SIZE, Math.abs(z) % ChunkCluster.SIZE);
             try (FileWriter writer = new FileWriter(clusterFile)) {
-                Clara.GSON.toJson(cluster, writer);
+                Clara.PRETTY_GSON.toJson(cluster, writer);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -52,6 +51,11 @@ public class ChunkClusterManager {
     public void updateCluster(World world, ClaraChunk chunk) {
         ChunkCluster cluster = getCluster(world, chunk.getX(), chunk.getZ());
         cluster.updateChunk(chunk);
+        for(ClaraChunk c : cluster.getChunks()) {
+           if(c == null)
+               return;
+        }
+
         pushChangesToDisk(world, cluster);
     }
 
@@ -64,7 +68,7 @@ public class ChunkClusterManager {
         clusterFile.delete();
 
         try (FileWriter writer = new FileWriter(clusterFile)) {
-            Clara.GSON.toJson(cluster, writer);
+            Clara.PRETTY_GSON.toJson(cluster, writer);
         } catch (Exception e) {
             e.printStackTrace();
         }

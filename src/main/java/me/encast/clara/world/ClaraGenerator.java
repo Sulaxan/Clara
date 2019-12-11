@@ -5,12 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.encast.clara.Clara;
+import me.encast.clara.util.map.chunk.ClaraChunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.material.MaterialData;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -123,6 +123,7 @@ public class ClaraGenerator extends ChunkGenerator {
         if(Math.abs(x) < CHUNKS && Math.abs(z) < CHUNKS) {
             if(map[x + CHUNKS / 2][z + CHUNKS / 2] == ALIVE) {
                 generateIsland(chunk, random, biome);
+                setData(world, chunk, random, biome, x, z);
             }
         }
         return chunk;
@@ -187,10 +188,13 @@ public class ClaraGenerator extends ChunkGenerator {
         }
     }
 
-    public void setData(World world, ChunkData data, Random random, BiomeGrid grid) {
-        File dir = world.getWorldFolder();
-        File clusterFile = new File(dir.getAbsolutePath() + File.separatorChar + "clara_chunk_clusters");
+    public ClaraChunk setData(World world, ChunkData data, Random random, BiomeGrid grid, int x, int z) {
+        ClaraChunk chunk = new ClaraChunk(x, z);
+        chunk.setDungeonGate(random.nextDouble() < Clara.MAP.getDungeonSpawnRate());
+        chunk.setBiomeId("default_biome");
+        Clara.getInstance().getChunkClusterManager().updateCluster(world, chunk);
 
+        return chunk;
     }
 
     private byte[][] getMap(int worldSize, Random random) {
