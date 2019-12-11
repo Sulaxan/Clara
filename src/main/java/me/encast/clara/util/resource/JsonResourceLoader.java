@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
+import java.util.List;
 
 public class JsonResourceLoader implements ResourceLoader {
 
@@ -56,6 +57,26 @@ public class JsonResourceLoader implements ResourceLoader {
         return null;
     }
 
+    @Override
+    public int getInt(String key) {
+        return object.get(key).getAsInt();
+    }
+
+    @Override
+    public long getLong(String key) {
+        return object.get(key).getAsLong();
+    }
+
+    @Override
+    public double getDouble(String key) {
+        return object.get(key).getAsDouble();
+    }
+
+    @Override
+    public float getFloat(String key) {
+        return object.get(key).getAsFloat();
+    }
+
     private String[] format(String[] strings, Object... args) {
         int i;
         if(strings != null && args != null && args.length >= 1) {
@@ -70,14 +91,5 @@ public class JsonResourceLoader implements ResourceLoader {
             }
         }
         return strings;
-    }
-
-    public static JsonResourceLoader fromJAR(String path) {
-        try {
-            return new JsonResourceLoader(JsonResourceLoader.class.getResourceAsStream(path));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }

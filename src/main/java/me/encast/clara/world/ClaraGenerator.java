@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import me.encast.clara.util.Tuple;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
@@ -21,7 +20,7 @@ public class ClaraGenerator extends ChunkGenerator {
     private static final int STARVATION_LIMIT = 2;
     private static final int BIRTH_NUMBER = 3;
     private static final int GENERATIONS = 2;
-    private static final int WORLD_SIZE = 10000; // WORLD_SIZE * WORLD_SIZE chunks
+    private static final int WORLD_SIZE = 1000; //10000; // WORLD_SIZE * WORLD_SIZE chunks
     private static final int CHUNKS = WORLD_SIZE / 16;
 
     private static final int[][] CIRCLE = new int[16][16];
@@ -166,19 +165,19 @@ public class ClaraGenerator extends ChunkGenerator {
         int dx, dz;
         while(!checkLocs.isEmpty()) {
             Vertex loc = checkLocs.remove();
+            if(loc.isVisited())
+                continue;
             for(int i = -1; i <= 1; i++) {
                 for(int k = -1; k <= 1; k++) {
-                    if(i == 0 && k == 0)
+                    if((i == 0 && k == 0) || (i != 0 && k != 0))
                         continue;
                     dx = loc.getX() + i;
                     dz = loc.getZ() + k;
                     if(dx < 0 || dz < 0 || dx > 15 || dz > 15)
                         continue;
-                    if(data.getType(dx, 100, dz) != Material.GRASS) {
-                        Vertex v = vertices.getOrDefault(dx * 50 + dz, null);
-                        if(v != null && !v.isVisited())
-                            checkLocs.offer(v);
-                    }
+                    Vertex v = vertices.getOrDefault(dx * 50 + dz, null);
+                    if(v != null && !v.isVisited())
+                        checkLocs.offer(v);
                 }
             }
             loc.setVisited(true);
