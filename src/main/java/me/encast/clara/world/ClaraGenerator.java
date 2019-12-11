@@ -1,135 +1,50 @@
 package me.encast.clara.world;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.encast.clara.Clara;
+import me.encast.clara.util.map.ClaraBiome;
+import me.encast.clara.util.map.ClaraMapResource;
 import me.encast.clara.util.map.chunk.ClaraChunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.material.MaterialData;
 
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Random;
+import java.util.*;
 
 public class ClaraGenerator extends ChunkGenerator {
 
-    private static final double CHANCE_TO_LIVE = 0.45;
-    private static final int STARVATION_LIMIT = 2;
-    private static final int BIRTH_NUMBER = 3;
-    private static final int GENERATIONS = 2;
-    private static final int WORLD_SIZE = 1000; //10000; // WORLD_SIZE * WORLD_SIZE chunks
-    private static final int CHUNKS = WORLD_SIZE / 16;
-
-    private static final int[][] CIRCLE = new int[16][16];
-    private static MaterialData[] ISLAND_MATERIALS;
-    private static final int Y_START = 91;
-    private static final int Y_END = 100;
+    private static final int CHUNKS = Clara.MAP.getWorldSize() / 16;
 
     private static final byte ALIVE = 0b1;
     private static final byte DEAD = 0b0;
 
-    static {
-        ISLAND_MATERIALS = new MaterialData[] {
-               new MaterialData(Material.STONE),
-               new MaterialData(Material.STONE, (byte) 5),
-               new MaterialData(Material.STONE, (byte) 6)
-        };
-        CIRCLE[6][2] = 1;
-        CIRCLE[7][2] = 1;
-        CIRCLE[8][2] = 1;
-        CIRCLE[9][2] = 1;
-        CIRCLE[10][3] = 1;
-        CIRCLE[11][3] = 1;
-        CIRCLE[12][4] = 1;
-        CIRCLE[12][5] = 1;
-        CIRCLE[13][6] = 1;
-        CIRCLE[13][7] = 1;
-        CIRCLE[13][8] = 1;
-        CIRCLE[13][9] = 1;
-        CIRCLE[12][10] = 1;
-        CIRCLE[12][11] = 1;
-        CIRCLE[11][12] = 1;
-        CIRCLE[10][12] = 1;
-        CIRCLE[9][13] = 1;
-        CIRCLE[8][13] = 1;
-        CIRCLE[7][13] = 1;
-        CIRCLE[6][13] = 1;
-        CIRCLE[5][12] = 1;
-        CIRCLE[4][12] = 1;
-        CIRCLE[3][11] = 1;
-        CIRCLE[3][10] = 1;
-        CIRCLE[2][9] = 1;
-        CIRCLE[2][8] = 1;
-        CIRCLE[2][7] = 1;
-        CIRCLE[2][6] = 1;
-        CIRCLE[3][5] = 1;
-        CIRCLE[3][4] = 1;
-        CIRCLE[4][3] = 1;
-        CIRCLE[5][3] = 1;
-
-
-        // Overhang
-        CIRCLE[6][1] = 2;
-        CIRCLE[7][1] = 2;
-        CIRCLE[8][1] = 2;
-        CIRCLE[9][1] = 2;
-        CIRCLE[10][2] = 2;
-        CIRCLE[11][2] = 2;
-        CIRCLE[12][3] = 2;
-        CIRCLE[13][4] = 2;
-        CIRCLE[13][5] = 2;
-        CIRCLE[14][6] = 2;
-        CIRCLE[14][7] = 2;
-        CIRCLE[14][8] = 2;
-        CIRCLE[14][9] = 2;
-        CIRCLE[13][10] = 2;
-        CIRCLE[13][11] = 2;
-        CIRCLE[12][12] = 2;
-        CIRCLE[11][13] = 2;
-        CIRCLE[10][13] = 2;
-        CIRCLE[9][14] = 2;
-        CIRCLE[7][14] = 2;
-        CIRCLE[8][14] = 2;
-        CIRCLE[6][14] = 2;
-        CIRCLE[5][13] = 2;
-        CIRCLE[4][13] = 2;
-        CIRCLE[3][12] = 2;
-        CIRCLE[2][11] = 2;
-        CIRCLE[2][10] = 2;
-        CIRCLE[1][9] = 2;
-        CIRCLE[1][8] = 2;
-        CIRCLE[1][7] = 2;
-        CIRCLE[1][6] = 2;
-        CIRCLE[2][5] = 2;
-        CIRCLE[2][4] = 2;
-        CIRCLE[3][3] = 2;
-        CIRCLE[4][2] = 2;
-        CIRCLE[5][2] = 2;
-    }
-
     private byte[][] map;
+    private int[][] biomeMap;
 
     @Override
     public ChunkData generateChunkData(World world, Random random, int x, int z, BiomeGrid biome) {
         if(map == null) {
-            map = performGen(getMap(WORLD_SIZE, random), GENERATIONS);
+            map = performGen(getMap(Clara.MAP.getWorldSize(), random), Clara.MAP.getGenerations());
+            biomeMap = generateBiomes(map, random);
         }
         ChunkData chunk = createChunkData(world);
-        if(Math.abs(x) < CHUNKS && Math.abs(z) < CHUNKS) {
+        if(Math.abs(x) < CHUNKS - 1 && Math.abs(z) < CHUNKS - 1) {
             if(map[x + CHUNKS / 2][z + CHUNKS / 2] == ALIVE) {
-                generateIsland(chunk, random, biome);
                 setData(world, chunk, random, biome, x, z);
+                generateIsland(chunk, random, biome, x, z);
             }
         }
         return chunk;
     }
 
-    public void generateIsland(ChunkData data, Random random, BiomeGrid biome) {
+    public void generateIsland(ChunkData data, Random random, BiomeGrid biome, int chunkX, int chunkZ) {
+        ClaraBiome claraBiome = Clara.MAP.getBiome(biomeMap[chunkX + Clara.MAP.getWorldSize() / 2][chunkZ + Clara.MAP.getWorldSize() / 2]);
+        MaterialData top = claraBiome.getMaterials().get(0).toBukkitData(); // temp
         Map<Integer, Vertex> vertices = Maps.newHashMap();
         Vertex temp;
         for(int x = 0; x < 16; x++) {
@@ -142,19 +57,19 @@ public class ClaraGenerator extends ChunkGenerator {
                             data.setBlock(x, y, z, Clara.MAP.getMaterials()[random.nextInt(Clara.MAP.getMaterials().length)].toBukkitData());
                         } else {
                             // Change depending on the biome
-                            data.setBlock(x, y, z, Material.GRASS);
+                            data.setBlock(x, y, z, top);
                             temp.setVisited(true);
                         }
                     }
                 } else if(val == 2) {
                     if(random.nextDouble() < 0.25)
                         continue;
-                    for(int y = Y_END - 2 - random.nextInt(5); y <= Y_END - 1; y++) {
-                        if(y != (Y_END - 1)) {
+                    for(int y = Clara.MAP.getIslandEndY() - 2 - random.nextInt(5); y <= Clara.MAP.getIslandEndY() - 1; y++) {
+                        if(y != (Clara.MAP.getIslandEndY() - 1)) {
                             data.setBlock(x, y, z, Clara.MAP.getMaterials()[random.nextInt(Clara.MAP.getMaterials().length)].toBukkitData());
                         } else {
                             // Change depending on the biome
-                            data.setBlock(x, y, z, Material.GRASS);
+                            data.setBlock(x, y, z, top);
                         }
                     }
                 }
@@ -184,14 +99,22 @@ public class ClaraGenerator extends ChunkGenerator {
                 }
             }
             loc.setVisited(true);
-            data.setBlock(loc.getX(), 100, loc.getZ(), Material.GRASS);
+            data.setBlock(loc.getX(), 100, loc.getZ(), top);
         }
     }
 
     public ClaraChunk setData(World world, ChunkData data, Random random, BiomeGrid grid, int x, int z) {
         ClaraChunk chunk = new ClaraChunk(x, z);
         chunk.setDungeonGate(random.nextDouble() < Clara.MAP.getDungeonSpawnRate());
-        chunk.setBiomeId("default_biome");
+        ClaraBiome biome = Clara.MAP.getBiome(biomeMap[x + Clara.MAP.getWorldSize() / 2][z + Clara.MAP.getWorldSize() / 2]);
+        if(biome == null)
+            biome = ClaraBiome.DEFAULT_BIOME;
+        chunk.setBiomeId(biome.getId());
+        for(int i = 0; i < 16; i++) {
+            for(int k = 0; k < 16; k++) {
+                grid.setBiome(i, k, biome.getMinecraftBiome());
+            }
+        }
         Clara.getInstance().getChunkClusterManager().updateCluster(world, chunk);
 
         return chunk;
@@ -201,7 +124,7 @@ public class ClaraGenerator extends ChunkGenerator {
         byte[][] world = new byte[worldSize][worldSize];
         for(int i = 0; i < world.length; i++) {
             for(int j = 0; j < world[i].length; j++) {
-                world[i][j] = random.nextDouble() < CHANCE_TO_LIVE ? ALIVE : DEAD;
+                world[i][j] = random.nextDouble() < Clara.MAP.getChanceToLive() ? ALIVE : DEAD;
             }
         }
         return world;
@@ -215,13 +138,73 @@ public class ClaraGenerator extends ChunkGenerator {
             for(int z = 0; z < map[x].length; z++) {
                 int neighbours = getNeighbourCount(map, x, z);
                 if(map[x][z] == ALIVE) {
-                    newMap[x][z] = neighbours < STARVATION_LIMIT ? DEAD : ALIVE;
+                    newMap[x][z] = neighbours < Clara.MAP.getStarvationLimit() ? DEAD : ALIVE;
                 } else {
-                    newMap[x][z] = neighbours > BIRTH_NUMBER ? ALIVE : DEAD;
+                    newMap[x][z] = neighbours > Clara.MAP.getBirthCount() ? ALIVE : DEAD;
                 }
             }
         }
         return performGen(newMap, generations - 1);
+    }
+
+    private int[][] generateBiomes(byte[][] map, Random random) {
+        ClaraMapResource claraMap = Clara.MAP;
+        int[][] biomes = new int[claraMap.getWorldSize()][claraMap.getWorldSize()];
+        Map<Integer, Vertex> verticies = Maps.newHashMap();
+        for(int x = 0; x < claraMap.getWorldSize(); x++) {
+            for(int z = 0; z < claraMap.getWorldSize(); z++) {
+                verticies.put(x * 500 + z, new Vertex(x, z, false));
+            }
+        }
+        int x = random.nextInt(claraMap.getWorldSize());
+        int z = random.nextInt(claraMap.getWorldSize());
+        List<ClaraBiome> biomeList = Lists.newArrayList(claraMap.getBiomeCache().values());
+        ClaraBiome current;
+        int size = 0;
+        int globalSize = 0;
+        while (globalSize < Math.pow(claraMap.getWorldSize(), 2)) {
+            current = getRandomBiome(biomeList, random); // properly transition later
+            Queue<Vertex> queue = new LinkedList<>();
+            queue.offer(verticies.get(x * 500 + z));
+            boolean run = true;
+            while(!queue.isEmpty() && run) {
+                Vertex vertex = queue.remove();
+                if(vertex.isVisited())
+                    continue;
+                for(int i = -1; i <= 1; i++) {
+                    for(int k = -1; k <= 1; k++) {
+                        if((i == 0 && k == 0) || (i != 0 && k != 0))
+                            continue;
+                        int dx = vertex.getX() + i;
+                        int dz = vertex.getZ() + k;
+                        Vertex v = verticies.get(dx * 500 + dz);
+                        if(!v.isVisited() && map[dx][dz] != DEAD) {
+                            // 45% chance to continue expanding if min span has been exceeded
+                            if(size < current.getMinSpan() || random.nextDouble() <= 0.45) {
+                                queue.offer(v);
+                                size++;
+                            } else {
+                                run = false;
+                                x = v.getX();
+                                z = v.getZ();
+                                break;
+                            }
+                        }
+                    }
+                    if(!run)
+                        break;
+                }
+                globalSize++;
+                vertex.setVisited(true);
+                biomes[vertex.getX()][vertex.getZ()] = current.getId();
+            }
+        }
+
+        return biomes;
+    }
+
+    private ClaraBiome getRandomBiome(List<ClaraBiome> biomes, Random random) {
+        return biomes.get(random.nextInt(biomes.size()));
     }
 
     private int getNeighbourCount(byte[][] map, int x, int z) {

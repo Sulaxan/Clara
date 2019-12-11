@@ -11,7 +11,7 @@ public class ClaraChunk {
 
     private int x;
     private int z;
-    private String biomeId;
+    private int biomeId;
     private boolean dungeonGate;
 
     public ClaraChunk() {

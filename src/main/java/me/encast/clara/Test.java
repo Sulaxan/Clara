@@ -2,10 +2,10 @@ package me.encast.clara;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import me.encast.clara.util.map.ClaraBiome;
 import me.encast.clara.util.map.ClaraMapResource;
 import me.encast.clara.util.map.SerializableMaterialData;
 import org.bukkit.Material;
-import org.bukkit.material.MaterialData;
 
 public class Test {
 
@@ -89,7 +89,8 @@ public class Test {
                 new SerializableMaterialData(Material.STONE, (byte) 5),
                 new SerializableMaterialData(Material.STONE, (byte) 6)
         });
+        ClaraBiome biome = ClaraBiome.DEFAULT_BIOME;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        System.out.println(gson.toJson(resource));
+        System.out.println(gson.toJson(biome));
     }
 }

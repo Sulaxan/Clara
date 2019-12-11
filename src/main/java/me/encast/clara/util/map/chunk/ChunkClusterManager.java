@@ -34,7 +34,7 @@ public class ChunkClusterManager {
                 e.printStackTrace();
             }
         } else {
-            cluster = new ChunkCluster(Math.abs(x) % ChunkCluster.SIZE, Math.abs(z) % ChunkCluster.SIZE);
+            cluster = new ChunkCluster(Math.abs(x) / ChunkCluster.SIZE, Math.abs(z) / ChunkCluster.SIZE);
             try (FileWriter writer = new FileWriter(clusterFile)) {
                 Clara.PRETTY_GSON.toJson(cluster, writer);
             } catch (Exception e) {
@@ -51,10 +51,10 @@ public class ChunkClusterManager {
     public void updateCluster(World world, ClaraChunk chunk) {
         ChunkCluster cluster = getCluster(world, chunk.getX(), chunk.getZ());
         cluster.updateChunk(chunk);
-        for(ClaraChunk c : cluster.getChunks()) {
-           if(c == null)
-               return;
-        }
+//        for(ClaraChunk c : cluster.getChunks()) {
+//           if(c == null)
+//               return;
+//        }
 
         pushChangesToDisk(world, cluster);
     }

@@ -7,7 +7,11 @@
   "island_start_y": 90,
   "island_end_y": 99,
   "dungeon_spawn_rate": 0.05,
-  "biomes": [],
+  "biomes": [
+    "data/biome/grassland.json",
+    "data/biome/snowland.json",
+    "data/biome/desert.json"
+  ],
   "island_materials": [
     {
       "type": "STONE",

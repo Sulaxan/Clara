@@ -7,6 +7,7 @@ import lombok.Setter;
 import me.encast.clara.util.Util;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 @Getter
@@ -40,7 +41,7 @@ public class ClaraMapResource {
     @SerializedName("island_attributes")
     private int[][] islandAttributes;
 
-    private transient List<Biome> biomeCache;
+    private transient Map<Integer, ClaraBiome> biomeCache;
 
     public static int ISLAND_ATTR_NORMAL = 1;
     public static int ISLAND_ATTR_OVERHANG = 2;
@@ -48,19 +49,15 @@ public class ClaraMapResource {
     public ClaraMapResource() {
     }
 
-    public Biome getBiome(String id) {
+    public ClaraBiome getBiome(int id) {
         if(biomeCache.size() == 0)
             throw new RuntimeException("Empty biome cache: call ClaraMapResource#loadBiomes?");
-        for(Biome biome : biomeCache) {
-            if(biome.getId().equals(id))
-                return biome;
-        }
-        return null;
+        return biomeCache.getOrDefault(id, null);
     }
 
-    public List<Biome> getBiomes(Predicate<Biome> predicate) {
-        List<Biome> biomes = Lists.newArrayList();
-        for(Biome biome : biomeCache) {
+    public List<ClaraBiome> getBiomes(Predicate<ClaraBiome> predicate) {
+        List<ClaraBiome> biomes = Lists.newArrayList();
+        for(ClaraBiome biome : biomeCache.values()) {
             if(predicate.test(biome))
                 biomes.add(biome);
         }
@@ -70,8 +67,9 @@ public class ClaraMapResource {
     public void loadBiomes() {
         try {
             for(String biome : biomes) {
-                Biome b = Util.loadResourceFromJar(biome, Biome.class);
-                biomeCache.add(b);
+                ClaraBiome b = Util.loadResourceFromJar(biome, ClaraBiome.class);
+                if(b.getId() != ClaraBiome.RESERVED_ID)
+                    biomeCache.put(b.getId(), b);
             }
         } catch (Exception e) {
             // Ignore any null and invalid files
