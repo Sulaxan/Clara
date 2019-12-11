@@ -25,6 +25,7 @@ public class WorldGenCommand implements CommandExecutor {
                     p.teleport(new Location(w, 0, 100, 0));
                     p.sendMessage("§aTeleported!");
                 }
+                return true;
             }
             String name = UUID.randomUUID().toString().split("-")[3];
             WorldCreator creator = new WorldCreator(name);

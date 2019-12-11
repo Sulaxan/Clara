@@ -1,10 +1,18 @@
 package me.encast.clara.world;
 
+import com.google.common.collect.Maps;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import me.encast.clara.util.Tuple;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.material.MaterialData;
 
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 
 public class ClaraGenerator extends ChunkGenerator {
@@ -112,18 +120,19 @@ public class ClaraGenerator extends ChunkGenerator {
         }
         ChunkData chunk = createChunkData(world);
         if(Math.abs(x) < CHUNKS && Math.abs(z) < CHUNKS) {
-            generateIsland(chunk, random, biome);
+            if(map[x + CHUNKS / 2][z + CHUNKS / 2] == ALIVE) {
+                generateIsland(chunk, random, biome);
+            }
         }
         return chunk;
     }
 
-    private Material getMaterial(World world, ChunkData data) {
-        return Material.GRASS;
-    }
-
     public void generateIsland(ChunkData data, Random random, BiomeGrid biome) {
+        Map<Integer, Vertex> vertices = Maps.newHashMap();
+        Vertex temp;
         for(int x = 0; x < 16; x++) {
             for(int z = 0; z < 16; z++) {
+                vertices.put(x * 50 + z, temp = new Vertex(x, z, false));
                 int val = CIRCLE[x][z];
                 if(val == 1) {
                     for(int y = Y_START; y <= Y_END; y++) {
@@ -132,9 +141,12 @@ public class ClaraGenerator extends ChunkGenerator {
                         } else {
                             // Change depending on the biome
                             data.setBlock(x, y, z, Material.GRASS);
+                            temp.setVisited(true);
                         }
                     }
-                } else {
+                } else if(val == 2) {
+                    if(random.nextDouble() < 0.25)
+                        continue;
                     for(int y = Y_END - 2 - random.nextInt(5); y <= Y_END - 1; y++) {
                         if(y != (Y_END - 1)) {
                             data.setBlock(x, y, z, ISLAND_MATERIALS[random.nextInt(ISLAND_MATERIALS.length)]);
@@ -145,6 +157,32 @@ public class ClaraGenerator extends ChunkGenerator {
                     }
                 }
             }
+        }
+
+        // Breadth-First Search to fill middle grass (flood fill algorithm?)
+        Queue<Vertex> checkLocs = new LinkedList<>();
+        checkLocs.add(vertices.get(7 * 50 + 7));
+
+        int dx, dz;
+        while(!checkLocs.isEmpty()) {
+            Vertex loc = checkLocs.remove();
+            for(int i = -1; i <= 1; i++) {
+                for(int k = -1; k <= 1; k++) {
+                    if(i == 0 && k == 0)
+                        continue;
+                    dx = loc.getX() + i;
+                    dz = loc.getZ() + k;
+                    if(dx < 0 || dz < 0 || dx > 15 || dz > 15)
+                        continue;
+                    if(data.getType(dx, 100, dz) != Material.GRASS) {
+                        Vertex v = vertices.getOrDefault(dx * 50 + dz, null);
+                        if(v != null && !v.isVisited())
+                            checkLocs.offer(v);
+                    }
+                }
+            }
+            loc.setVisited(true);
+            data.setBlock(loc.getX(), 100, loc.getZ(), Material.GRASS);
         }
     }
 
@@ -192,5 +230,14 @@ public class ClaraGenerator extends ChunkGenerator {
             }
         }
         return count;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    private class Vertex {
+
+        private int x, z;
+        private boolean visited;
     }
 }
