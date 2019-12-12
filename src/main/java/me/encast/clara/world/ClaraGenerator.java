@@ -52,7 +52,7 @@ public class ClaraGenerator extends ChunkGenerator {
         Vertex temp;
         for(int x = 0; x < 16; x++) {
             for(int z = 0; z < 16; z++) {
-                vertices.put(x * 50 + z, temp = new Vertex(x, z, false));
+                vertices.put(x * 50 + z, temp = new Vertex(x, z, false, false));
                 int val = Clara.MAP.getIslandAttributes()[x][z];
                 if(val == 1) {
                     for(int y = Clara.MAP.getIslandStartY(); y <= Clara.MAP.getIslandEndY(); y++) {
@@ -157,30 +157,27 @@ public class ClaraGenerator extends ChunkGenerator {
         Map<Integer, Vertex> vertices = Maps.newHashMap();
         for(int x = 0; x < claraMap.getWorldSize(); x++) {
             for(int z = 0; z < claraMap.getWorldSize(); z++) {
-//                vertices.put(x * 500 + z, new Vertex(x, z, false));
-                biomes[x][z] = getRandomBiome(biomeList, random).getId();
+                vertices.put(x * 500 + z, new Vertex(x, z, false, false));
             }
         }
-        if(true) {
-            return biomes;
-        }
+
         int x = random.nextInt(claraMap.getWorldSize());
         int z = random.nextInt(claraMap.getWorldSize());
         ClaraBiome current;
         int size;
-        int verticesVisited = 0;
-        while (verticesVisited < vertices.size()) {
+        Stack<Vertex> toCheck = new Stack<>();
+        toCheck.push(vertices.get(x * 500 + z));
+        while (!toCheck.isEmpty()) {
             size = 0;
             current = getRandomBiome(biomeList, random); // properly transition later
             Queue<Vertex> queue = new LinkedList<>();
-            queue.offer(vertices.get(x * 500 + z));
-//            if(vertices.get(x * 500 + z).isVisited())
-//                break;
+            queue.offer(toCheck.pop());
             boolean run = true;
             while(!queue.isEmpty() && run) {
                 Vertex vertex = queue.remove();
-                if(vertex.isVisited())
+                if(vertex == null || vertex.isVisited())
                     continue;
+                vertex.setVisited(true);
                 for(int i = -1; i <= 1; i++) {
                     for(int k = -1; k <= 1; k++) {
                         if((i == 0 && k == 0) || (i != 0 && k != 0))
@@ -188,16 +185,18 @@ public class ClaraGenerator extends ChunkGenerator {
                         int dx = vertex.getX() + i;
                         int dz = vertex.getZ() + k;
                         Vertex v = vertices.get(dx * 500 + dz);
-                        if(!v.isVisited() && map[dx][dz] != DEAD) {
+                        if(v != null && !v.isVisited() && !v.isEnqueued()) {
                             // 45% chance to continue expanding if min span has been exceeded
                             if(size < current.getMinSpan() || random.nextDouble() <= 0.45) {
                                 biomes[dx][dz] = current.getId();
                                 queue.offer(v);
-                                size++;
+//                                size++;
                             } else {
                                 run = false;
-                                x = v.getX();
-                                z = v.getZ();
+                                while (!queue.isEmpty()) {
+                                    toCheck.push(queue.remove());
+                                    toCheck.peek().setEnqueued(false);
+                                }
                                 break;
                             }
                         }
@@ -205,9 +204,11 @@ public class ClaraGenerator extends ChunkGenerator {
                     if(!run)
                         break;
                 }
-                vertex.setVisited(true);
-                verticesVisited++;
+                if(map[vertex.getX()][vertex.getZ()] == ALIVE)
+                    size++;
                 biomes[vertex.getX()][vertex.getZ()] = current.getId();
+                if(!run)
+                    break;
             }
         }
 
@@ -251,6 +252,6 @@ public class ClaraGenerator extends ChunkGenerator {
     private class Vertex {
 
         private int x, z;
-        private boolean visited;
+        private boolean visited, enqueued;
     }
 }

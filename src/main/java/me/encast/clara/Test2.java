@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
-import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Test2 {
 
@@ -23,74 +23,77 @@ public class Test2 {
         Map<Integer, Vertex> vertices = new HashMap<>();
         for(int x = 0; x < mapSize; x++) {
             for(int z = 0; z < mapSize; z++) {
-                vertices.put(x * 500 + z, new Vertex(x, z, false));
+                vertices.put(x * 500 + z, new Vertex(x, z, false, false));
             }
         }
 
         int x = random.nextInt(mapSize);
         int z = random.nextInt(mapSize);
-        genBiomes(biomes, map, random, vertices, x, z);
-//        int current;
-//        int size;
-//        int verticesVisited = 0;
-//        while (true) {
-//            size = 0;
-//            current = getRandomNumber(random); // properly transition later
-//            Queue<Vertex> queue = new LinkedList<>();
-//            Vertex v1 = vertices.get(x * 500 + z);
-//            queue.offer(v1);
-//            if(vertices.get(x * 500 + z).isVisited())
-//                break;
-//            boolean run = true;
-//            while(!queue.isEmpty() && run) {
-//                Vertex vertex = queue.remove();
-//                if(vertex.isVisited())
-//                    continue;
-//                vertex.setVisited(true);
-//                for(int i = -1; i <= 1; i++) {
-//                    for(int k = -1; k <= 1; k++) {
-//                        if((i == 0 && k == 0) || (i != 0 && k != 0))
-//                            continue;
-//                        int dx = vertex.getX() + i;
-//                        int dz = vertex.getZ() + k;
-//                        Vertex v = vertices.get(dx * 500 + dz);
-//                        if(!v.isVisited() && map[dx][dz] != DEAD) {
-//                            // 45% chance to continue expanding if min span has been exceeded
-//                            if(size < 5 || random.nextDouble() <= 0.45) {
-//                                biomes[dx][dz] = current;
-//                                queue.offer(v);
-//                                size++;
-//                            } else {
-//                                System.out.println("here");
-//                                run = false;
-//                                x = v.getX();
-//                                z = v.getZ();
-//                                break;
-//                            }
-//                        }
-//                    }
-//                    if(!run)
-//                        break;
-//                }
-//                vertices.remove(vertex.x * 500 + vertex.z);
-//                verticesVisited++;
-//                System.out.println(verticesVisited + "/" + (mapSize * mapSize));
-//                biomes[vertex.getX()][vertex.getZ()] = current;
-//                if(!run)
-//                    break;
-//            }
-//        }
-
-        Executors.newSingleThreadExecutor().submit(() -> {
-            while(true) {
-                if(processQueue.peek() != null) {
-                    processQueue.remove().run();
-                } else {
-                    System.out.println(new GsonBuilder().create().toJson(biomes));
+//        genBiomes(biomes, map, random, vertices, x, z);
+        int current;
+        int size;
+        int verticesVisited = 0;
+        Stack<Vertex> points = new Stack<>();
+        points.push(vertices.get(x * 500 + z));
+        while (!points.isEmpty()) {
+            size = 0;
+            current = getRandomNumber(random); // properly transition later
+            Queue<Vertex> queue = new LinkedList<>();
+            Vertex v1 = points.pop();
+            queue.offer(v1);
+            boolean run = true;
+            while(!queue.isEmpty()) {
+                Vertex vertex = queue.remove();
+                if(vertex == null || vertex.isVisited())
+                    continue;
+                vertex.setVisited(true);
+                for(int i = -1; i <= 1; i++) {
+                    for(int k = -1; k <= 1; k++) {
+                        if((i == 0 && k == 0) || (i != 0 && k != 0))
+                            continue;
+                        int dx = vertex.getX() + i;
+                        int dz = vertex.getZ() + k;
+                        Vertex v = vertices.get(dx * 500 + dz);
+                        if(v != null && !v.isVisited() && !v.isEnqueued()) {
+                            // 45% chance to continue expanding if min span has been exceeded
+                            if(size < 5 || random.nextDouble() <= 0.45) {
+                                biomes[dx][dz] = current;
+                                queue.offer(v);
+                                v.setEnqueued(true);
+                                size++;
+                            } else {
+                                run = false;
+                                while(!queue.isEmpty()) {
+                                    points.push(queue.remove());
+                                    points.peek().setEnqueued(false);
+                                }
+                                System.out.println("BREAK");
+                                break;
+                            }
+                        }
+                    }
+                    if(!run)
+                        break;
                 }
+                verticesVisited++;
+                System.out.println(verticesVisited + "/" + (mapSize * mapSize));
+                biomes[vertex.getX()][vertex.getZ()] = current;
+                if(!run)
+                    break;
             }
-        });
+        }
 
+//        Executors.newSingleThreadExecutor().submit(() -> {
+//            while(true) {
+//                if(processQueue.peek() != null) {
+//                    processQueue.remove().run();
+//                } else {
+//                    System.out.println(new GsonBuilder().create().toJson(biomes));
+//                }
+//            }
+//        });
+
+        System.out.println(new GsonBuilder().create().toJson(biomes));
     }
 
     private static void genBiomes(int[][] biomes, byte[][] map, Random random, Map<Integer, Vertex> vertices, int x, int z) {
@@ -182,6 +185,6 @@ public class Test2 {
     private static class Vertex {
 
         private int x, z;
-        private boolean visited;
+        private boolean visited, enqueued;
     }
 }

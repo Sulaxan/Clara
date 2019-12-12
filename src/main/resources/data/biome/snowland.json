@@ -3,7 +3,7 @@
   "name": "Snowland",
   "temperature": 10.0,
   "rarity": 0.5,
-  "min_span": 5,
+  "min_span": 50,
   "minecraftBiome": "ICE_PLAINS",
   "materials": [
     {
