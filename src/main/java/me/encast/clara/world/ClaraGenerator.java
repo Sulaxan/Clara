@@ -173,7 +173,7 @@ public class ClaraGenerator extends ChunkGenerator {
             Queue<Vertex> queue = new LinkedList<>();
             queue.offer(toCheck.pop());
             boolean run = true;
-            while(!queue.isEmpty() && run) {
+            while(!queue.isEmpty()) {
                 Vertex vertex = queue.remove();
                 if(vertex == null || vertex.isVisited())
                     continue;

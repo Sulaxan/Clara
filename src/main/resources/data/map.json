@@ -1,5 +1,5 @@
 {
-  "chance_to_live": 0.45,
+  "chance_to_live": 0.35,
   "starvation_limit": 2,
   "birth_count": 3,
   "generations": 2,

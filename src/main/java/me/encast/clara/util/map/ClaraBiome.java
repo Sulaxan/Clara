@@ -21,6 +21,7 @@ public class ClaraBiome {
     private int minSpan;
     private Biome minecraftBiome;
     private List<SerializableMaterialData> materials;
+    private List<SerializableMaterialData> pathMaterials;
     @SerializedName("block_populator")
     private String blockPopulatorName;
 
@@ -46,6 +47,7 @@ public class ClaraBiome {
                 50,
                 Biome.PLAINS,
                 Lists.newArrayList(new SerializableMaterialData(Material.GRASS, (byte) 0)),
+                Lists.newArrayList(new SerializableMaterialData(Material.WOOD_STEP, (byte) 0)),
                 "",
                 null);
     }
