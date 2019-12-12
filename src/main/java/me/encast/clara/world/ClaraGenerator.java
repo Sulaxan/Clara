@@ -9,7 +9,7 @@ import me.encast.clara.Clara;
 import me.encast.clara.util.map.ClaraBiome;
 import me.encast.clara.util.map.ClaraMapResource;
 import me.encast.clara.util.map.chunk.ClaraChunk;
-import org.bukkit.Material;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.material.MaterialData;
@@ -32,9 +32,12 @@ public class ClaraGenerator extends ChunkGenerator {
             map = performGen(getMap(Clara.MAP.getWorldSize(), random), Clara.MAP.getGenerations());
             biomeMap = generateBiomes(map, random);
         }
+
         ChunkData chunk = createChunkData(world);
-        if(Math.abs(x) < CHUNKS - 1 && Math.abs(z) < CHUNKS - 1) {
-            if(map[x + CHUNKS / 2][z + CHUNKS / 2] == ALIVE) {
+        int chunkX = x + CHUNKS - 1;
+        int chunkZ = z + CHUNKS - 1;
+        if(chunkX >= 0 && chunkZ >= 0) {
+            if(map[chunkX][chunkZ] == ALIVE) {
                 setData(world, chunk, random, biome, x, z);
                 generateIsland(chunk, random, biome, x, z);
             }
@@ -99,7 +102,7 @@ public class ClaraGenerator extends ChunkGenerator {
                 }
             }
             loc.setVisited(true);
-            data.setBlock(loc.getX(), 100, loc.getZ(), top);
+            data.setBlock(loc.getX(), Clara.MAP.getIslandEndY(), loc.getZ(), top);
         }
     }
 
@@ -149,23 +152,30 @@ public class ClaraGenerator extends ChunkGenerator {
 
     private int[][] generateBiomes(byte[][] map, Random random) {
         ClaraMapResource claraMap = Clara.MAP;
+        List<ClaraBiome> biomeList = Lists.newArrayList(claraMap.getBiomeCache().values());
         int[][] biomes = new int[claraMap.getWorldSize()][claraMap.getWorldSize()];
-        Map<Integer, Vertex> verticies = Maps.newHashMap();
+        Map<Integer, Vertex> vertices = Maps.newHashMap();
         for(int x = 0; x < claraMap.getWorldSize(); x++) {
             for(int z = 0; z < claraMap.getWorldSize(); z++) {
-                verticies.put(x * 500 + z, new Vertex(x, z, false));
+//                vertices.put(x * 500 + z, new Vertex(x, z, false));
+                biomes[x][z] = getRandomBiome(biomeList, random).getId();
             }
+        }
+        if(true) {
+            return biomes;
         }
         int x = random.nextInt(claraMap.getWorldSize());
         int z = random.nextInt(claraMap.getWorldSize());
-        List<ClaraBiome> biomeList = Lists.newArrayList(claraMap.getBiomeCache().values());
         ClaraBiome current;
-        int size = 0;
-        int globalSize = 0;
-        while (globalSize < Math.pow(claraMap.getWorldSize(), 2)) {
+        int size;
+        int verticesVisited = 0;
+        while (verticesVisited < vertices.size()) {
+            size = 0;
             current = getRandomBiome(biomeList, random); // properly transition later
             Queue<Vertex> queue = new LinkedList<>();
-            queue.offer(verticies.get(x * 500 + z));
+            queue.offer(vertices.get(x * 500 + z));
+//            if(vertices.get(x * 500 + z).isVisited())
+//                break;
             boolean run = true;
             while(!queue.isEmpty() && run) {
                 Vertex vertex = queue.remove();
@@ -177,10 +187,11 @@ public class ClaraGenerator extends ChunkGenerator {
                             continue;
                         int dx = vertex.getX() + i;
                         int dz = vertex.getZ() + k;
-                        Vertex v = verticies.get(dx * 500 + dz);
+                        Vertex v = vertices.get(dx * 500 + dz);
                         if(!v.isVisited() && map[dx][dz] != DEAD) {
                             // 45% chance to continue expanding if min span has been exceeded
                             if(size < current.getMinSpan() || random.nextDouble() <= 0.45) {
+                                biomes[dx][dz] = current.getId();
                                 queue.offer(v);
                                 size++;
                             } else {
@@ -194,13 +205,21 @@ public class ClaraGenerator extends ChunkGenerator {
                     if(!run)
                         break;
                 }
-                globalSize++;
                 vertex.setVisited(true);
+                verticesVisited++;
                 biomes[vertex.getX()][vertex.getZ()] = current.getId();
             }
         }
 
         return biomes;
+    }
+
+    private boolean isAllVisited(Map<Integer, Vertex> vertices) {
+        for(Vertex v : vertices.values()) {
+            if(!v.isVisited())
+                return false;
+        }
+        return true;
     }
 
     private ClaraBiome getRandomBiome(List<ClaraBiome> biomes, Random random) {

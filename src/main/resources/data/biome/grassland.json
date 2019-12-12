@@ -3,7 +3,7 @@
   "name": "Grassland",
   "temperature": 10.0,
   "rarity": 0.5,
-  "min_span": 50,
+  "min_span": 5,
   "minecraftBiome": "PLAINS",
   "materials": [
     {

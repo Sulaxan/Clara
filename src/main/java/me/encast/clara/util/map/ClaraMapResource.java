@@ -1,10 +1,13 @@
 package me.encast.clara.util.map;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import lombok.Setter;
+import me.encast.clara.Clara;
 import me.encast.clara.util.Util;
+import org.bukkit.Bukkit;
 
 import java.util.List;
 import java.util.Map;
@@ -41,7 +44,7 @@ public class ClaraMapResource {
     @SerializedName("island_attributes")
     private int[][] islandAttributes;
 
-    private transient Map<Integer, ClaraBiome> biomeCache;
+    private transient Map<Integer, ClaraBiome> biomeCache = Maps.newHashMap();
 
     public static int ISLAND_ATTR_NORMAL = 1;
     public static int ISLAND_ATTR_OVERHANG = 2;
@@ -66,6 +69,7 @@ public class ClaraMapResource {
 
     public void loadBiomes() {
         try {
+            biomeCache.put(0, ClaraBiome.DEFAULT_BIOME);
             for(String biome : biomes) {
                 ClaraBiome b = Util.loadResourceFromJar(biome, ClaraBiome.class);
                 if(b.getId() != ClaraBiome.RESERVED_ID)
@@ -73,6 +77,7 @@ public class ClaraMapResource {
             }
         } catch (Exception e) {
             // Ignore any null and invalid files
+            e.printStackTrace();
         }
     }
 }

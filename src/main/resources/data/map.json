@@ -3,7 +3,7 @@
   "starvation_limit": 2,
   "birth_count": 3,
   "generations": 2,
-  "world_size": 1000,
+  "world_size": 256,
   "island_start_y": 90,
   "island_end_y": 99,
   "dungeon_spawn_rate": 0.05,
