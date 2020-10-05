@@ -1,5 +1,6 @@
 # Clara
 *This is more formally known as Project Clara - naming note below*
+
 This project is no longer actively worked on!
 
 An experimental MC plugin to add in a RPG-like experience into the game. Adds in custom:
